@@ -1,0 +1,130 @@
+<div class="login-page">
+
+ 
+  <div class="login-card">
+
+     <button class="back-btn" (click)="goBack()">
+<i class="fa-solid fa-arrow-left"></i>
+</button>
+
+
+    <div class="login-form">
+
+      <!-- Server Error -->
+      @if(msgError)
+      {
+      <div class="alert alert-danger mb-3">{{msgError}}</div>
+      }
+
+      <!-- Club Access Card -->
+      <div class="club-card">
+        <div class="card-content">
+          <div>
+            <span class="member-type">PREMIUM MEMBER</span>
+            <h4 class="club-name">Elite Sports Club</h4>
+            <div class="access-key">
+              <small>Digital Access Key</small>
+              <div class="key-code">
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+                <b>9842</b>
+              </div>
+            </div>
+          </div>
+
+          <div class="qr-box">
+            <i class="fa-solid fa-qrcode"></i>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="title">Sign In</h3>
+      <p class="subtitle">Access your club membership</p>
+
+      <form [formGroup]="loginForm" (ngSubmit)="loginSubmit()">
+
+        <!-- Membership ID -->
+        <div class="input-box mb-3">
+          <i class="fa-solid fa-id-badge"></i>
+          <input
+            formControlName="memberId"
+            class="form-control"
+            placeholder="Membership ID"
+            [ngClass]="{
+              'is-valid': !loginForm.get('memberId')?.errors && (loginForm.get('memberId')?.touched || loginForm.get('memberId')?.dirty),
+              'is-invalid': loginForm.get('memberId')?.errors && (loginForm.get('memberId')?.touched || loginForm.get('memberId')?.dirty)
+            }"
+          >
+          @if(loginForm.get('memberId')?.errors && (loginForm.get('memberId')?.touched || loginForm.get('memberId')?.dirty))
+          {
+          <div class="error-msg">
+            @if(loginForm.get('memberId')?.getError('required')){ Membership ID is required }
+            @else if(loginForm.get('memberId')?.getError('minlength')){ Minimum 3 characters }
+          </div>
+          }
+        </div>
+
+        <!-- Sequence -->
+        <div class="input-box mb-3">
+          <i class="fa-solid fa-hashtag"></i>
+          <input
+            formControlName="sequence"
+            class="form-control"
+            placeholder="Sequence Number"
+            [ngClass]="{
+              'is-valid': !loginForm.get('sequence')?.errors && (loginForm.get('sequence')?.touched || loginForm.get('sequence')?.dirty),
+              'is-invalid': loginForm.get('sequence')?.errors && (loginForm.get('sequence')?.touched || loginForm.get('sequence')?.dirty)
+            }"
+          >
+          @if(loginForm.get('sequence')?.errors && (loginForm.get('sequence')?.touched || loginForm.get('sequence')?.dirty))
+          {
+          <div class="error-msg">
+            @if(loginForm.get('sequence')?.getError('required')){ Sequence Number is required }
+          </div>
+          }
+        </div>
+
+        <!-- Password -->
+        <div class="input-box mb-3">
+          <i class="fa-solid fa-lock"></i>
+          <input
+            type="password"
+            formControlName="password"
+            class="form-control"
+            placeholder="Password"
+            [ngClass]="{
+              'is-valid': !loginForm.get('password')?.errors && (loginForm.get('password')?.touched || loginForm.get('password')?.dirty),
+              'is-invalid': loginForm.get('password')?.errors && (loginForm.get('password')?.touched || loginForm.get('password')?.dirty)
+            }"
+          >
+          @if(loginForm.get('password')?.errors && (loginForm.get('password')?.touched || loginForm.get('password')?.dirty))
+          {
+          <div class="error-msg">
+            @if(loginForm.get('password')?.getError('required')){ Password is required }
+            @else if(loginForm.get('password')?.getError('pattern')){ Password must be at least 6 characters }
+          </div>
+          }
+        </div>
+
+        <div class="forgot mb-3">
+          <a routerLink="/forget-password">Forgot Password?</a>
+        </div>
+
+        <button class="btn login-btn w-100 mt-3" [disabled]="isLoading">
+          @if(isLoading){ Loading... }
+          @else{ Sign In to Club }
+        </button>
+
+      </form>
+
+      <div class="register-link">
+        Don't have an account?
+        <a routerLink="/register">Register Now</a>
+      </div>
+
+    </div>
+  </div>
+
+</div>

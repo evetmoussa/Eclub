@@ -1,0 +1,119 @@
+.login-page {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(rgba(0,20,8,.7),rgba(0,20,8,.9)),
+          url("../../../../public/assets/stadium.jpeg");
+  background-size: cover;
+  background-position: center;
+  padding: 20px;
+}
+
+.login-card {
+  background: #fff;
+  border-radius: 18px;
+  width: 100%;
+  max-width: 520px;
+  box-shadow: 0 25px 70px rgba(0,0,0,.18);
+}
+
+.login-form {
+  padding: 35px;
+}
+
+.title { font-weight: 700; margin-top: 20px; }
+.subtitle { color: #777; margin-bottom: 20px; }
+
+.input-box { position: relative; margin-bottom: 15px; }
+.input-box i {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #999;
+}
+.input-box input {
+  padding-left: 42px;
+  height: 46px;
+  border-radius: 10px;
+  border: 1px solid #e8e8e8;
+  font-size: 14px;
+  transition: .2s;
+}
+.input-box input:focus {
+  border-color: #18c964;
+  box-shadow: 0 0 0 3px rgba(24,201,100,.15);
+}
+
+/* Valid/Invalid */
+.is-valid { border-color: #28a745 !important; }
+.is-invalid { border-color: #dc3545 !important; }
+.error-msg { color: #dc3545; font-size: 12px; margin-top: 4px; }
+
+/* Button */
+.login-btn {
+  background: linear-gradient(135deg,#1ed760,#14b454);
+  border: none;
+  height: 46px;
+  border-radius: 10px;
+  font-weight: 600;
+  transition: .25s;
+}
+.login-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(24,201,100,.35);
+}
+
+/* Links */
+.forgot { text-align: right; }
+.forgot a { font-size: 13px; text-decoration: none; color: #18c964; }
+.register-link { text-align: center; margin-top: 20px; }
+.register-link a { color: #18c964; font-weight: 600; text-decoration: none; }
+
+/* Club card */
+.club-card {
+  background: linear-gradient(135deg,#1ed760,#0f9b3c);
+  border-radius: 16px;
+  padding: 20px;
+  color: #fff;
+  box-shadow: 0 12px 30px rgba(0,0,0,.25);
+  margin-bottom: 20px;
+}
+.card-content { display: flex; justify-content: space-between; align-items: center; }
+.member-type { font-size: 11px; letter-spacing: 1px; opacity: .85; }
+.club-name { font-size: 20px; font-weight: 700; margin: 6px 0 12px; }
+.access-key small { font-size: 12px; opacity: .9; }
+.key-code { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
+.key-code span { width: 20px; height: 6px; background: rgba(255,255,255,.7); border-radius: 3px; }
+.key-code b { margin-left: 5px; font-size: 15px; }
+.qr-box {
+  width: 60px;
+  height: 60px;
+  background: #fff;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #111;
+  font-size: 22px;
+}
+
+.back-btn{
+
+border:none;
+background:transparent;
+font-size:20px;
+
+}
+
+.back-btn:hover {
+  transform: translateY(-1px);
+  color:#0f9b3c;
+}
+/* Responsive */
+@media (max-height: 750px) {
+  .login-form { padding: 25px; }
+  .club-card { padding: 16px; }
+  .subtitle { margin-bottom: 10px; }
+}

@@ -1,0 +1,95 @@
+<div class="otp-page d-flex justify-content-center align-items-center">
+
+<div class="otp-card">
+
+<!-- header -->
+
+<div class="otp-header d-flex align-items-center">
+
+<button class="back-btn" (click)="goBack()">
+<i class="fa-solid fa-arrow-left"></i>
+</button>
+
+<h5 class="flex-grow-1 text-center m-0">Security</h5>
+
+</div>
+
+
+<!-- icon -->
+
+<div class="text-center mt-4">
+
+<div class="icon-box">
+<i class="fa-solid fa-shield-halved"></i>
+</div>
+
+<h2 class="title">OTP Verification</h2>
+
+<p class="subtitle">
+Enter the 6 digit code sent to your phone
+</p>
+
+</div>
+
+
+<form [formGroup]="otpForm" (ngSubmit)="verifyOtp()">
+
+<!-- otp inputs -->
+
+<div class="otp-inputs d-flex justify-content-center">
+
+<input #d1 maxlength="1" formControlName="digit1"
+(input)="moveFocus($event,d2)"
+class="form-control">
+
+<input #d2 maxlength="1" formControlName="digit2"
+(input)="moveFocus($event,d3,d1)"
+class="form-control">
+
+<input #d3 maxlength="1" formControlName="digit3"
+(input)="moveFocus($event,d4,d2)"
+class="form-control">
+
+<input #d4 maxlength="1" formControlName="digit4"
+(input)="moveFocus($event,d5,d3)"
+class="form-control">
+
+<input #d5 maxlength="1" formControlName="digit5"
+(input)="moveFocus($event,d6,d4)"
+class="form-control">
+
+<input #d6 maxlength="1" formControlName="digit6"
+(input)="moveFocus($event,null,d5)"
+class="form-control">
+
+</div>
+
+
+<!-- verify button -->
+
+<button type="submit" class="btn verify-btn w-100 mt-4" [disabled]="isLoading">
+  @if(isLoading){
+    Verifying...
+  }
+  @else{
+    Verify Identity
+    <i class="fa-solid fa-arrow-right ms-2"></i>
+  }
+</button>
+
+</form>
+
+
+<!-- resend -->
+
+<div class="resend text-center">
+
+<p>Didn't receive the code?</p>
+
+<a>Resend Code</a>
+
+</div>
+
+</div>
+
+</div>

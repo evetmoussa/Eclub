@@ -1,0 +1,56 @@
+<div class="splash-container">
+
+  <div class="content text-center">
+
+    <!-- Logo -->
+    <div class="logo-wrapper">
+
+      <div class="logo-box">
+        <i class="fa-solid fa-futbol"></i>
+      </div>
+
+      <!-- verified badge -->
+      <div class="verify-badge">
+        <i class="fa-solid fa-check"></i>
+      </div>
+
+    </div>
+
+    <!-- Title -->
+    <h1 class="title">
+      Smart Sports <span>Club</span>
+    </h1>
+
+    <!-- Description -->
+    <p class="description">
+      Elevate your game with professional pitch booking
+      and premium membership.
+    </p>
+
+    <!-- Loading -->
+    <div class="loading-section">
+
+      <div class="d-flex justify-content-between mb-2 text-light">
+        <span>Syncing stadium data...</span>
+        <span class="progress-number">{{progress}}%</span>
+      </div>
+
+      <div class="progress">
+        <div
+          class="progress-bar"
+          role="progressbar"
+          [style.width.%]="progress">
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <div class="footer-badge">
+    <i class="fa-solid fa-shield-halved"></i>
+    PRO LEAGUE STANDARD
+  </div>
+
+</div>

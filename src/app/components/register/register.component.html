@@ -1,0 +1,231 @@
+<div class="register-page">
+ 
+  <div class="container h-100">
+    
+
+    <div class="row h-100 justify-content-center align-items-center">
+
+      <div class="col-12 col-md-10 col-lg-8 col-xl-6">
+
+        <div class="register-card">
+
+           <button class="back-btn" (click)="goBack()">
+<i class="fa-solid fa-arrow-left"></i>
+</button>
+
+
+          <!-- logo -->
+          <div class="text-center mb-4">
+
+            <div class="logo-box mx-auto">
+              <i class="fa-solid fa-futbol"></i>
+            </div>
+
+            <h2 class="title mt-3">Join the Club</h2>
+
+            <p class="subtitle">
+              Create your account to start booking football fields
+            </p>
+
+          </div>
+
+          <!-- form -->
+          <form [formGroup]="registerForm" (ngSubmit)="registerSubmit()">
+
+<!-- Full Name -->
+<div class="input-box mb-3">
+
+<i class="fa-solid fa-user"></i>
+
+<input
+formControlName="name"
+class="form-control"
+
+[ngClass]="{
+'is-valid':!registerForm.get('name')?.errors && (registerForm.get('name')?.touched || registerForm.get('name')?.dirty),
+'is-invalid':registerForm.get('name')?.errors && (registerForm.get('name')?.touched || registerForm.get('name')?.dirty)
+}"
+
+placeholder="Full Name">
+
+@if(registerForm.get('name')?.errors && (registerForm.get('name')?.touched || registerForm.get('name')?.dirty))
+{
+<div class="error-msg">
+@if(registerForm.get('name')?.getError('required')){ Name is required }
+@else if(registerForm.get('name')?.getError('minlength')){ Minimum 3 characters }
+@else if(registerForm.get('name')?.getError('maxlength')){ Maximum 20 characters }
+</div>
+}
+
+</div>
+
+
+<!-- Email -->
+
+<div class="input-box mb-3">
+
+<i class="fa-solid fa-envelope"></i>
+
+<input
+formControlName="email"
+class="form-control"
+
+[ngClass]="{
+'is-valid':!registerForm.get('email')?.errors && (registerForm.get('email')?.touched || registerForm.get('email')?.dirty),
+'is-invalid':registerForm.get('email')?.errors && (registerForm.get('email')?.touched || registerForm.get('email')?.dirty)
+}"
+
+placeholder="Email Address">
+
+@if(registerForm.get('email')?.errors && (registerForm.get('email')?.touched || registerForm.get('email')?.dirty))
+{
+<div class="error-msg">
+@if(registerForm.get('email')?.getError('required')){ Email is required }
+@else if(registerForm.get('email')?.getError('email')){ Invalid Email }
+</div>
+}
+
+</div>
+
+
+<!-- Phone -->
+
+<div class="input-box mb-3">
+
+<i class="fa-solid fa-phone"></i>
+
+<input
+formControlName="phone"
+class="form-control"
+
+[ngClass]="{
+'is-valid':!registerForm.get('phone')?.errors && (registerForm.get('phone')?.touched || registerForm.get('phone')?.dirty),
+'is-invalid':registerForm.get('phone')?.errors && (registerForm.get('phone')?.touched || registerForm.get('phone')?.dirty)
+}"
+
+placeholder="Phone Number">
+
+@if(registerForm.get('phone')?.errors && (registerForm.get('phone')?.touched || registerForm.get('phone')?.dirty))
+{
+<div class="error-msg">
+@if(registerForm.get('phone')?.getError('required')){ Phone is required }
+@else if(registerForm.get('phone')?.getError('pattern')){ Phone must start with 010 / 011 / 012 / 015 }
+</div>
+}
+
+</div>
+
+
+<!-- ID Number or Passport -->
+<div class="input-box mb-3">
+  <i class="fa-solid fa-id-card"></i>
+  <input
+    formControlName="idNumber"
+    class="form-control"
+    [ngClass]="{
+      'is-valid': registerForm.get('idNumber')?.value && !registerForm.get('idNumber')?.errors && (registerForm.get('idNumber')?.touched || registerForm.get('idNumber')?.dirty),
+      'is-invalid': registerForm.get('idNumber')?.errors && (registerForm.get('idNumber')?.touched || registerForm.get('idNumber')?.dirty)
+    }"
+    placeholder="ID Number or Passport"
+  >
+
+  @if(registerForm.get('idNumber')?.errors && (registerForm.get('idNumber')?.touched || registerForm.get('idNumber')?.dirty))
+  {
+    <div class="error-msg">
+      @if(registerForm.get('idNumber')?.getError('required')){ ID Number is required }
+      @else if(registerForm.get('idNumber')?.getError('minlength')){ Minimum 5 characters }
+      @else if(registerForm.get('idNumber')?.getError('maxlength')){ Maximum 20 characters }
+    </div>
+  }
+</div>
+
+
+<!-- Password -->
+
+<div class="input-box mb-3">
+
+<i class="fa-solid fa-lock"></i>
+
+<input
+type="password"
+formControlName="password"
+class="form-control"
+
+[ngClass]="{
+'is-valid':!registerForm.get('password')?.errors && (registerForm.get('password')?.touched || registerForm.get('password')?.dirty),
+'is-invalid':registerForm.get('password')?.errors && (registerForm.get('password')?.touched || registerForm.get('password')?.dirty)
+}"
+
+placeholder="Password">
+
+</div>
+
+@if(registerForm.get('password')?.errors && (registerForm.get('password')?.touched || registerForm.get('password')?.dirty))
+{
+<div class="error-msg">
+
+@if(registerForm.get('password')?.getError('required')){
+Password is required
+}
+
+@else if(registerForm.get('password')?.getError('pattern')){
+Password must be at least 6 characters
+}
+
+</div>
+}
+
+<!-- Confirm Password -->
+
+<div class="input-box mb-4">
+
+<i class="fa-solid fa-lock"></i>
+
+<input
+  type="password"
+  formControlName="rePassword"
+  class="form-control"
+  [ngClass]="{
+    'is-valid': registerForm.get('rePassword')?.value && !registerForm.get('rePassword')?.errors && !registerForm.errors?.['mismatch'] && (registerForm.get('rePassword')?.touched || registerForm.get('rePassword')?.dirty),
+    'is-invalid': (registerForm.get('rePassword')?.errors || registerForm.errors?.['mismatch']) && (registerForm.get('rePassword')?.touched || registerForm.get('rePassword')?.dirty)
+  }"
+  placeholder="Confirm Password"
+/>
+
+@if(registerForm.get('rePassword')?.errors && (registerForm.get('rePassword')?.touched || registerForm.get('rePassword')?.dirty))
+{
+  <div class="error-msg">
+    @if(registerForm.get('rePassword')?.getError('required')){
+      Confirm password is required
+    }
+  </div>
+}
+
+@if(registerForm.errors?.['mismatch'] && registerForm.get('rePassword')?.value)
+{
+  <div class="error-msg">
+    Passwords do not match
+  </div>
+}
+
+</div>
+
+
+<button class="btn register-btn w-100" [disabled]="isLoading">
+
+@if(isLoading){ Loading... }
+@else{ Create Account }
+
+</button>
+
+</form>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

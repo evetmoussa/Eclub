@@ -1,0 +1,181 @@
+.splash-container{
+    height:100vh;
+    width:100%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    position:relative;
+    overflow:hidden;
+
+    background: radial-gradient(circle at top,#0f3d2e,#021a12);
+}
+
+/* background stadium lines */
+.splash-container::before{
+    content:"";
+    position:absolute;
+    width:900px;
+    height:900px;
+    border:1px solid rgba(34,197,94,.15);
+    border-radius:50%;
+    bottom:-400px;
+}
+
+.splash-container::after{
+    content:"";
+    position:absolute;
+    width:1200px;
+    height:1200px;
+    border:1px solid rgba(34,197,94,.08);
+    border-radius:50%;
+    bottom:-550px;
+}
+
+/* content center */
+.content{
+    max-width:600px;
+    padding:20px;
+}
+
+/* logo wrapper */
+.logo-wrapper{
+    position:relative;
+    display:inline-block;
+    margin-bottom:30px;
+}
+
+/* logo square */
+.logo-box{
+    width:140px;
+    height:140px;
+    border-radius:28px;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    background:rgba(34,197,94,.08);
+    border:1px solid rgba(34,197,94,.2);
+
+    font-size:60px;
+    color:#22c55e;
+
+    box-shadow:
+        0 0 40px rgba(34,197,94,.4),
+        inset 0 0 20px rgba(34,197,94,.1);
+}
+
+/* verified badge */
+.verify-badge{
+    position:absolute;
+    right:-8px;
+    bottom:-8px;
+
+    width:38px;
+    height:38px;
+
+    background:#22c55e;
+    border-radius:10px;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    color:#052e1b;
+    font-size:14px;
+    font-weight:bold;
+
+    box-shadow:0 0 20px rgba(34,197,94,.8);
+}
+
+/* title */
+.title{
+    font-size:48px;
+    font-weight:800;
+    color:white;
+}
+
+.title span{
+    color:#22c55e;
+}
+
+/* description */
+.description{
+    color:#9ca3af;
+    font-size:18px;
+    max-width:500px;
+    margin:auto;
+    margin-top:15px;
+    line-height:1.6;
+}
+
+/* loading section */
+.loading-section{
+    margin-top:50px;
+    width:100%;
+}
+
+/* progress */
+.progress{
+    height:8px;
+    border-radius:20px;
+    background:#1f2937;
+}
+
+.progress-bar{
+    background:#22c55e;
+    transition:width .3s ease;
+}
+
+/* progress number */
+.progress-number{
+    color:#22c55e;
+}
+
+/* footer */
+.footer-badge{
+    position:absolute;
+    bottom:35px;
+
+    color:#6b7280;
+    font-size:14px;
+    letter-spacing:2px;
+
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+/* responsive */
+
+@media (max-width:768px){
+
+    .logo-box{
+        width:110px;
+        height:110px;
+        font-size:45px;
+    }
+
+    .title{
+        font-size:32px;
+    }
+
+    .description{
+        font-size:16px;
+    }
+
+}
+
+@media (min-width:1400px){
+
+    .title{
+        font-size:56px;
+    }
+
+    .logo-box{
+        width:160px;
+        height:160px;
+        font-size:70px;
+    }
+
+}

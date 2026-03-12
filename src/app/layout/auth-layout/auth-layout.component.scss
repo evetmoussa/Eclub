@@ -1,0 +1,71 @@
+.auth-wrapper{
+    min-height:100vh;
+
+    background:
+    linear-gradient(rgba(0, 20, 10, 0.166), rgba(0, 20, 10, 0.277)),
+    url("../../../../public/assets/stadium.jpeg");
+
+    background-size:cover;
+    background-position:center;
+
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+}
+
+.hero{
+    text-align:center;
+    padding:40px 20px;
+    max-width:700px;
+    margin:auto;
+}
+
+.hero .title{
+    font-size:42px;
+    font-weight:700;
+    color:white;
+}
+
+.hero .subtitle{
+    color:#cbd5e1;
+    font-size:18px;
+    margin-top:10px;
+}
+
+.buttons.container{
+    width:100%;
+    max-width:500px;
+    margin:auto;
+    background-color:#072419be;
+    border-radius:12px;
+}
+
+.buttons{
+    width:100%;
+    padding:30px;
+}
+
+.footer{
+background-color: rgba(1, 27, 1, 0.223);
+
+}
+.footer.text-center{
+   
+    color: white;
+}
+
+@media (max-width:768px){
+
+.hero .title{
+    font-size:28px;
+}
+
+.hero .subtitle{
+    font-size:15px;
+}
+
+.buttons{
+    padding:20px;
+}
+
+}
