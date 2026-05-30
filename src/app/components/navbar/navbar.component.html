@@ -1,31 +1,103 @@
-<nav class="navbar navbar-expand-lg bg-body-tertiary">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="#">Navbar</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+<nav class="navbar navbar-expand-lg main-navbar">
+  <div class="container">
+
+    <!-- Brand -->
+    <a class="navbar-brand d-flex align-items-center gap-2" routerLink="/blank-layout/home">
+      <div class="logo-square">
+        <span class="material-symbols-outlined">sports_score</span>
+      </div>
+      <span class="brand-name">Smart Club</span>
+    </a>
+
+    <!-- Mobile toggler -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+            data-bs-target="#navbarNav" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarNav">
+
+      <ul class="navbar-nav mx-auto gap-1">
         <li class="nav-item">
-          <a class="nav-link active" aria-current="page" routerLink="home" routerLinkActive="nav-link">Home</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" routerLink="sports" routerLinkActive="nav-link" >Sports</a>
-        </li>
-        
-          <li class="nav-item">
-          <a class="nav-link" routerLink="notification" routerLinkActive="nav-link" >Notifications</a>
+          <a class="nav-link" routerLink="home" routerLinkActive="active">
+            <span class="material-symbols-outlined">home</span>
+            <span>Home</span>
+          </a>
         </li>
 
-          <li class="nav-item">
-          <a class="nav-link" routerLink="profile" routerLinkActive="nav-link">Profile</a>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="sports" routerLinkActive="active">
+            <span class="material-symbols-outlined">sports_soccer</span>
+            <span>Academies</span>
+          </a>
         </li>
-    
+
+        <li class="nav-item">
+          <a class="nav-link" routerLink="events" routerLinkActive="active">
+            <span class="material-symbols-outlined">event</span>
+            <span>Events</span>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" routerLink="booking" routerLinkActive="active">
+            <span class="material-symbols-outlined">confirmation_number</span>
+            <span>Bookings</span>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" routerLink="assistant" routerLinkActive="active">
+            <span class="material-symbols-outlined">smart_toy</span>
+            <span>Assistant</span>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link notification-link" routerLink="notification" routerLinkActive="active">
+            <span class="material-symbols-outlined">notifications</span>
+            <span>Notifications</span>
+            <span class="badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+          </a>
+        </li>
       </ul>
-      <form class="d-flex" role="search">
-        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"/>
-        <button class="btn btn-outline-success" type="submit">Search</button>
-      </form>
+
+      <!-- Profile dropdown -->
+      <div class="profile-avatar" (click)="toggleMenu(); $event.stopPropagation()">
+        <div class="avatar-circle" [title]="memberName()">
+          {{ initials() }}
+        </div>
+        <span class="material-symbols-outlined chev">{{ menuOpen() ? 'expand_less' : 'expand_more' }}</span>
+
+        <div class="profile-menu" *ngIf="menuOpen()" (click)="$event.stopPropagation()">
+          <header class="menu-head">
+            <strong>{{ memberName() }}</strong>
+            <small *ngIf="memberEmail()">{{ memberEmail() }}</small>
+          </header>
+
+          <a routerLink="profile" (click)="closeMenu()">
+            <span class="material-symbols-outlined">person</span>
+            My profile
+          </a>
+          <a routerLink="booking" (click)="closeMenu()">
+            <span class="material-symbols-outlined">confirmation_number</span>
+            My bookings
+          </a>
+          <a routerLink="renew-membership" (click)="closeMenu()">
+            <span class="material-symbols-outlined">autorenew</span>
+            Renew membership
+          </a>
+
+          <div class="divider"></div>
+
+          <button type="button" class="logout" (click)="logout()">
+            <span class="material-symbols-outlined">logout</span>
+            Log out
+          </button>
+        </div>
+      </div>
     </div>
+
   </div>
 </nav>

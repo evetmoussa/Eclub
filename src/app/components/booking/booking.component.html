@@ -1,0 +1,100 @@
+<div class="page container">
+
+  <header class="head">
+    <div>
+      <span class="kicker">Smart Sports Club</span>
+      <h1>My Bookings</h1>
+      <p class="sub">{{ all().length }} reservation<span *ngIf="all().length !== 1">s</span></p>
+    </div>
+    <button class="add-btn" (click)="goBookMore()">
+      <span class="material-symbols-outlined">add</span>
+      Book another
+    </button>
+  </header>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab"
+            [class.active]="selectedTab() === 'all'"
+            (click)="switchTab('all')">
+      All <span class="count">{{ all().length }}</span>
+    </button>
+    <button class="tab"
+            [class.active]="selectedTab() === 'upcoming'"
+            (click)="switchTab('upcoming')">
+      Upcoming
+    </button>
+    <button class="tab"
+            [class.active]="selectedTab() === 'cancelled'"
+            (click)="switchTab('cancelled')">
+      Cancelled
+    </button>
+  </div>
+
+  <!-- Loading -->
+  @if (isLoading() && !all().length) {
+    <div class="grid">
+      <div class="sk" *ngFor="let _ of [0,1,2]"></div>
+    </div>
+  }
+
+  <!-- Empty -->
+  @if (!isLoading() && !visible().length) {
+    <div class="empty-state">
+      <span class="material-symbols-outlined">event_busy</span>
+      <h3>No bookings yet</h3>
+      <p>Once you reserve an academy session, it will show up here.</p>
+      <button class="primary-btn" (click)="goBookMore()">
+        Browse academies
+      </button>
+    </div>
+  }
+
+  <!-- List -->
+  <div class="grid" *ngIf="visible().length">
+    <article class="booking-card" *ngFor="let b of visible(); trackBy: trackBy">
+      <div class="ic">
+        <span class="material-symbols-outlined fill-1">{{ iconFor(b.sportName) }}</span>
+      </div>
+
+      <div class="meta">
+        <h4>{{ b.classTitle }}</h4>
+
+        <div class="row">
+          <span class="material-symbols-outlined">sports</span>
+          <span>{{ b.sportName }}</span>
+        </div>
+        <div class="row" *ngIf="b.timeRange">
+          <span class="material-symbols-outlined">schedule</span>
+          <span>{{ b.timeRange }}</span>
+        </div>
+        <div class="row" *ngIf="b.location">
+          <span class="material-symbols-outlined">location_on</span>
+          <span>{{ b.location }}</span>
+        </div>
+        <div class="row faded">
+          <span class="material-symbols-outlined">event</span>
+          <span>Booked on {{ b.bookedOn | date:'MMM d, y · h:mm a' }}</span>
+        </div>
+      </div>
+
+      <div class="side">
+        <span class="status-pill"
+              [class.confirmed]="(b.status || '').toLowerCase() === 'confirmed'"
+              [class.cancelled]="(b.status || '').toLowerCase() === 'cancelled'">
+          {{ b.status }}
+        </span>
+        <button class="cancel-btn"
+                *ngIf="(b.status || '').toLowerCase() === 'confirmed'"
+                (click)="cancel(b)">
+          <span class="material-symbols-outlined">close</span>
+          Cancel
+        </button>
+      </div>
+    </article>
+  </div>
+</div>
+
+@if (toast) {
+  <div class="toast" [class.error]="toastError">{{ toast }}</div>
+}

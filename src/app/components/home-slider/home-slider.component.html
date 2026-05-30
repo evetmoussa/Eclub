@@ -1,0 +1,60 @@
+<section class="hero">
+  <div id="adsSlider" class="carousel slide" data-bs-ride="carousel">
+
+    <div class="carousel-indicators" *ngIf="banners.length > 1">
+      <button *ngFor="let banner of banners; let i = index"
+              type="button"
+              [attr.data-bs-target]="'#adsSlider'"
+              [attr.data-bs-slide-to]="i"
+              [class.active]="i === 0"
+              [attr.aria-label]="'Slide ' + (i + 1)"></button>
+    </div>
+
+    <div class="carousel-inner">
+      <div class="carousel-item"
+           *ngFor="let banner of banners; let i = index"
+           [class.active]="i === 0">
+
+        <img class="hero-image"
+             [src]="bannerImage(banner.imageUrl)"
+             [alt]="banner.title"
+             (error)="onImgError($event)">
+        <div class="hero-overlay"></div>
+
+        <div class="hero-caption container">
+          <span class="badge-pill" *ngIf="banner.type">{{ banner.type }}</span>
+          <h1>{{ banner.title }}</h1>
+          <p *ngIf="banner.subtitle">{{ banner.subtitle }}</p>
+          <a *ngIf="banner.actionUrl" class="hero-btn" [href]="banner.actionUrl">
+            Learn more
+            <span class="material-symbols-outlined">arrow_forward</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Empty state -->
+      <div class="carousel-item active" *ngIf="!banners?.length">
+        <div class="hero-empty">
+          <div class="hero-overlay"></div>
+          <div class="hero-caption container">
+            <span class="badge-pill">Welcome</span>
+            <h1>Discover Smart Club</h1>
+            <p>Tournaments, coaching and premium facilities</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button *ngIf="banners.length > 1"
+            class="carousel-control-prev" type="button"
+            data-bs-target="#adsSlider" data-bs-slide="prev">
+      <span class="carousel-control-prev-icon"></span>
+    </button>
+    <button *ngIf="banners.length > 1"
+            class="carousel-control-next" type="button"
+            data-bs-target="#adsSlider" data-bs-slide="next">
+      <span class="carousel-control-next-icon"></span>
+    </button>
+
+  </div>
+</section>

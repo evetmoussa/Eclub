@@ -1,0 +1,137 @@
+<!-- ===== Greeting ===== -->
+<header class="page-top">
+  <div>
+    <h1>{{ greeting() }}, {{ me()?.fullName?.split(' ')?.[0] || 'Coach' }} 👋</h1>
+    <p class="muted">You have <strong>{{ today().length }}</strong> classes today.</p>
+  </div>
+  <div class="top-actions">
+    <button class="btn-ghost">
+      <span class="material-symbols-outlined">notifications</span>
+      <span class="dot"></span>
+    </button>
+    <a routerLink="/coach/schedule" class="btn-primary">
+      <span class="material-symbols-outlined">calendar_month</span>
+      View schedule
+    </a>
+  </div>
+</header>
+
+<!-- ===== KPI grid ===== -->
+<section class="kpi-grid">
+  <article class="kpi" *ngFor="let k of kpis()" [attr.data-tone]="k.tone">
+    <div class="ico"><span class="material-symbols-outlined">{{ k.icon }}</span></div>
+    <small>{{ k.label }}</small>
+    <h2>{{ k.value }}</h2>
+    <span class="trend"
+          [class.up]="k.delta > 0"
+          [class.down]="k.delta < 0"
+          [class.flat]="k.delta === 0">
+      <span class="material-symbols-outlined">
+        {{ k.delta > 0 ? 'trending_up' : k.delta < 0 ? 'trending_down' : 'trending_flat' }}
+      </span>
+      {{ k.delta > 0 ? '+' : '' }}{{ k.delta }}% this month
+    </span>
+  </article>
+</section>
+
+<!-- ===== Split: Next class + Today list ===== -->
+<section class="split">
+  <!-- Next class card (highlight) -->
+  <article class="next-card" *ngIf="nextClass() as nc">
+    <div class="next-head">
+      <span class="kicker">NEXT UP</span>
+      <span class="status-pill">{{ nc.status }}</span>
+    </div>
+    <h2>{{ nc.title }}</h2>
+    <div class="meta">
+      <span><span class="material-symbols-outlined">schedule</span> {{ nc.startTime }} — {{ nc.endTime }}</span>
+      <span><span class="material-symbols-outlined">place</span> {{ nc.location }}</span>
+      <span><span class="material-symbols-outlined">group</span> {{ nc.enrolled }} / {{ nc.capacity }} students</span>
+    </div>
+    <a [routerLink]="['/coach/classes']" [queryParams]="{ id: nc.id }" class="btn-primary">
+      <span class="material-symbols-outlined">play_arrow</span>
+      Open class
+    </a>
+  </article>
+
+  <!-- Today list -->
+  <article class="panel today-panel">
+    <header class="panel-head">
+      <div>
+        <h2>Today's classes</h2>
+        <p class="muted">{{ today().length }} sessions scheduled</p>
+      </div>
+      <a routerLink="/coach/classes" class="btn-link">All classes</a>
+    </header>
+
+    <ul class="class-list" *ngIf="today().length; else emptyToday">
+      <li class="row" *ngFor="let c of today()">
+        <div class="time-col">
+          <strong>{{ c.startTime }}</strong>
+          <small>{{ c.endTime }}</small>
+        </div>
+        <div class="info">
+          <strong>{{ c.title }}</strong>
+          <small class="muted">{{ c.location }} · {{ c.enrolled }}/{{ c.capacity }}</small>
+        </div>
+        <a [routerLink]="['/coach/classes']" [queryParams]="{ id: c.id }" class="row-cta">
+          Open
+          <span class="material-symbols-outlined">chevron_right</span>
+        </a>
+      </li>
+    </ul>
+    <ng-template #emptyToday>
+      <div class="empty">
+        <span class="material-symbols-outlined">free_breakfast</span>
+        <p>No classes today. Enjoy the rest!</p>
+      </div>
+    </ng-template>
+  </article>
+</section>
+
+<!-- ===== Activity feed ===== -->
+<section class="panel feed-panel">
+  <header class="panel-head">
+    <div>
+      <h2>Recent activity</h2>
+      <p class="muted">Live updates from your students and the club</p>
+    </div>
+  </header>
+  <ul class="feed">
+    <li class="feed-item" *ngFor="let a of feed()">
+      <div class="feed-ico" [attr.data-tone]="a.tone">
+        <span class="material-symbols-outlined">{{ a.icon }}</span>
+      </div>
+      <div class="feed-text">
+        <strong>{{ a.title }}</strong>
+        <p class="muted">{{ a.description }}</p>
+      </div>
+      <span class="time">{{ a.timeAgo }}</span>
+    </li>
+  </ul>
+</section>
+
+<!-- ===== Recent reviews ===== -->
+<section class="panel feed-panel">
+  <header class="panel-head">
+    <div>
+      <h2>Recent reviews</h2>
+      <p class="muted">What your students are saying</p>
+    </div>
+    <a routerLink="/coach/profile" fragment="reviews" class="btn-link">View all</a>
+  </header>
+  <ul class="reviews">
+    <li class="review" *ngFor="let r of reviews().slice(0, 3)">
+      <img [src]="r.memberAvatar" [alt]="r.memberName">
+      <div class="body">
+        <header>
+          <strong>{{ r.memberName }}</strong>
+          <span class="stars">
+            <span class="material-symbols-outlined fill-1" *ngFor="let _ of [].constructor(r.rating)">star</span>
+          </span>
+        </header>
+        <p>{{ r.comment }}</p>
+      </div>
+    </li>
+  </ul>
+</section>

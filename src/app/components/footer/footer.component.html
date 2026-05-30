@@ -1,0 +1,117 @@
+<footer class="site-footer">
+  <div class="container">
+
+    <!-- ===== Top: 4-column grid ===== -->
+    <div class="grid">
+
+      <!-- Brand + about -->
+      <section class="col brand">
+        <a routerLink="/blank-layout/home" class="logo">
+          <div class="square">
+            <span class="material-symbols-outlined">sports_score</span>
+          </div>
+          <span class="name">Smart Sports Club</span>
+        </a>
+        <p class="lead">
+          The all-in-one platform for club members: book classes, follow
+          coaches, register for events and renew your membership — all in
+          one place.
+        </p>
+
+        <div class="socials">
+          <a class="ico" href="https://facebook.com" target="_blank" rel="noopener" aria-label="Facebook">
+            <span class="material-symbols-outlined">facebook</span>
+          </a>
+          <a class="ico" href="https://instagram.com" target="_blank" rel="noopener" aria-label="Instagram">
+            <span class="material-symbols-outlined">photo_camera</span>
+          </a>
+          <a class="ico" href="https://twitter.com" target="_blank" rel="noopener" aria-label="X">
+            <span class="material-symbols-outlined">alternate_email</span>
+          </a>
+          <a class="ico" href="https://youtube.com" target="_blank" rel="noopener" aria-label="YouTube">
+            <span class="material-symbols-outlined">smart_display</span>
+          </a>
+          <a class="ico" href="https://wa.me/" target="_blank" rel="noopener" aria-label="WhatsApp">
+            <span class="material-symbols-outlined">chat</span>
+          </a>
+        </div>
+      </section>
+
+      <!-- Explore -->
+      <section class="col">
+        <h3>Explore</h3>
+        <ul>
+          <li><a routerLink="/blank-layout/home">Home</a></li>
+          <li><a routerLink="/blank-layout/sports">Academies</a></li>
+          <li><a routerLink="/blank-layout/events">Events</a></li>
+          <li><a routerLink="/blank-layout/booking">My Bookings</a></li>
+          <li><a routerLink="/blank-layout/renew-membership">Membership</a></li>
+        </ul>
+      </section>
+
+      <!-- Support -->
+      <section class="col">
+        <h3>Support</h3>
+        <ul>
+          <li><a routerLink="/blank-layout/assistant">Smart Assistant</a></li>
+          <li><a routerLink="/blank-layout/notification">Notifications</a></li>
+          <li><a routerLink="/blank-layout/profile">My Profile</a></li>
+          <li><a href="mailto:support@smartclub.com">Contact Support</a></li>
+          <li><a href="#" (click)="$event.preventDefault()">FAQs</a></li>
+        </ul>
+      </section>
+
+      <!-- Newsletter -->
+      <section class="col newsletter">
+        <h3>Stay updated</h3>
+        <p>Get monthly tips, new programs and member-only offers in your inbox.</p>
+
+        <form class="sub" (ngSubmit)="subscribe()">
+          <label>
+            <span class="material-symbols-outlined">mail</span>
+            <input type="email"
+                   placeholder="you@example.com"
+                   [ngModel]="email()"
+                   (ngModelChange)="email.set($event)"
+                   name="footerEmail"
+                   autocomplete="email">
+          </label>
+          <button type="submit" [disabled]="!canSubmit()">
+            Subscribe
+            <span class="material-symbols-outlined">send</span>
+          </button>
+        </form>
+
+        <p class="status sent"   *ngIf="status() === 'sent'">
+          <span class="material-symbols-outlined">check_circle</span>
+          You're on the list — see you in your inbox!
+        </p>
+        <p class="status invalid" *ngIf="status() === 'invalid'">
+          <span class="material-symbols-outlined">error</span>
+          Please enter a valid email.
+        </p>
+
+        <div class="contact-row">
+          <span class="material-symbols-outlined">call</span>
+          <a href="tel:+201000000000">+20 100 000 0000</a>
+        </div>
+        <div class="contact-row">
+          <span class="material-symbols-outlined">place</span>
+          <span>Cairo · New Cairo · Alexandria</span>
+        </div>
+      </section>
+    </div>
+
+    <!-- ===== Bottom bar ===== -->
+    <div class="bottom">
+      <p class="copy">© {{ year }} Smart Sports Club. All rights reserved.</p>
+      <ul class="legal">
+        <li><a href="#" (click)="$event.preventDefault()">Privacy</a></li>
+        <li><a href="#" (click)="$event.preventDefault()">Terms</a></li>
+        <li><a href="#" (click)="$event.preventDefault()">Cookies</a></li>
+      </ul>
+      <span class="powered">Powered by SmartClub Tech</span>
+    </div>
+
+  </div>
+</footer>

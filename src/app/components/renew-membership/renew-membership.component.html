@@ -1,0 +1,56 @@
+<div class="page container">
+
+  <header class="head">
+    <button class="icon-btn" (click)="goBack()" aria-label="Back">
+      <span class="material-symbols-outlined">arrow_back_ios_new</span>
+    </button>
+    <h1>Renew Membership</h1>
+    <span></span>
+  </header>
+
+  <!-- Membership status card -->
+  <article class="status-card">
+    <div class="status-icon">
+      <span class="material-symbols-outlined fill-1">verified</span>
+    </div>
+    <div class="status-text">
+      <h2>Renew Membership</h2>
+      <p>
+        <span class="material-symbols-outlined">calendar_today</span>
+        Your membership will expire on <strong>{{ expiryDate }}</strong>
+      </p>
+    </div>
+  </article>
+
+  <h2 class="section-title">Select your renewal plan</h2>
+  <p class="section-sub">Choose the duration that fits your training schedule.</p>
+
+  <!-- Plans -->
+  <div class="plans">
+    <button class="plan"
+            *ngFor="let p of plans"
+            [class.active]="p.id === selectedId"
+            [class.featured]="!!p.badge"
+            (click)="select(p)">
+      <span class="badge" *ngIf="p.badge">{{ p.badge }}</span>
+
+      <div class="plan-icon">
+        <span class="material-symbols-outlined fill-1">workspace_premium</span>
+      </div>
+      <div class="plan-meta">
+        <h3>{{ p.title }}</h3>
+        <p>{{ p.caption }}</p>
+      </div>
+      <div class="plan-price">
+        <strong>{{ p.price | number }}</strong>
+        <span>EGP</span>
+        <span class="saving" *ngIf="p.saving">SAVE {{ p.saving }} EGP</span>
+      </div>
+    </button>
+  </div>
+
+  <button class="continue-btn" (click)="continue()">
+    Continue to payment
+  </button>
+
+</div>

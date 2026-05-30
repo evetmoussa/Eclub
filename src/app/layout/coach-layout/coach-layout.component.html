@@ -1,0 +1,48 @@
+<div class="coach-shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">
+        <span class="material-symbols-outlined">sports</span>
+      </div>
+      <div class="brand-text">
+        <strong>SmartClub</strong>
+        <small>Coach Workspace</small>
+      </div>
+    </div>
+
+    <nav class="side-nav">
+      <p class="nav-label">Main</p>
+      <a *ngFor="let l of primary"
+         [routerLink]="l.route"
+         routerLinkActive="active"
+         class="nav-item">
+        <span class="material-symbols-outlined">{{ l.icon }}</span>
+        <span class="lbl">{{ l.label }}</span>
+      </a>
+
+      <p class="nav-label">System</p>
+      <a *ngFor="let l of secondary"
+         [routerLink]="l.route"
+         routerLinkActive="active"
+         class="nav-item">
+        <span class="material-symbols-outlined">{{ l.icon }}</span>
+        <span class="lbl">{{ l.label }}</span>
+      </a>
+    </nav>
+
+    <div class="side-foot">
+      <div class="avatar-circle">{{ initials() }}</div>
+      <div class="who">
+        <strong>{{ me()?.fullName || 'Coach' }}</strong>
+        <small>{{ me()?.specialization }}</small>
+      </div>
+      <button class="logout" (click)="logout()" title="Sign out">
+        <span class="material-symbols-outlined">logout</span>
+      </button>
+    </div>
+  </aside>
+
+  <section class="coach-main">
+    <router-outlet></router-outlet>
+  </section>
+</div>

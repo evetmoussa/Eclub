@@ -1,0 +1,95 @@
+<header class="page-top">
+  <div>
+    <h1>Requests Inbox</h1>
+    <p class="muted">Coach applications and member sign-ups waiting for review.</p>
+  </div>
+  <button class="btn-ghost" (click)="clearRejected()" *ngIf="counts().rejected > 0">
+    <span class="material-symbols-outlined">delete_sweep</span>
+    Clear rejected
+  </button>
+</header>
+
+<!-- Stat strip -->
+<section class="strip">
+  <article class="stat amber">
+    <div class="ico"><span class="material-symbols-outlined">pending_actions</span></div>
+    <small>PENDING</small>
+    <strong>{{ counts().pending }}</strong>
+  </article>
+  <article class="stat green">
+    <div class="ico"><span class="material-symbols-outlined">verified_user</span></div>
+    <small>APPROVED</small>
+    <strong>{{ counts().approved }}</strong>
+  </article>
+  <article class="stat rose">
+    <div class="ico"><span class="material-symbols-outlined">person_off</span></div>
+    <small>REJECTED</small>
+    <strong>{{ counts().rejected }}</strong>
+  </article>
+  <article class="stat slate">
+    <div class="ico"><span class="material-symbols-outlined">inbox</span></div>
+    <small>ALL TIME</small>
+    <strong>{{ counts().all }}</strong>
+  </article>
+</section>
+
+<!-- Toolbar -->
+<section class="toolbar">
+  <nav class="tabs">
+    <button *ngFor="let t of ['Pending','Approved','Rejected','All']"
+            class="tab"
+            [class.active]="tab() === t"
+            (click)="tab.set($any(t))">
+      {{ t }}
+    </button>
+  </nav>
+  <div class="search">
+    <span class="material-symbols-outlined">search</span>
+    <input type="text" placeholder="Search by name, email or specialty…"
+           [ngModel]="query()" (ngModelChange)="query.set($event)">
+  </div>
+</section>
+
+<!-- Application cards -->
+<section class="grid">
+  <article class="app-card"
+           *ngFor="let a of filtered()"
+           [attr.data-status]="a.status">
+    <header class="app-head">
+      <img *ngIf="a.imageUrl" [src]="a.imageUrl" [alt]="a.fullName">
+      <div *ngIf="!a.imageUrl" class="initials">{{ initialsFor(a) }}</div>
+      <div class="who">
+        <strong>{{ a.fullName }}</strong>
+        <small>{{ a.email }} · {{ a.phoneNumber }}</small>
+      </div>
+      <span class="status-pill" [attr.data-status]="a.status">{{ a.status }}</span>
+    </header>
+
+    <div class="meta-row">
+      <span><span class="material-symbols-outlined">sports</span> {{ a.specialization }}</span>
+      <span><span class="material-symbols-outlined">military_tech</span> {{ a.experienceYears }} yrs experience</span>
+      <span><span class="material-symbols-outlined">schedule</span> {{ a.submittedAt | date:'MMM d, h:mm a' }}</span>
+    </div>
+
+    <p class="bio">{{ a.bio }}</p>
+
+    <footer class="actions" *ngIf="a.status === 'Pending'">
+      <button class="btn-reject" [disabled]="isBusy(a.id)" (click)="reject(a)">
+        <span class="material-symbols-outlined">close</span>
+        Reject
+      </button>
+      <button class="btn-approve" [disabled]="isBusy(a.id)" (click)="approve(a)">
+        <span class="material-symbols-outlined">check</span>
+        {{ isBusy(a.id) ? 'Approving…' : 'Approve & create coach' }}
+      </button>
+    </footer>
+  </article>
+
+  <article class="empty" *ngIf="!filtered().length">
+    <span class="material-symbols-outlined">inbox</span>
+    <h3>Nothing here</h3>
+    <p>No applications in this view.</p>
+  </article>
+</section>
+
+<p class="toast" *ngIf="toast()">{{ toast() }}</p>

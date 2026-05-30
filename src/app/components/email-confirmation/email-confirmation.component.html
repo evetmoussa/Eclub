@@ -1,0 +1,58 @@
+<section class="page">
+  <article class="card">
+    <button type="button" class="back" (click)="goBack()" aria-label="Back">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </button>
+
+    <div class="illo">
+      <span class="material-symbols-outlined">mark_email_unread</span>
+    </div>
+
+    <h1>Check your inbox</h1>
+    <p class="lead">
+      We've sent a confirmation link to
+      <strong>{{ email() || 'your email' }}</strong>.<br>
+      Open it to activate your account.
+    </p>
+
+    <div class="tips">
+      <p>
+        <span class="material-symbols-outlined">info</span>
+        Didn't see it? Check your <em>spam</em> or <em>promotions</em> folder.
+      </p>
+    </div>
+
+    <div class="actions">
+      <button type="button"
+              class="btn-primary"
+              [disabled]="cooldown() > 0 || status() === 'sending'"
+              (click)="resend()">
+        <ng-container *ngIf="status() === 'sending'">Sending…</ng-container>
+        <ng-container *ngIf="status() !== 'sending' && cooldown() > 0">
+          Resend in {{ cooldown() }}s
+        </ng-container>
+        <ng-container *ngIf="status() !== 'sending' && cooldown() === 0">
+          Resend email
+        </ng-container>
+      </button>
+
+      <button type="button" class="btn-ghost" (click)="goToLogin()">
+        I've confirmed — Sign in
+      </button>
+    </div>
+
+    <p class="status sent"  *ngIf="status() === 'sent'">
+      <span class="material-symbols-outlined">check_circle</span>
+      A new email is on its way.
+    </p>
+    <p class="status err" *ngIf="status() === 'error'">
+      <span class="material-symbols-outlined">error</span>
+      {{ errorMsg() }}
+    </p>
+
+    <p class="foot">
+      Wrong email?
+      <a routerLink="/register">Register again</a>
+    </p>
+  </article>
+</section>

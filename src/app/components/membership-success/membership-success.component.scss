@@ -1,0 +1,103 @@
+:host { display: block; background: #fff; /* min-height removed */ }
+
+.page { padding: 32px 24px 80px; max-width: 760px; }
+
+.head {
+  display: grid;
+  grid-template-columns: 36px 1fr 36px;
+  align-items: center;
+  margin-bottom: 8px;
+
+  h1 {
+    margin: 0; text-align: center;
+    font-size: 1.25rem; font-weight: 800;
+    color: var(--eclub-primary-green);
+  }
+}
+.icon-btn {
+  width: 36px; height: 36px;
+  background: transparent; border: none;
+  display: grid; place-items: center;
+  border-radius: 50%; cursor: pointer;
+  &:hover { background: #f1f5f9; }
+}
+
+.title {
+  margin: 12px 0 4px;
+  text-align: center;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--eclub-primary);
+}
+.lede {
+  text-align: center;
+  margin: 0 0 28px;
+  color: var(--eclub-text-muted);
+}
+
+.details {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 20px 22px 16px;
+  margin-bottom: 28px;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, .05);
+
+  .kicker {
+    font-size: 12px; font-weight: 800; letter-spacing: .14em;
+    color: #94a3b8; text-transform: uppercase;
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: 44px 1fr auto;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 0;
+    border-bottom: 1px solid #f1f5f9;
+
+    &:last-child { border-bottom: none; }
+
+    .row-icon {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      background: rgba(99, 102, 241, .12);
+      color: #6366f1;
+      display: grid; place-items: center;
+      .material-symbols-outlined { font-size: 22px; }
+    }
+
+    .row-text .lbl {
+      color: var(--eclub-text-muted);
+      font-size: .85rem;
+      line-height: 1.25;
+    }
+
+    strong {
+      font-weight: 800;
+      color: var(--eclub-primary);
+      font-size: 1rem;
+      text-align: right;
+    }
+  }
+}
+
+.home-btn {
+  width: 100%;
+  padding: 16px;
+  background: var(--eclub-primary-green);
+  color: #fff;
+  border: none;
+  border-radius: 9999px;
+  font-weight: 800;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: box-shadow .2s ease, transform .15s ease;
+
+  &:hover { box-shadow: 0 12px 24px rgba(26,213,95,.35); transform: translateY(-1px); }
+}
+
+/* ============ Desktop refinements ============ */
+@media (min-width: 720px) {
+  .home-btn { max-width: 360px; margin-left: auto; margin-right: auto; display: block; }
+}

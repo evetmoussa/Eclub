@@ -1,1 +1,125 @@
-/* You can add global styles to this file, and also import other style files */
+/* ========== Eclub design tokens (Stitch-aligned, web-sized) ========== */
+:root {
+  --eclub-primary:        #0A1A12;
+  --eclub-primary-green:  #1AD55F;
+  --eclub-primary-green-soft: rgba(26, 213, 95, .12);
+
+  --eclub-bg:             #FFFFFF;
+  --eclub-bg-soft:        #F1F5F9;
+  --eclub-text:           #0F172A;
+  --eclub-text-muted:     #64748B;
+  --eclub-border:         #E2E8F0;
+
+  --eclub-shadow:         0 4px 12px rgba(0, 0, 0, .05);
+  --eclub-shadow-lg:      0 18px 36px rgba(0, 0, 0, .08);
+
+  --eclub-radius:    15px;
+  --eclub-radius-lg: 20px;
+  --eclub-radius-pill: 9999px;
+
+  /* Typography scale — web feel. All `rem` units across the app scale from this base. */
+  --eclub-font-base: 17px;
+  --eclub-h1: 2.25rem;     /* 38px */
+  --eclub-h2: 1.75rem;     /* 30px */
+  --eclub-h3: 1.375rem;    /* 23px */
+  --eclub-body: 1.0625rem; /* 18px */
+  --eclub-small: 0.9375rem;/* 16px */
+  --eclub-line: 1.6;
+
+  /* Container widths — wider for desktop. */
+  --eclub-container: 1200px;
+}
+
+* { box-sizing: border-box; }
+
+html {
+  font-size: var(--eclub-font-base);
+}
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Public Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-size: var(--eclub-body);
+  line-height: var(--eclub-line);
+  background: var(--eclub-bg);
+  color: var(--eclub-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Headings scale — keeps visual hierarchy consistent everywhere. */
+h1 { font-size: var(--eclub-h1); line-height: 1.2; letter-spacing: -.02em; }
+h2 { font-size: var(--eclub-h2); line-height: 1.25; letter-spacing: -.015em; }
+h3 { font-size: var(--eclub-h3); line-height: 1.3; }
+h4 { font-size: 1.125rem; line-height: 1.35; }
+
+p     { font-size: var(--eclub-body); line-height: var(--eclub-line); }
+small { font-size: var(--eclub-small); }
+
+/* Wider default container — feel like a real web app, not a phone. */
+.container {
+  width: 100%;
+  max-width: var(--eclub-container);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 24px;
+  padding-right: 24px;
+}
+@media (max-width: 768px) {
+  .container { padding-left: 16px; padding-right: 16px; }
+}
+
+/* Material Symbols default size bumped slightly to match the bigger text. */
+.material-symbols-outlined { font-size: 22px; }
+
+img { max-width: 100%; display: block; }
+a { color: var(--eclub-primary-green); text-decoration: none; }
+
+/* Material Symbols nice defaults */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  vertical-align: middle;
+  user-select: none;
+}
+.material-symbols-outlined.fill-1 { font-variation-settings: 'FILL' 1; }
+
+/* ====== Web-feel helpers ====== */
+/* Make Bootstrap form controls match our font size. */
+.form-control,
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="password"],
+input[type="number"],
+input[type="url"],
+input[type="date"],
+textarea,
+select {
+  font-size: 1rem;
+}
+
+button {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+/* Scrollbar utilities */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Snap helpers */
+.snap-x { scroll-snap-type: x mandatory; }
+.snap-center { scroll-snap-align: center; }
+
+/* Bootstrap brand color overrides (used by some legacy auth pages) */
+.btn-success {
+  background: var(--eclub-primary-green);
+  border-color: var(--eclub-primary-green);
+  color: var(--eclub-primary);
+  &:hover, &:focus {
+    background: #15b552;
+    border-color: #15b552;
+    color: var(--eclub-primary);
+  }
+}
+.text-success { color: var(--eclub-primary-green) !important; }

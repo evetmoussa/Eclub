@@ -1,0 +1,49 @@
+<div class="admin-shell">
+  <!-- ===== Sidebar ===== -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">
+        <span class="material-symbols-outlined">sports_score</span>
+      </div>
+      <div class="brand-text">
+        <strong>SmartClub</strong>
+        <small>Admin Terminal</small>
+      </div>
+    </div>
+
+    <nav class="side-nav">
+      <p class="nav-label">Main</p>
+      <a *ngFor="let l of primary"
+         [routerLink]="l.route"
+         routerLinkActive="active"
+         class="nav-item">
+        <span class="material-symbols-outlined">{{ l.icon }}</span>
+        <span class="lbl">{{ l.label }}</span>
+        <span class="badge" *ngIf="l.badge">{{ l.badge }}</span>
+      </a>
+
+      <p class="nav-label">System</p>
+      <a *ngFor="let l of secondary"
+         [routerLink]="l.route"
+         routerLinkActive="active"
+         class="nav-item">
+        <span class="material-symbols-outlined">{{ l.icon }}</span>
+        <span class="lbl">{{ l.label }}</span>
+      </a>
+    </nav>
+
+    <div class="side-foot">
+      <img src="https://i.pravatar.cc/64?img=8" alt="">
+      <div>
+        <strong>Admin</strong>
+        <small>SmartClub HQ</small>
+      </div>
+      <span class="material-symbols-outlined logout">logout</span>
+    </div>
+  </aside>
+
+  <!-- ===== Main outlet ===== -->
+  <section class="admin-main">
+    <router-outlet></router-outlet>
+  </section>
+</div>

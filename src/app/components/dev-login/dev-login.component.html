@@ -1,0 +1,64 @@
+<div class="dev-page">
+  <div class="dev-card">
+    <header>
+      <span class="material-symbols-outlined badge">vpn_key</span>
+      <h1>Dev Token Loader</h1>
+      <p>
+        Paste a JWT obtained from <strong>Postman</strong> (or the Swagger UI) below.
+        It will be stored in <code>localStorage</code> under the same key the
+        real login flow uses, so every protected request will pick it up
+        automatically through the HTTP interceptor.
+      </p>
+    </header>
+
+    <form [formGroup]="form" (ngSubmit)="save()">
+      <label class="lbl">Save as</label>
+      <div class="role-toggle">
+        <label>
+          <input type="radio" formControlName="role" value="member"> Member
+        </label>
+        <label>
+          <input type="radio" formControlName="role" value="admin"> Admin
+        </label>
+      </div>
+
+      <label class="lbl">Bearer token</label>
+      <textarea
+        formControlName="token"
+        rows="8"
+        placeholder="eyJhbGciOiJIUzI1NiIs..."></textarea>
+
+      <label class="lbl">Lifetime (seconds)</label>
+      <input type="number" formControlName="lifetime" min="60" step="60">
+
+      <div class="actions">
+        <button type="submit" class="btn-primary" [disabled]="form.invalid">
+          <span class="material-symbols-outlined">save</span>
+          Save & Go to Home
+        </button>
+        <button type="button" class="btn-ghost" (click)="clear()">
+          <span class="material-symbols-outlined">delete</span>
+          Clear all tokens
+        </button>
+      </div>
+    </form>
+
+    @if (decoded) {
+      <section class="decoded">
+        <h3><span class="material-symbols-outlined">badge</span> Decoded payload</h3>
+        <pre>{{ decoded | json }}</pre>
+      </section>
+    }
+
+    @if (snapshot) {
+      <section class="snapshot">
+        <h3><span class="material-symbols-outlined">storage</span> Current localStorage</h3>
+        <pre>{{ snapshot | json }}</pre>
+      </section>
+    }
+
+    @if (msg) {
+      <div class="toast" [class.error]="isError">{{ msg }}</div>
+    }
+  </div>
+</div>

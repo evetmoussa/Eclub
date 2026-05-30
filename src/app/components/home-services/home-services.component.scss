@@ -1,0 +1,104 @@
+.services {
+  margin-top: 56px;
+}
+
+.services-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  h2 {
+    margin: 0;
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--eclub-primary);
+    letter-spacing: -.02em;
+  }
+
+  .subtitle {
+    margin: 4px 0 0;
+    color: var(--eclub-text-muted);
+    font-size: .95rem;
+  }
+
+  .see-all {
+    background: none;
+    border: 1px solid var(--eclub-border);
+    border-radius: 9999px;
+    padding: 8px 16px;
+    color: var(--eclub-primary-green);
+    font-weight: 700;
+    font-size: .9rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+
+    .material-symbols-outlined { font-size: 18px; }
+
+    &:hover {
+      border-color: var(--eclub-primary-green);
+      background: var(--eclub-primary-green-soft);
+    }
+  }
+}
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 18px;
+}
+
+.service-card {
+  background: #fff;
+  border: 1px solid var(--eclub-border);
+  border-radius: 16px;
+  padding: 22px 20px;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+
+  &:hover {
+    transform: translateY(-3px);
+    border-color: var(--eclub-primary-green);
+    box-shadow: 0 14px 32px rgba(10, 26, 18, .07);
+  }
+
+  h6 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--eclub-primary);
+  }
+
+  p {
+    margin: 0;
+    color: var(--eclub-text-muted);
+    font-size: .85rem;
+    line-height: 1.45;
+  }
+
+  &.placeholder { opacity: .65; }
+}
+
+.icon-wrap {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  background: var(--eclub-primary-green-soft);
+  color: var(--eclub-primary-green);
+
+  .material-symbols-outlined {
+    font-size: 26px;
+    font-variation-settings: 'FILL' 1;
+  }
+}

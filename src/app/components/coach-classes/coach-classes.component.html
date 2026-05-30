@@ -1,0 +1,123 @@
+<header class="page-top">
+  <div>
+    <h1>My Classes</h1>
+    <p class="muted">Manage your sessions and take attendance.</p>
+  </div>
+</header>
+
+<!-- Tabs + search -->
+<section class="toolbar">
+  <nav class="tabs">
+    <button *ngFor="let t of ['All','Today','Upcoming','Completed']"
+            class="tab"
+            [class.active]="tab() === t"
+            (click)="tab.set($any(t))">{{ t }}</button>
+  </nav>
+  <div class="search">
+    <span class="material-symbols-outlined">search</span>
+    <input type="text" placeholder="Search classes…"
+           [ngModel]="query()" (ngModelChange)="query.set($event)">
+  </div>
+</section>
+
+<!-- Body: list on left, detail + roster on right -->
+<section class="body">
+
+  <!-- Class list -->
+  <aside class="list">
+    <article class="class-card"
+             *ngFor="let c of filtered()"
+             [class.active]="c.id === selectedId()"
+             (click)="selectClass(c)">
+      <div class="card-head">
+        <strong>{{ c.title }}</strong>
+        <span class="status-pill" [attr.data-status]="c.status">{{ c.status }}</span>
+      </div>
+      <div class="meta">
+        <span><span class="material-symbols-outlined">event</span> {{ c.date | date:'MMM d' }}</span>
+        <span><span class="material-symbols-outlined">schedule</span> {{ c.startTime }} — {{ c.endTime }}</span>
+      </div>
+      <div class="meta">
+        <span><span class="material-symbols-outlined">place</span> {{ c.location }}</span>
+        <span><span class="material-symbols-outlined">group</span> {{ c.enrolled }}/{{ c.capacity }}</span>
+      </div>
+    </article>
+
+    <div class="empty" *ngIf="!filtered().length">
+      <span class="material-symbols-outlined">event_busy</span>
+      <p>No classes here.</p>
+    </div>
+  </aside>
+
+  <!-- Detail + roster -->
+  <section class="detail" *ngIf="selected() as sel">
+    <header class="detail-head">
+      <div>
+        <h2>{{ sel.title }}</h2>
+        <p class="muted">
+          {{ sel.date | date:'EEEE, MMM d' }} · {{ sel.startTime }} — {{ sel.endTime }} · {{ sel.location }}
+        </p>
+      </div>
+      <span class="status-pill big" [attr.data-status]="sel.status">{{ sel.status }}</span>
+    </header>
+
+    <!-- Stats strip -->
+    <div class="stats-strip">
+      <div>
+        <small>Enrolled</small>
+        <strong>{{ sel.enrolled }} / {{ sel.capacity }}</strong>
+      </div>
+      <div>
+        <small>Marked present</small>
+        <strong>{{ presentCount() }} / {{ roster().length }}</strong>
+      </div>
+      <div>
+        <small>Sport</small>
+        <strong>{{ sel.sport }}</strong>
+      </div>
+    </div>
+
+    <!-- Roster -->
+    <section class="roster">
+      <header class="roster-head">
+        <h3>Attendance roster</h3>
+        <div class="actions">
+          <button class="btn-ghost" (click)="markAllPresent()">
+            <span class="material-symbols-outlined">done_all</span>
+            Mark all present
+          </button>
+          <button class="btn-primary" (click)="saveAttendance()" [disabled]="saving()">
+            <ng-container *ngIf="!saving()">Save attendance</ng-container>
+            <ng-container *ngIf="saving()">Saving…</ng-container>
+          </button>
+        </div>
+      </header>
+
+      <ul class="roster-list">
+        <li *ngFor="let s of roster()" class="roster-row">
+          <img [src]="s.avatarUrl" [alt]="s.fullName">
+          <div class="who">
+            <strong>{{ s.fullName }}</strong>
+            <small class="muted">{{ s.email }}</small>
+          </div>
+          <small class="joined">Joined {{ s.joinedAt | date:'MMM d, y' }}</small>
+          <label class="check">
+            <input type="checkbox"
+                   [checked]="attendance()[s.id]"
+                   (change)="togglePresent(s.id)">
+            <span>Present</span>
+          </label>
+        </li>
+      </ul>
+
+      <p class="toast" *ngIf="toast()">{{ toast() }}</p>
+    </section>
+  </section>
+
+  <!-- Empty detail (no class selected) -->
+  <section class="detail empty-detail" *ngIf="!selected()">
+    <span class="material-symbols-outlined">event_available</span>
+    <h3>Select a class to see details</h3>
+    <p class="muted">Pick any class on the left to manage attendance and view enrolled students.</p>
+  </section>
+</section>

@@ -1,0 +1,129 @@
+<section class="page">
+
+  <!-- Success state -->
+  <article class="card success-card" *ngIf="submitted(); else formCard">
+    <div class="icon-circle">
+      <span class="material-symbols-outlined">check_circle</span>
+    </div>
+    <h1>Application received!</h1>
+    <p class="lead">
+      Thanks for applying to coach at SmartClub. Our team reviews applications
+      within <strong>48 hours</strong>. You will receive an email at the address
+      you provided once your application is reviewed.
+    </p>
+
+    <div class="next-steps">
+      <h3>What happens next</h3>
+      <ol>
+        <li><strong>Review</strong> — Our admin team checks your specialization and experience.</li>
+        <li><strong>Approval</strong> — If approved, we create your coach account and send credentials.</li>
+        <li><strong>Onboard</strong> — Sign in, set up your schedule, and start coaching.</li>
+      </ol>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="btn-ghost" (click)="goBack()">Back to home</button>
+      <button type="button" class="btn-primary" (click)="goLogin()">Go to Sign in</button>
+    </div>
+  </article>
+
+  <!-- Form state -->
+  <ng-template #formCard>
+    <article class="card form-card">
+      <header class="hero">
+        <button class="back" (click)="goBack()" type="button" aria-label="Back">
+          <span class="material-symbols-outlined">arrow_back</span>
+        </button>
+        <div>
+          <span class="kicker">Join SmartClub</span>
+          <h1>Apply to coach</h1>
+          <p class="lead">
+            Share your specialty and a short bio. We will reach out within 48 hours.
+          </p>
+        </div>
+      </header>
+
+      <form [formGroup]="form" (ngSubmit)="submit()" class="grid">
+        <label class="field full">
+          <span>Full name <em>*</em></span>
+          <input type="text" formControlName="fullName" placeholder="e.g. Marco Silva">
+          <small class="err" *ngIf="hasError('fullName')">Please enter your full name (3-150 chars).</small>
+        </label>
+
+        <label class="field">
+          <span>Email <em>*</em></span>
+          <input type="email" formControlName="email" placeholder="you@example.com">
+          <small class="err" *ngIf="hasError('email')">Enter a valid email.</small>
+        </label>
+
+        <label class="field">
+          <span>Phone <em>*</em></span>
+          <input type="tel" formControlName="phoneNumber" placeholder="01x xxxx xxxx">
+          <small class="err" *ngIf="hasError('phoneNumber')">Egyptian phone (11 digits, starts 010/011/012/015).</small>
+        </label>
+
+        <div class="field full">
+          <span>Specialty <em>*</em></span>
+          <div class="chips">
+            <button type="button"
+                    class="chip"
+                    *ngFor="let s of popularSports"
+                    [class.active]="err('specialization')?.value === s"
+                    (click)="pickSport(s)">
+              {{ s }}
+            </button>
+          </div>
+          <input type="text" formControlName="specialization"
+                 placeholder="Or type a custom specialty"
+                 class="below-chips">
+          <small class="err" *ngIf="hasError('specialization')">Tell us your main specialty.</small>
+        </div>
+
+        <label class="field">
+          <span>Years of experience <em>*</em></span>
+          <input type="number" min="0" max="50" formControlName="experienceYears">
+          <small class="err" *ngIf="hasError('experienceYears')">Between 0 and 50.</small>
+        </label>
+
+        <label class="field">
+          <span>Profile photo URL</span>
+          <input type="url" formControlName="imageUrl" placeholder="https://…">
+          <small class="hint">Optional — paste a link to a portrait of yourself.</small>
+        </label>
+
+        <label class="field full">
+          <span>About you <em>*</em></span>
+          <textarea rows="5" formControlName="bio"
+                    placeholder="Briefly describe your coaching style, certifications, and what you bring to SmartClub."></textarea>
+          <small class="err" *ngIf="hasError('bio')">40-1000 characters.</small>
+        </label>
+
+        <label class="field full agree">
+          <input type="checkbox" formControlName="agree">
+          <span>
+            I agree that SmartClub may contact me about my application and store
+            my information for review purposes.
+          </span>
+        </label>
+
+        <p class="msg-error" *ngIf="errorMsg()">{{ errorMsg() }}</p>
+
+        <footer class="form-foot full">
+          <button type="button" class="btn-ghost" (click)="goBack()">Cancel</button>
+          <button type="submit" class="btn-primary" [disabled]="isLoading()">
+            <ng-container *ngIf="!isLoading()">
+              Submit application
+              <span class="material-symbols-outlined">send</span>
+            </ng-container>
+            <ng-container *ngIf="isLoading()">Sending…</ng-container>
+          </button>
+        </footer>
+      </form>
+
+      <p class="foot-note">
+        Already a coach? <a routerLink="/login">Sign in</a>
+      </p>
+    </article>
+  </ng-template>
+
+</section>

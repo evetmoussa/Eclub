@@ -1,0 +1,115 @@
+<header class="page-top">
+  <div>
+    <h1>ProLeague Offers</h1>
+    <p class="muted">Promotions, discount campaigns and partner deals.</p>
+  </div>
+  <button class="btn-primary" (click)="openAdd()">
+    <span class="material-symbols-outlined">add</span>
+    Add New Offer
+  </button>
+</header>
+
+<!-- ===== KPI cards ===== -->
+<section class="kpi-grid">
+  <article class="kpi">
+    <div class="ico"><span class="material-symbols-outlined">local_offer</span></div>
+    <small>Active Offers</small>
+    <h2>{{ stats().active }}</h2>
+    <span class="trend up">+2 this week</span>
+  </article>
+
+  <article class="kpi">
+    <div class="ico" data-tone="blue"><span class="material-symbols-outlined">redeem</span></div>
+    <small>Redemption Rate</small>
+    <h2>{{ stats().redemptionRate }}%</h2>
+    <span class="trend up">+4.6% vs last month</span>
+  </article>
+
+  <article class="kpi">
+    <div class="ico" data-tone="amber"><span class="material-symbols-outlined">timer</span></div>
+    <small>Expiring Soon</small>
+    <h2>{{ stats().expiringSoon }}</h2>
+    <span class="trend flat">in next 30 days</span>
+  </article>
+</section>
+
+<!-- ===== Toolbar ===== -->
+<section class="toolbar">
+  <nav class="tabs">
+    <button
+      *ngFor="let t of tabs"
+      class="tab"
+      [class.active]="activeTab() === t"
+      (click)="activeTab.set(t)">
+      {{ t }}
+    </button>
+  </nav>
+
+  <div class="search">
+    <span class="material-symbols-outlined">search</span>
+    <input type="text" placeholder="Search offers…"
+           [ngModel]="query()" (ngModelChange)="query.set($event)">
+  </div>
+</section>
+
+<!-- ===== Offer cards ===== -->
+<section class="grid">
+  <article class="offer" *ngFor="let o of filtered()">
+    <div class="cover" [style.background-image]="'url(' + o.imageUrl + ')'">
+      <span class="status" [attr.data-status]="o.status">{{ o.status }}</span>
+      <span class="discount">-{{ o.discount }}%</span>
+    </div>
+
+    <div class="body">
+      <h3>{{ o.title }}</h3>
+      <p class="muted">{{ o.description }}</p>
+
+      <div class="dates">
+        <div>
+          <small>Starts</small>
+          <strong>{{ o.startsAt | date:'MMM d' }}</strong>
+        </div>
+        <div>
+          <small>Ends</small>
+          <strong>{{ o.endsAt | date:'MMM d, y' }}</strong>
+        </div>
+        <div>
+          <small>Redeemed</small>
+          <strong>{{ o.redemptions }}</strong>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn-ghost" (click)="openEdit(o)">
+          <span class="material-symbols-outlined">analytics</span>
+          Insights
+        </button>
+        <button class="btn-ghost" (click)="openEdit(o)">
+          <span class="material-symbols-outlined">edit</span>
+          Edit
+        </button>
+        <button class="btn-icon danger" title="Delete" (click)="remove(o)">
+          <span class="material-symbols-outlined">delete</span>
+        </button>
+      </div>
+    </div>
+  </article>
+
+  <article class="empty" *ngIf="!filtered().length">
+    <span class="material-symbols-outlined">local_offer</span>
+    <p>No offers in this view.</p>
+  </article>
+</section>
+
+<!-- ===== Add / Edit modal ===== -->
+<app-entity-form-modal
+  *ngIf="modalOpen()"
+  [title]="editing() ? 'Edit Offer' : 'Add New Offer'"
+  [subtitle]="editing() ? 'Update the campaign details.' : 'Launch a new promotion or discount.'"
+  [submitLabel]="editing() ? 'Update' : 'Create offer'"
+  [fields]="fields"
+  [initial]="editing()"
+  [isSubmitting]="isSubmitting()"
+  (submitted)="onSubmit($event)"
+  (cancelled)="closeModal()">
+</app-entity-form-modal>

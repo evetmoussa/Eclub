@@ -2,7 +2,6 @@
 
 height:100vh;
 
-
 background:
 linear-gradient(rgba(0, 20, 10, 0.166), rgba(0, 20, 10, 0.277)),
 url("../../../../public/assets/stadium.jpeg");
@@ -56,28 +55,21 @@ color:#22c55e;
 
 box-shadow:0 0 25px rgba(34,197,94,.5);
 
-
 }
 
 /* title */
 
 .title{
-
 font-size:30px;
 font-weight:700;
-
 }
 
 .subtitle{
-
 color:#94a3b8;
-
 font-size:14px;
-
 }
 
 /* inputs */
-
 
 input::placeholder{
 color:#cbd5e154;
@@ -91,13 +83,9 @@ position:relative;
 i{
 
 position:absolute;
-
 left:15px;
-
 top:50%;
-
 transform:translateY(-50%);
-
 color:#cbd5e161;
 
 }
@@ -105,13 +93,11 @@ color:#cbd5e161;
 input{
 
 padding-left:45px;
+padding-right:45px; /* مهم للـ eye */
 
 background:rgba(0,0,0,.4);
-
 border:1px solid #14532d;
-
 border-radius:12px;
-
 color:white;
 
 }
@@ -119,11 +105,28 @@ color:white;
 input:focus{
 
 border-color:#22c55e;
-
 box-shadow:0 0 0 2px rgba(34,197,94,.2);
 
 }
 
+}
+
+/* 👁️ eye icon */
+.eye{
+
+position:absolute;
+right:15px;
+top:50%;
+transform:translateY(-50%);
+cursor:pointer;
+color:#cbd5e1;
+z-index:2;
+
+}
+
+.eye:hover{
+color:#22c55e;
+transition:0.2s;
 }
 
 /* button */
@@ -131,15 +134,10 @@ box-shadow:0 0 0 2px rgba(34,197,94,.2);
 .register-btn{
 
 background:linear-gradient(135deg,#22c55e,#16a34a);
-
 border:none;
-
 padding:12px;
-
 font-weight:600;
-
 border-radius:12px;
-
 transition:.3s;
 
 }
@@ -147,7 +145,6 @@ transition:.3s;
 .register-btn:hover{
 
 transform:translateY(-2px);
-
 box-shadow:0 10px 25px rgba(34,197,94,.4);
 
 }
@@ -157,9 +154,7 @@ box-shadow:0 10px 25px rgba(34,197,94,.4);
 @media (max-width:992px){
 
 .register-card{
-
 padding:35px;
-
 }
 
 }
@@ -169,49 +164,34 @@ padding:35px;
 @media (max-width:576px){
 
 .register-card{
-
 padding:25px;
-
 }
 
 .title{
-
 font-size:24px;
-
 }
 
 .logo-box{
-
 width:70px;
 height:70px;
-
 font-size:28px;
-
 }
 
 }
 
-// error msg register
+/* error msg */
 
 .error-msg{
-
 color:#f87171;
-
 font-size:13px;
-
 margin-top:6px;
-
 padding-left:5px;
-
 }
-
 
 /* validation icons */
 
 .input-box input.is-valid{
 border-color:#22c55e;
-padding-right:45px;
-
 background-color:rgba(0,0,0,.4) !important;
 
 background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%2322c55e' viewBox='0 0 16 16'%3E%3Cpath d='M13.485 1.929l-7.778 7.778-3.182-3.182-1.414 1.414 4.596 4.596 9.192-9.192z'/%3E%3C/svg%3E");
@@ -219,12 +199,11 @@ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/sv
 background-repeat:no-repeat;
 background-position:right 15px center;
 background-size:18px;
+
 }
 
 .input-box input.is-invalid{
 border-color:#ef4444;
-padding-right:45px;
-
 background-color:rgba(0,0,0,.4) !important;
 
 background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23ef4444' viewBox='0 0 16 16'%3E%3Cpath d='M4 4 L12 12 M12 4 L4 12' stroke='%23ef4444' stroke-width='2'/%3E%3C/svg%3E");
@@ -232,6 +211,7 @@ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/sv
 background-repeat:no-repeat;
 background-position:right 15px center;
 background-size:18px;
+
 }
 
 .form-control{
@@ -244,19 +224,18 @@ background: rgba(0,0,0,.4) !important;
 color:white;
 }
 
-
+/* back button */
 
 .back-btn{
 
 border:none;
 background:transparent;
 font-size:20px;
-color: #079007;
+color:#079007;
 
 }
 
 .back-btn:hover{
-     transform: translateY(-1px);
-  color:#044806;
+transform:translateY(-1px);
+color:#044806;
 }
-

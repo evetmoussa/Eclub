@@ -1,0 +1,13 @@
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-md-4 mb-4" *ngFor="let academy of academies">
+      <div class="card academy-card" (click)="openDetails(academy.id)">
+        <img [src]="academy.image" class="card-img-top">
+        <div class="card-body">
+          <h5>{{ academy.name }}</h5>
+          <p class="text-muted">{{ academy.location }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

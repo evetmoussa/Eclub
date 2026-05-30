@@ -1,0 +1,120 @@
+<header class="page-top">
+  <div>
+    <h1>My Profile</h1>
+    <p class="muted">Update what your students see when they open your profile.</p>
+  </div>
+</header>
+
+<section class="grid">
+
+  <!-- Left: avatar + identity + reviews -->
+  <aside class="left">
+    <article class="card identity">
+      <div class="avatar-wrap">
+        <img *ngIf="imageUrl()" [src]="imageUrl()" alt="">
+        <span *ngIf="!imageUrl()" class="initials">{{ initials() }}</span>
+        <button class="edit-btn" type="button" (click)="filePicker.click()" title="Change photo">
+          <span class="material-symbols-outlined">photo_camera</span>
+        </button>
+        <input #filePicker type="file" accept="image/*" hidden (change)="onPickPhoto($event)">
+      </div>
+      <h2>{{ fullName() || 'Coach' }}</h2>
+      <span class="spec-tag">{{ specialization() || '—' }}</span>
+      <div class="ratings">
+        <span class="material-symbols-outlined fill-1">star</span>
+        <strong>{{ avgRating() }}</strong>
+        <small>· {{ reviews().length }} reviews</small>
+      </div>
+    </article>
+
+    <article class="card reviews-card" id="reviews">
+      <header class="card-head">
+        <h3>Recent reviews</h3>
+      </header>
+      <ul class="review-list">
+        <li *ngFor="let r of reviews()">
+          <img [src]="r.memberAvatar" [alt]="r.memberName">
+          <div>
+            <header>
+              <strong>{{ r.memberName }}</strong>
+              <span class="stars">
+                <span class="material-symbols-outlined fill-1" *ngFor="let _ of [].constructor(r.rating)">star</span>
+              </span>
+            </header>
+            <p>{{ r.comment }}</p>
+            <small>{{ r.createdAt | date:'MMM d, y' }}</small>
+          </div>
+        </li>
+      </ul>
+    </article>
+  </aside>
+
+  <!-- Right: edit form -->
+  <section class="right">
+    <article class="card">
+      <header class="card-head">
+        <h3>Profile details</h3>
+        <p class="muted">These appear on your public coach page.</p>
+      </header>
+
+      <form class="form" (ngSubmit)="save()">
+        <label class="field full">
+          <span>Full name *</span>
+          <input type="text" [ngModel]="fullName()" (ngModelChange)="fullName.set($event)" name="fullName" required>
+        </label>
+
+        <label class="field">
+          <span>Specialization *</span>
+          <input type="text" [ngModel]="specialization()" (ngModelChange)="specialization.set($event)" name="specialization" required>
+        </label>
+
+        <label class="field">
+          <span>Years of experience</span>
+          <input type="number" min="0" max="50"
+                 [ngModel]="experienceYears()"
+                 (ngModelChange)="experienceYears.set(+$event)"
+                 name="exp">
+        </label>
+
+        <label class="field">
+          <span>Email</span>
+          <input type="email" [ngModel]="email()" (ngModelChange)="email.set($event)" name="email">
+        </label>
+
+        <label class="field">
+          <span>Phone</span>
+          <input type="tel" [ngModel]="phoneNumber()" (ngModelChange)="phoneNumber.set($event)" name="phone">
+        </label>
+
+        <label class="field full">
+          <span>Image URL</span>
+          <input type="url" [ngModel]="imageUrl()" (ngModelChange)="imageUrl.set($event)" name="img" placeholder="https://…">
+        </label>
+
+        <label class="field full">
+          <span>Bio</span>
+          <textarea rows="4" [ngModel]="bio()" (ngModelChange)="bio.set($event)" name="bio"
+                    placeholder="Tell your students about yourself, certifications, coaching style…"></textarea>
+        </label>
+
+        <footer class="form-foot">
+          <p class="status success" *ngIf="saved()">
+            <span class="material-symbols-outlined">check_circle</span>
+            Saved successfully.
+          </p>
+          <p class="status error" *ngIf="errorMsg()">
+            <span class="material-symbols-outlined">error</span>
+            {{ errorMsg() }}
+          </p>
+          <button type="submit" class="btn-primary" [disabled]="saving()">
+            <ng-container *ngIf="!saving()">
+              <span class="material-symbols-outlined">save</span>
+              Save changes
+            </ng-container>
+            <ng-container *ngIf="saving()">Saving…</ng-container>
+          </button>
+        </footer>
+      </form>
+    </article>
+  </section>
+</section>

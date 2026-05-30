@@ -1,0 +1,123 @@
+<header class="page-top">
+  <div>
+    <h1>Trainers</h1>
+    <p class="muted">Coaching staff, certifications and session activity.</p>
+  </div>
+  <button class="btn-primary" (click)="openAdd()">
+    <span class="material-symbols-outlined">person_add</span>
+    Add Trainer
+  </button>
+</header>
+
+<!-- ===== Top stats ===== -->
+<section class="stats">
+  <article class="stat-card">
+    <div class="ico"><span class="material-symbols-outlined">groups</span></div>
+    <div>
+      <small>Total Trainers</small>
+      <strong>{{ stats().total }}</strong>
+      <span class="trend up">+{{ stats().growth }}%</span>
+    </div>
+  </article>
+  <article class="stat-card">
+    <div class="ico" data-tone="blue"><span class="material-symbols-outlined">event_available</span></div>
+    <div>
+      <small>Active Sessions</small>
+      <strong>{{ stats().sessions }}</strong>
+      <span class="trend up">+8%</span>
+    </div>
+  </article>
+  <article class="stat-card">
+    <div class="ico" data-tone="amber"><span class="material-symbols-outlined">star</span></div>
+    <div>
+      <small>Avg Rating</small>
+      <strong>{{ stats().avgRating }}</strong>
+      <span class="trend up">+0.2</span>
+    </div>
+  </article>
+  <article class="stat-card">
+    <div class="ico" data-tone="rose"><span class="material-symbols-outlined">trending_up</span></div>
+    <div>
+      <small>Growth</small>
+      <strong>+12%</strong>
+      <span class="trend up">vs last month</span>
+    </div>
+  </article>
+</section>
+
+<!-- ===== Filters ===== -->
+<section class="toolbar">
+  <div class="search">
+    <span class="material-symbols-outlined">search</span>
+    <input
+      type="text"
+      placeholder="Search trainers by name or email…"
+      [ngModel]="query()"
+      (ngModelChange)="query.set($event)">
+  </div>
+  <div class="role-pills">
+    <button
+      *ngFor="let r of roles()"
+      class="pill"
+      [class.active]="filterRole() === r"
+      (click)="filterRole.set(r)">
+      {{ r }}
+    </button>
+  </div>
+</section>
+
+<!-- ===== Trainer grid ===== -->
+<section class="grid">
+  <article class="trainer" *ngFor="let t of filtered()">
+    <div class="actions-top">
+      <button class="btn-icon" title="Edit" (click)="openEdit(t)">
+        <span class="material-symbols-outlined">edit</span>
+      </button>
+      <button class="btn-icon danger" title="Delete" (click)="remove(t)">
+        <span class="material-symbols-outlined">delete</span>
+      </button>
+    </div>
+
+    <img [src]="t.avatarUrl" [alt]="t.name" class="avatar">
+
+    <h3>{{ t.name }}</h3>
+    <span class="role-tag">{{ t.role }}</span>
+
+    <div class="meta">
+      <span class="material-symbols-outlined">star</span>
+      <strong>{{ t.rating }}</strong>
+      <span class="dot-sep">•</span>
+      <span>{{ t.sessions }} sessions</span>
+    </div>
+
+    <span class="status-pill" [attr.data-status]="t.status">{{ t.status }}</span>
+
+    <div class="contact">
+      <span class="material-symbols-outlined">mail</span>
+      {{ t.email }}
+    </div>
+  </article>
+
+  <!-- Quick register placeholder card -->
+  <article class="trainer add-card" (click)="openAdd()">
+    <div class="plus-circle">
+      <span class="material-symbols-outlined">add</span>
+    </div>
+    <h3>Add Trainer</h3>
+    <p class="muted">Quick Register a new coach to your team.</p>
+    <button class="btn-ghost" (click)="openAdd()">Get started</button>
+  </article>
+</section>
+
+<!-- ===== Add / Edit modal ===== -->
+<app-entity-form-modal
+  *ngIf="modalOpen()"
+  [title]="editing() ? 'Edit Trainer' : 'Add New Trainer'"
+  [subtitle]="editing() ? 'Update the coach details below.' : 'Register a new coaching staff member.'"
+  [submitLabel]="editing() ? 'Update' : 'Create trainer'"
+  [fields]="fields"
+  [initial]="editing()"
+  [isSubmitting]="isSubmitting()"
+  (submitted)="onSubmit($event)"
+  (cancelled)="closeModal()">
+</app-entity-form-modal>

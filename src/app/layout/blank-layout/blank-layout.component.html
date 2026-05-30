@@ -1,2 +1,7 @@
-<app-navbar></app-navbar>
-<router-outlet></router-outlet>
+<app-navbar [unreadCount]="unreadCount()"></app-navbar>
+
+<main class="page-shell">
+  <router-outlet></router-outlet>
+</main>
+
+<app-footer></app-footer>

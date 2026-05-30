@@ -1,0 +1,75 @@
+<div class="page container">
+
+  <!-- Header -->
+  <header class="page-head">
+    <button class="icon-btn" (click)="goBack()" aria-label="Back">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </button>
+    <h1>{{ academyName }}</h1>
+    <span></span>
+  </header>
+
+  <!-- Select Coach -->
+  <section class="block">
+    <h2>Select Coach</h2>
+    <div class="coach-row">
+      <div class="coach-wrap" *ngFor="let c of coaches">
+        <button class="coach"
+                [class.active]="c.id === selectedCoachId"
+                (click)="selectCoach(c.id)">
+          <span class="avatar">
+            <span class="material-symbols-outlined">person</span>
+          </span>
+          <span class="name">{{ c.name }}</span>
+        </button>
+        <a class="coach-link"
+           [routerLink]="['/blank-layout/trainer', c.id]"
+           title="View profile">
+          <span class="material-symbols-outlined">open_in_new</span>
+          View profile
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Select Date -->
+  <section class="block">
+    <h2>Select Date</h2>
+    <div class="date-row">
+      <button class="date"
+              *ngFor="let d of dates"
+              [class.active]="d.key === selectedDate"
+              (click)="selectDate(d.key)">
+        <span class="m">{{ d.month }}</span>
+        <span class="d">{{ d.day }}</span>
+        <span class="w">{{ d.weekday }}</span>
+      </button>
+    </div>
+  </section>
+
+  <!-- Slots -->
+  <section class="block">
+    <h2>Available Slots</h2>
+
+    <article class="slot"
+             *ngFor="let s of slots"
+             [class.full]="isFull(s)">
+      <div class="slot-info">
+        <h4>{{ s.label }}</h4>
+        <div class="row">
+          <span class="material-symbols-outlined">schedule</span>
+          <span>{{ s.startTime }} - {{ s.endTime }}</span>
+        </div>
+        <div class="capacity" [class.full]="isFull(s)">
+          Capacity: {{ s.capacity }}/{{ s.max }}
+        </div>
+      </div>
+      <button class="book-btn"
+              [disabled]="isFull(s)"
+              (click)="bookNow(s)">
+        BOOK NOW
+      </button>
+    </article>
+  </section>
+
+</div>

@@ -1,0 +1,62 @@
+<div class="page container">
+
+  <div class="check-pill">
+    <span class="material-symbols-outlined">check</span>
+  </div>
+
+  <h1>Booking Confirmed</h1>
+  <p class="lede">Your training session has been successfully reserved.</p>
+
+  <article class="ticket">
+    <div class="ticket-head">
+      <div>
+        <span class="lbl">BOOKING ID</span>
+        <strong class="id">#{{ bookingId }}</strong>
+      </div>
+      <span class="status-pill">CONFIRMED</span>
+    </div>
+
+    <div class="rows">
+      <div class="row">
+        <span>Academy</span>
+        <strong>{{ academyName }}</strong>
+      </div>
+      <div class="row">
+        <span>Coach</span>
+        <strong>{{ coachName }}</strong>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="dual">
+      <div>
+        <span class="lbl">Date</span>
+        <strong>{{ date | date:'EEE, d MMM' }}</strong>
+      </div>
+      <div class="r">
+        <span class="lbl">Time</span>
+        <strong>{{ startTime }}</strong>
+      </div>
+    </div>
+
+    <div class="dual">
+      <div>
+        <span class="lbl">Duration</span>
+        <strong>{{ duration }}</strong>
+      </div>
+      <div class="r">
+        <span class="lbl">Current Capacity</span>
+        <strong class="green">{{ capacity }}/{{ max }}</strong>
+      </div>
+    </div>
+  </article>
+
+  <p class="hint">You can manage or cancel your booking from My Bookings</p>
+
+  <button class="primary-btn" (click)="goToBookings()">Go to My Bookings</button>
+  <button class="back-link" (click)="backToAcademy()">
+    <span class="material-symbols-outlined">arrow_back</span>
+    Back to Academy
+  </button>
+</div>

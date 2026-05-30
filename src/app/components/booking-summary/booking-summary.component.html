@@ -1,0 +1,92 @@
+<div class="page">
+  <header class="head container">
+    <button class="icon-btn" (click)="cancel()" aria-label="Back">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </button>
+    <h1>Booking Summary</h1>
+    <span></span>
+  </header>
+
+  <div class="container content">
+    <!-- Academy block -->
+    <section class="card">
+      <span class="kicker">Academy &amp; Sport</span>
+      <h2>{{ academyName }}</h2>
+      <p class="muted">{{ sessionLabel }}</p>
+
+      <div class="divider"></div>
+
+      <div class="coach-row">
+        <span class="avatar"></span>
+        <div>
+          <div class="coach-name">Coach {{ coachName }}</div>
+          <div class="rating">
+            <span class="material-symbols-outlined fill-1 star">star</span>
+            <span>{{ coachRating | number:'1.1-1' }} ({{ coachReviews }} reviews)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="meta-grid">
+        <div class="meta-tile">
+          <span class="material-symbols-outlined">calendar_today</span>
+          <strong>{{ date | date:'EEE, d MMM' }}</strong>
+          <span class="lbl">DATE</span>
+        </div>
+        <div class="meta-tile">
+          <span class="material-symbols-outlined">schedule</span>
+          <strong>{{ startTime }}</strong>
+          <span class="lbl">TIME</span>
+        </div>
+        <div class="meta-tile">
+          <span class="material-symbols-outlined">hourglass_empty</span>
+          <strong>{{ duration }}</strong>
+          <span class="lbl">DURATION</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Booking Policy -->
+    <section class="policy">
+      <div class="policy-head">
+        <span class="material-symbols-outlined info">info</span>
+        <h3>Booking Policy</h3>
+      </div>
+      <ul>
+        <li>Please arrive 10 minutes before your session.</li>
+        <li>Free cancellation up to 3 hours before start.</li>
+      </ul>
+    </section>
+
+    <!-- Payment Method -->
+    <section class="payment">
+      <h3>Payment Method</h3>
+      <div class="pay-row">
+        <button class="pay" [class.active]="payment === 'cash'"   (click)="setPayment('cash')">
+          Cash
+        </button>
+        <button class="pay" [class.active]="payment === 'wallet'" (click)="setPayment('wallet')">
+          <span class="material-symbols-outlined">account_balance_wallet</span>
+          Wallet
+        </button>
+        <button class="pay" [class.active]="payment === 'credit'" (click)="setPayment('credit')">
+          Credit Card
+        </button>
+      </div>
+    </section>
+
+    <!-- Fees -->
+    <section class="fees">
+      <div class="row"><span>Session Fee</span><strong>${{ sessionFee | number:'1.2-2' }}</strong></div>
+      <div class="row"><span>Service Fee</span><strong>${{ serviceFee | number:'1.2-2' }}</strong></div>
+      <div class="divider"></div>
+      <div class="row total">
+        <span>Total Amount</span>
+        <strong class="green">${{ total | number:'1.2-2' }}</strong>
+      </div>
+    </section>
+
+    <button class="confirm-btn" (click)="confirm()">Confirm Booking</button>
+    <button class="cancel-link" (click)="cancel()">Cancel</button>
+  </div>
+</div>

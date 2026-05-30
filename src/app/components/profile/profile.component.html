@@ -1,1 +1,79 @@
-<p>profile works!</p>
+<div class="container">
+
+  <header class="head">
+    <h1>Profile</h1>
+  </header>
+
+  <div class="avatar-wrap">
+    <div class="avatar">
+      <img *ngIf="avatarUrl" [src]="avatarUrl" alt="avatar">
+      <span *ngIf="!avatarUrl" class="initials">{{ initials }}</span>
+    </div>
+    <button class="edit-btn" aria-label="Change photo" (click)="filePicker.click()">
+      <span class="material-symbols-outlined fill-1">photo_camera</span>
+    </button>
+    <input #filePicker type="file" accept="image/*" hidden (change)="onAvatarPicked($event)">
+  </div>
+
+  <h2 class="user-name">{{ fullName }}</h2>
+  <p class="email" *ngIf="email">{{ email }}</p>
+
+  <div class="menu">
+    <button class="menu-item" (click)="go('/blank-layout/renew-membership')">
+      <span class="icon-square green">
+        <span class="material-symbols-outlined fill-1">card_membership</span>
+      </span>
+      <span class="lbl">Renew Membership</span>
+      <span class="material-symbols-outlined chev">chevron_right</span>
+    </button>
+
+    <button class="menu-item" (click)="go('/blank-layout/booking')">
+      <span class="icon-square blue">
+        <span class="material-symbols-outlined fill-1">calendar_month</span>
+      </span>
+      <span class="lbl">My Bookings</span>
+      <span class="material-symbols-outlined chev">chevron_right</span>
+    </button>
+
+    <button class="menu-item" (click)="go('/blank-layout/assistant')">
+      <span class="icon-square purple">
+        <span class="material-symbols-outlined fill-1">smart_toy</span>
+      </span>
+      <span class="lbl">Smart Assistant</span>
+      <span class="material-symbols-outlined chev">chevron_right</span>
+    </button>
+
+    <button class="menu-item" (click)="go('/blank-layout/notification')">
+      <span class="icon-square orange">
+        <span class="material-symbols-outlined fill-1">notifications</span>
+      </span>
+      <span class="lbl">Notifications</span>
+      <span class="material-symbols-outlined chev">chevron_right</span>
+    </button>
+
+    <button class="menu-item" (click)="go('/blank-layout/events')">
+      <span class="icon-square gray">
+        <span class="material-symbols-outlined fill-1">event</span>
+      </span>
+      <span class="lbl">Upcoming Events</span>
+      <span class="material-symbols-outlined chev">chevron_right</span>
+    </button>
+
+    <button class="menu-item" (click)="go('/blank-layout/sports')">
+      <span class="icon-square green">
+        <span class="material-symbols-outlined fill-1">sports_soccer</span>
+      </span>
+      <span class="lbl">Browse Academies</span>
+      <span class="material-symbols-outlined chev">chevron_right</span>
+    </button>
+
+    <button class="menu-item logout" (click)="logout()">
+      <span class="icon-square red">
+        <span class="material-symbols-outlined fill-1">logout</span>
+      </span>
+      <span class="lbl">Sign out</span>
+      <span class="material-symbols-outlined chev">chevron_right</span>
+    </button>
+  </div>
+
+</div>

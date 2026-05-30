@@ -1,0 +1,97 @@
+<div class="page container">
+
+  <header class="head">
+    <button class="icon-btn" (click)="goBack()" aria-label="Back">
+      <span class="material-symbols-outlined">arrow_back_ios_new</span>
+    </button>
+    <div>
+      <span class="kicker">Smart Sports Club</span>
+      <h1>Upcoming Events</h1>
+      <p class="sub">{{ upcoming.length }} event<span *ngIf="upcoming.length !== 1">s</span> available</p>
+    </div>
+    <span></span>
+  </header>
+
+  <!-- Loading -->
+  @if (isLoading) {
+    <div class="grid">
+      <div class="sk" *ngFor="let _ of [0,1,2,3]"></div>
+    </div>
+  }
+
+  <!-- Error -->
+  @if (loadError) {
+    <div class="error-banner">
+      <span class="material-symbols-outlined">error</span>
+      <span>{{ loadError }}</span>
+      <button type="button" class="retry" (click)="load()">Retry</button>
+    </div>
+  }
+
+  <!-- Empty -->
+  @if (!isLoading && !loadError && !upcoming.length) {
+    <div class="empty-state">
+      <span class="material-symbols-outlined">event_busy</span>
+      <h3>No upcoming events</h3>
+      <p>Check back soon — new tournaments are added regularly.</p>
+    </div>
+  }
+
+  <!-- List -->
+  <div class="grid" *ngIf="upcoming.length">
+    <article class="event-card"
+             *ngFor="let e of upcoming; trackBy: trackById"
+             [class.highlight]="highlightId === e.id">
+
+      <div class="cover">
+        <img [src]="resolveImage(e.imageUrl)" [alt]="e.title" (error)="onImgError($event)">
+        <span class="status">{{ e.status || 'Upcoming' }}</span>
+      </div>
+
+      <div class="body">
+        <h3>{{ e.title }}</h3>
+        <p class="desc" *ngIf="e.description">{{ e.description }}</p>
+
+        <div class="meta-row">
+          <span class="material-symbols-outlined">calendar_today</span>
+          <span>{{ e.startDate | date:'EEE, MMM d, y · h:mm a' }}</span>
+        </div>
+        <div class="meta-row" *ngIf="e.location">
+          <span class="material-symbols-outlined">location_on</span>
+          <span>{{ e.location }}</span>
+        </div>
+        <div class="meta-row" *ngIf="e.maxParticipants">
+          <span class="material-symbols-outlined">groups</span>
+          <span>{{ e.currentParticipants }} / {{ e.maxParticipants }} joined</span>
+        </div>
+
+        <!-- Countdown if backend supplied it -->
+        <div class="countdown" *ngIf="e.countdown as cd">
+          <span><strong>{{ cd.days }}</strong>d</span>
+          <span><strong>{{ cd.hours }}</strong>h</span>
+          <span><strong>{{ cd.minutes }}</strong>m</span>
+          <span><strong>{{ cd.seconds }}</strong>s</span>
+          <small>until start</small>
+        </div>
+
+        <div class="actions">
+          @if (isRegistered(e)) {
+            <button class="btn cancel" (click)="cancel(e.id)">
+              <span class="material-symbols-outlined">cancel</span>
+              Cancel registration
+            </button>
+          } @else {
+            <button class="btn primary" (click)="register(e.id)">
+              <span class="material-symbols-outlined">how_to_reg</span>
+              Register
+            </button>
+          }
+        </div>
+      </div>
+    </article>
+  </div>
+</div>
+
+@if (toast) {
+  <div class="toast" [class.error]="toastError">{{ toast }}</div>
+}

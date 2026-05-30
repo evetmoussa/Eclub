@@ -1,0 +1,111 @@
+<header class="page-top">
+  <div>
+    <h1>Elite Sports Admin</h1>
+    <p class="muted">Member subscriptions, retention and lifecycle.</p>
+  </div>
+  <button class="btn-primary">
+    <span class="material-symbols-outlined">person_add</span>
+    Add Member
+  </button>
+</header>
+
+<!-- ===== Top KPI row ===== -->
+<section class="kpi-row">
+  <article class="kpi-card light">
+    <header>
+      <small>Active Subscriptions</small>
+      <span class="trend up">{{ stats().monthly }}</span>
+    </header>
+    <h2>{{ stats().activeSubs }} <span class="muted">/ {{ stats().total }}</span></h2>
+
+    <svg class="chart" viewBox="0 0 240 60" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="g1" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%"  stop-color="#1AD55F" stop-opacity=".4"/>
+          <stop offset="100%" stop-color="#1AD55F" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <polyline [attr.points]="'0,60 ' + polyPoints() + ' 240,60'" fill="url(#g1)"/>
+      <polyline [attr.points]="polyPoints()" fill="none" stroke="#1AD55F" stroke-width="2.5"/>
+    </svg>
+  </article>
+
+  <article class="kpi-card dark">
+    <header>
+      <small>Club Retention</small>
+      <span class="badge">last 30 days</span>
+    </header>
+    <h2>{{ stats().retention }}%</h2>
+    <p class="muted">Members staying subscribed across renewals.</p>
+    <div class="bar">
+      <div class="fill" [style.width.%]="stats().retention"></div>
+    </div>
+  </article>
+</section>
+
+<!-- ===== Tabs + filters ===== -->
+<section class="toolbar">
+  <nav class="tabs">
+    <button
+      *ngFor="let t of tabs"
+      class="tab"
+      [class.active]="activeTab() === t"
+      (click)="activeTab.set(t)">
+      {{ t }}
+    </button>
+  </nav>
+
+  <div class="actions">
+    <div class="search">
+      <span class="material-symbols-outlined">search</span>
+      <input type="text"
+             placeholder="Search members…"
+             [ngModel]="query()"
+             (ngModelChange)="query.set($event)">
+    </div>
+    <button class="btn-ghost">
+      <span class="material-symbols-outlined">filter_list</span>
+      Filter
+    </button>
+    <button class="btn-ghost">
+      <span class="material-symbols-outlined">sort</span>
+      Sort
+    </button>
+  </div>
+</section>
+
+<!-- ===== Member rows ===== -->
+<section class="member-table">
+  <header class="row head">
+    <span>Member</span>
+    <span>Plan</span>
+    <span>Status</span>
+    <span>Joined</span>
+    <span>Last active</span>
+    <span></span>
+  </header>
+
+  <article class="row" *ngFor="let m of filtered()">
+    <div class="profile">
+      <img [src]="m.avatarUrl" [alt]="m.name">
+      <div>
+        <strong>{{ m.name }}</strong>
+        <small class="muted">{{ m.email }}</small>
+      </div>
+    </div>
+
+    <span class="plan-pill" [attr.data-plan]="m.plan">{{ m.plan }}</span>
+    <span class="status-pill" [attr.data-status]="m.status">{{ m.status }}</span>
+    <span class="muted">{{ m.joinedAt | date:'MMM d, y' }}</span>
+    <span class="muted">{{ m.lastActive }}</span>
+
+    <button class="btn-icon">
+      <span class="material-symbols-outlined">more_horiz</span>
+    </button>
+  </article>
+
+  <article class="empty" *ngIf="!filtered().length">
+    <span class="material-symbols-outlined">group_off</span>
+    <p>No members match this view.</p>
+  </article>
+</section>

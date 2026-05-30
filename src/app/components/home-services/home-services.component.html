@@ -1,0 +1,35 @@
+<section class="services container">
+
+  <div class="services-head">
+    <div>
+      <h2>Club Services</h2>
+      <p class="subtitle">Pick what you want to do today</p>
+    </div>
+    <button type="button" class="see-all" (click)="toggleServices()" *ngIf="services.length > 4">
+      {{ showAll ? 'Show Less' : 'See All' }}
+      <span class="material-symbols-outlined">{{ showAll ? 'expand_less' : 'expand_more' }}</span>
+    </button>
+  </div>
+
+  <div class="services-grid">
+    <a *ngFor="let service of visibleServices; trackBy: trackById"
+       class="service-card"
+       [routerLink]="serviceRoute(service)">
+      <div class="icon-wrap">
+        <span class="material-symbols-outlined">{{ service.icon || 'star' }}</span>
+      </div>
+      <h6>{{ service.name }}</h6>
+      <p>{{ service.description }}</p>
+    </a>
+
+    <!-- Empty -->
+    <div class="service-card placeholder" *ngIf="!services?.length">
+      <div class="icon-wrap">
+        <span class="material-symbols-outlined">hourglass_empty</span>
+      </div>
+      <h6>Coming soon</h6>
+      <p>Quick services will appear here.</p>
+    </div>
+  </div>
+
+</section>

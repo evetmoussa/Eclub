@@ -1,0 +1,42 @@
+<div class="page container">
+
+  <header class="bot-head">
+    <div class="bot-avatar">
+      <span class="material-symbols-outlined fill-1">smart_toy</span>
+      <span class="dot"></span>
+    </div>
+    <div class="bot-meta">
+      <h1>Smart Sports Assistant</h1>
+      <span class="status">AI ACTIVE NOW</span>
+    </div>
+  </header>
+
+  <section class="feed" #feed>
+    <article class="bubble" *ngFor="let m of msgs" [class.me]="m.who === 'me'">
+      <div class="text">{{ m.text }}</div>
+      <span class="time">{{ m.time }}</span>
+    </article>
+
+    <article class="bubble typing" *ngIf="isTyping">
+      <div class="text">
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+      </div>
+    </article>
+  </section>
+
+  <footer class="composer">
+    <input
+      class="input"
+      type="text"
+      placeholder="Ask your assistant..."
+      [(ngModel)]="draft"
+      (keydown)="onKey($event)">
+
+    <button class="send" (click)="send()" [disabled]="!draft.trim()">
+      send
+    </button>
+  </footer>
+
+</div>

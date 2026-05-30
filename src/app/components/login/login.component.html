@@ -45,43 +45,43 @@
 
       <form [formGroup]="loginForm" (ngSubmit)="loginSubmit()">
 
-        <!-- Membership ID -->
+        <!-- Email -->
         <div class="input-box mb-3">
-          <i class="fa-solid fa-id-badge"></i>
+          <i class="fa-regular fa-envelope"></i>
           <input
-            formControlName="memberId"
+            formControlName="email"
             class="form-control"
-            placeholder="Membership ID"
+            placeholder="email"
             [ngClass]="{
-              'is-valid': !loginForm.get('memberId')?.errors && (loginForm.get('memberId')?.touched || loginForm.get('memberId')?.dirty),
-              'is-invalid': loginForm.get('memberId')?.errors && (loginForm.get('memberId')?.touched || loginForm.get('memberId')?.dirty)
+              'is-valid': !loginForm.get('email')?.errors && (loginForm.get('email')?.touched || loginForm.get('email')?.dirty),
+              'is-invalid': loginForm.get('email')?.errors && (loginForm.get('email')?.touched || loginForm.get('email')?.dirty)
             }"
           >
-          @if(loginForm.get('memberId')?.errors && (loginForm.get('memberId')?.touched || loginForm.get('memberId')?.dirty))
+          @if(loginForm.get('email')?.errors && (loginForm.get('email')?.touched || loginForm.get('email')?.dirty))
           {
           <div class="error-msg">
-            @if(loginForm.get('memberId')?.getError('required')){ Membership ID is required }
-            @else if(loginForm.get('memberId')?.getError('minlength')){ Minimum 3 characters }
+            @if(loginForm.get('email')?.getError('required')){ email ID is required }
+            @else if(loginForm.get('email')?.getError('minlength')){ Invalid Email }
           </div>
           }
         </div>
 
-        <!-- Sequence -->
+        <!--sequenceNumber -->
         <div class="input-box mb-3">
-          <i class="fa-solid fa-hashtag"></i>
+          <i class="fa-solid fa-key"></i>
           <input
-            formControlName="sequence"
+            formControlName="sequenceNumber"
             class="form-control"
-            placeholder="Sequence Number"
+            placeholder="sequenceNumber"
             [ngClass]="{
-              'is-valid': !loginForm.get('sequence')?.errors && (loginForm.get('sequence')?.touched || loginForm.get('sequence')?.dirty),
-              'is-invalid': loginForm.get('sequence')?.errors && (loginForm.get('sequence')?.touched || loginForm.get('sequence')?.dirty)
+              'is-valid': !loginForm.get('sequenceNumber')?.errors && (loginForm.get('sequenceNumber')?.touched || loginForm.get('sequenceNumber')?.dirty),
+              'is-invalid': loginForm.get('sequenceNumber')?.errors && (loginForm.get('sequenceNumber')?.touched || loginForm.get('sequenceNumber')?.dirty)
             }"
           >
-          @if(loginForm.get('sequence')?.errors && (loginForm.get('sequence')?.touched || loginForm.get('sequence')?.dirty))
+          @if(loginForm.get('sequenceNumber')?.errors && (loginForm.get('sequenceNumber')?.touched || loginForm.get('sequenceNumber')?.dirty))
           {
           <div class="error-msg">
-            @if(loginForm.get('sequence')?.getError('required')){ Sequence Number is required }
+            @if(loginForm.get('sequenceNumber')?.getError('required')){sequenceNumber Number is required }
           </div>
           }
         </div>
@@ -122,6 +122,11 @@
       <div class="register-link">
         Don't have an account?
         <a routerLink="/register">Register Now</a>
+      </div>
+
+      <div class="register-link" style="margin-top:6px">
+        Want to coach with us?
+        <a routerLink="/coach-apply">Apply to be a coach</a>
       </div>
 
     </div>

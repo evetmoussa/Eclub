@@ -1,1 +1,64 @@
-<p>notifications works!</p>
+<div class="container">
+
+  <header class="head">
+    <span class="material-symbols-outlined fill-1 bell">notifications</span>
+    <h1>Notifications</h1>
+    <span class="unread-pill" *ngIf="unread() > 0">{{ unread() }} unread</span>
+    <button class="more"
+            (click)="markAll()"
+            [disabled]="!alerts().length || unread() === 0"
+            title="Mark all as read"
+            aria-label="Mark all as read">
+      <span class="material-symbols-outlined">done_all</span>
+    </button>
+  </header>
+
+  <div class="section-title" *ngIf="alerts().length">Recent Alerts</div>
+
+  @if (isLoading) {
+    <div class="alerts">
+      <div class="skeleton-row" *ngFor="let _ of [0,1]"></div>
+    </div>
+  }
+
+  @if (loadError) {
+    <div class="error-banner">
+      <span class="material-symbols-outlined">error</span>
+      <span>{{ loadError }}</span>
+      <button type="button" class="retry" (click)="load()">Retry</button>
+    </div>
+  }
+
+  <div class="alerts" *ngIf="!isLoading && alerts().length">
+    <article class="alert"
+             *ngFor="let a of alerts()"
+             [class.green]="a.iconHue === 'green'"
+             [class.orange]="a.iconHue === 'orange'"
+             [class.blue]="a.iconHue === 'blue'">
+      <div class="icon">
+        <span class="material-symbols-outlined fill-1">{{ a.icon }}</span>
+      </div>
+      <div class="body">
+        <div class="row">
+          <h3>{{ a.title }}</h3>
+          <span class="time">{{ a.time }}</span>
+        </div>
+        <p>{{ a.message }}</p>
+        <div class="actions">
+          <button class="cta" (click)="viewDetails(a)">View Details</button>
+          <button class="del" (click)="remove(a)" aria-label="Delete">
+            <span class="material-symbols-outlined">delete</span>
+          </button>
+        </div>
+      </div>
+      <span class="dot" *ngIf="a.unread"></span>
+    </article>
+  </div>
+
+  <div class="empty" *ngIf="!isLoading && !loadError && !alerts().length">
+    <span class="material-symbols-outlined">notifications_off</span>
+    <h3>No notifications yet</h3>
+    <p>You'll see booking confirmations and event updates here.</p>
+  </div>
+
+</div>

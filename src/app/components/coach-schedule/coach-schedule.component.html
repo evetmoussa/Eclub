@@ -1,0 +1,55 @@
+<header class="page-top">
+  <div>
+    <h1>My Schedule</h1>
+    <p class="muted">Your weekly availability — click a free slot to block it.</p>
+  </div>
+</header>
+
+<!-- Stats strip -->
+<section class="strip">
+  <article class="card green">
+    <small>CLASSES THIS WEEK</small>
+    <strong>{{ stats().classes }}</strong>
+  </article>
+  <article class="card amber">
+    <small>BLOCKED HOURS</small>
+    <strong>{{ stats().blocked }}</strong>
+  </article>
+  <article class="card slate">
+    <small>FREE SLOTS</small>
+    <strong>{{ stats().free }}</strong>
+  </article>
+</section>
+
+<!-- Week grid -->
+<section class="week">
+  <article class="day" *ngFor="let day of weekdays; let i = index">
+    <header class="day-head">
+      <strong>{{ day }}</strong>
+      <small>{{ byDay()[i].length }} {{ byDay()[i].length === 1 ? 'slot' : 'slots' }}</small>
+    </header>
+
+    <ul class="slots">
+      <li *ngFor="let s of byDay()[i]"
+          class="slot"
+          [attr.data-state]="s.state"
+          (click)="toggle(s)"
+          [title]="s.state === 'class' ? 'Class — managed by Admin' : (s.state === 'free' ? 'Click to block' : 'Click to unblock')">
+        <span class="time">{{ s.startTime }} — {{ s.endTime }}</span>
+        <span class="label">
+          <ng-container *ngIf="s.state === 'class'">{{ s.classTitle }}</ng-container>
+          <ng-container *ngIf="s.state === 'free'">Available</ng-container>
+          <ng-container *ngIf="s.state === 'blocked'">Blocked</ng-container>
+        </span>
+        <span class="icon material-symbols-outlined">
+          {{ s.state === 'class' ? 'event' : s.state === 'free' ? 'event_available' : 'event_busy' }}
+        </span>
+      </li>
+
+      <li *ngIf="!byDay()[i].length" class="empty-day">
+        <span class="material-symbols-outlined">free_breakfast</span>
+        Day off
+      </li>
+    </ul>
+  </article>
+</section>

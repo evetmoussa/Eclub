@@ -1,0 +1,177 @@
+/* =================== Navbar — web-sized =================== */
+.main-navbar {
+  background: var(--eclub-primary);
+  padding: 18px 0;
+  box-shadow: 0 2px 14px rgba(0, 0, 0, .14);
+  border-bottom: 1px solid rgba(26, 213, 95, .12);
+}
+
+/* Container override — use the bigger global container width. */
+.main-navbar .container {
+  max-width: var(--eclub-container);
+  padding-left: 24px;
+  padding-right: 24px;
+  display: flex;
+  align-items: center;
+}
+
+/* Brand */
+.logo-square {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: var(--eclub-primary-green);
+  color: var(--eclub-primary);
+  display: grid;
+  place-items: center;
+
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 1, 'wght' 600;
+    font-size: 28px;
+  }
+}
+
+.brand-name {
+  color: #fff;
+  font-weight: 800;
+  font-size: 1.4rem;
+  letter-spacing: -.015em;
+  margin-left: 4px;
+}
+
+.navbar-toggler { border-color: rgba(255,255,255,.4); }
+.navbar-toggler-icon { filter: invert(1) brightness(2); }
+
+/* Nav links — wider gaps, bigger text */
+.navbar-nav {
+  gap: 6px !important;
+
+  .nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: rgba(255, 255, 255, .82);
+    font-weight: 600;
+    font-size: 1rem;
+    padding: 12px 20px;
+    border-radius: 9999px;
+    transition: color .2s ease, background .2s ease;
+
+    .material-symbols-outlined { font-size: 22px; }
+
+    &:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, .08);
+    }
+
+    &.active {
+      color: var(--eclub-primary);
+      background: var(--eclub-primary-green);
+      font-weight: 800;
+      box-shadow: 0 4px 14px rgba(26, 213, 95, .35);
+      .material-symbols-outlined { font-variation-settings: 'FILL' 1; }
+    }
+  }
+}
+
+.notification-link {
+  position: relative;
+  .badge {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 7px;
+    border-radius: 9999px;
+    background: #ef4444;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 800;
+    display: grid;
+    place-items: center;
+    border: 2px solid var(--eclub-primary);
+  }
+}
+
+/* ===== Profile avatar + dropdown ===== */
+.profile-avatar {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px 6px 6px;
+  border-radius: 9999px;
+  cursor: pointer;
+  background: rgba(255, 255, 255, .06);
+  border: 1px solid rgba(255, 255, 255, .08);
+  transition: background .15s, border-color .15s;
+  &:hover { background: rgba(255, 255, 255, .12); border-color: rgba(26, 213, 95, .35); }
+
+  .avatar-circle {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--eclub-primary-green);
+    color: var(--eclub-primary);
+    display: grid; place-items: center;
+    font-weight: 800;
+    font-size: 14px;
+    letter-spacing: .03em;
+  }
+  .chev { color: rgba(255, 255, 255, .65); font-size: 22px; }
+}
+
+.profile-menu {
+  position: absolute;
+  top: calc(100% + 14px);
+  right: 0;
+  width: 280px;
+  background: #fff;
+  border: 1px solid var(--eclub-border);
+  border-radius: 16px;
+  box-shadow: 0 20px 48px rgba(0, 0, 0, .2);
+  padding: 10px;
+  z-index: 1000;
+  animation: dropIn .15s ease-out;
+
+  .menu-head {
+    padding: 12px 14px 14px;
+    border-bottom: 1px solid var(--eclub-border);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    strong { color: var(--eclub-text); font-size: 1rem; font-weight: 700; }
+    small  { color: var(--eclub-text-muted); font-size: .875rem; word-break: break-all; }
+  }
+  a, .logout {
+    width: 100%;
+    background: transparent;
+    border: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    color: var(--eclub-text) !important;
+    text-decoration: none;
+    font-size: .95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .12s;
+    &:hover { background: var(--eclub-bg-soft); }
+    .material-symbols-outlined { font-size: 22px; color: var(--eclub-text-muted); }
+  }
+  .logout {
+    color: #e11d48 !important;
+    .material-symbols-outlined { color: #e11d48; }
+    &:hover { background: rgba(244, 63, 94, .08); }
+  }
+  .divider { height: 1px; background: var(--eclub-border); margin: 8px 4px; }
+}
+@keyframes dropIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Responsive — keep things sane on smaller widths */
+@media (max-width: 992px) {
+  .navbar-nav .nav-link { padding: 10px 14px; font-size: .95rem; }
+  .brand-name { font-size: 1.2rem; }
+}

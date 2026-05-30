@@ -1,0 +1,128 @@
+<!-- ===== Page Top ===== -->
+<header class="page-top">
+  <div>
+    <h1>Dashboard</h1>
+    <p class="muted">Welcome back, here's what's happening at SmartClub today.</p>
+  </div>
+  <div class="top-actions">
+    <button class="btn-icon" title="Notifications">
+      <span class="material-symbols-outlined">notifications</span>
+      <span class="dot"></span>
+    </button>
+    <button class="btn-icon" title="Search">
+      <span class="material-symbols-outlined">search</span>
+    </button>
+    <button class="btn-primary">
+      <span class="material-symbols-outlined">add</span>
+      New
+    </button>
+  </div>
+</header>
+
+<!-- ===== KPI cards ===== -->
+<section class="kpi-grid">
+  <article class="kpi-card" *ngFor="let k of kpis()" [attr.data-tone]="k.tone">
+    <div class="kpi-icon">
+      <span class="material-symbols-outlined">{{ k.icon }}</span>
+    </div>
+    <p class="kpi-label">{{ k.label }}</p>
+    <h3 class="kpi-value">{{ k.value }}</h3>
+    <p class="kpi-delta"
+       [class.up]="k.delta > 0"
+       [class.down]="k.delta < 0"
+       [class.flat]="k.delta === 0">
+      <span class="material-symbols-outlined">
+        {{ k.delta > 0 ? 'trending_up' : k.delta < 0 ? 'trending_down' : 'trending_flat' }}
+      </span>
+      {{ k.delta > 0 ? '+' : '' }}{{ k.delta }}% this month
+    </p>
+  </article>
+</section>
+
+<!-- ===== Two-column row ===== -->
+<section class="split-row">
+  <!-- Management hub -->
+  <div class="panel hub">
+    <header class="panel-head">
+      <div>
+        <h2>Management Hub</h2>
+        <p class="muted">Jump into any module to manage operations</p>
+      </div>
+      <button class="btn-link">View all</button>
+    </header>
+
+    <div class="hub-grid">
+      <article class="hub-card" *ngFor="let t of tiles()" (click)="go(t.route)">
+        <div class="hub-icon">
+          <span class="material-symbols-outlined">{{ t.icon }}</span>
+        </div>
+        <div class="hub-body">
+          <h3>{{ t.title }}</h3>
+          <p class="muted">{{ t.subtitle }}</p>
+        </div>
+        <div class="hub-meta">
+          <strong>{{ fmt(t.count) }}</strong>
+          <span class="trend up" *ngIf="t.trend > 0">+{{ t.trend }}%</span>
+          <span class="trend flat" *ngIf="t.trend === 0">0%</span>
+          <span class="trend down" *ngIf="t.trend < 0">{{ t.trend }}%</span>
+        </div>
+        <span class="material-symbols-outlined chev">chevron_right</span>
+      </article>
+    </div>
+  </div>
+
+  <!-- Requests summary -->
+  <div class="panel donut-panel">
+    <header class="panel-head">
+      <div>
+        <h2>Requests Summary</h2>
+        <p class="muted">Approval performance this month</p>
+      </div>
+      <span class="material-symbols-outlined more">more_vert</span>
+    </header>
+
+    <div class="donut-wrap" *ngIf="summary() as s">
+      <svg viewBox="0 0 140 140" class="donut">
+        <circle cx="70" cy="70" r="54" stroke="#E2E8F0" stroke-width="14" fill="none"/>
+        <circle cx="70" cy="70" r="54" stroke="#1AD55F" stroke-width="14" fill="none"
+                stroke-linecap="round"
+                [attr.stroke-dasharray]="donut().dash + ' ' + donut().gap"
+                transform="rotate(-90 70 70)"/>
+        <text x="70" y="70" text-anchor="middle" dominant-baseline="central"
+              font-size="22" font-weight="700" fill="#0F172A">{{ s.successRate }}%</text>
+        <text x="70" y="92" text-anchor="middle" dominant-baseline="central"
+              font-size="10" fill="#64748B">success rate</text>
+      </svg>
+
+      <ul class="donut-legend">
+        <li><span class="dot green"></span>Approved <strong>{{ s.approved }}</strong></li>
+        <li><span class="dot amber"></span>Pending <strong>{{ s.pending }}</strong></li>
+        <li><span class="dot rose"></span>Rejected <strong>{{ s.rejected }}</strong></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Activity feed ===== -->
+<section class="panel feed-panel">
+  <header class="panel-head">
+    <div>
+      <h2>Recent Activities</h2>
+      <p class="muted">Live updates across the club</p>
+    </div>
+    <button class="btn-link">View all</button>
+  </header>
+
+  <ul class="feed">
+    <li class="feed-item" *ngFor="let a of feed()">
+      <div class="feed-icon" [attr.data-tone]="a.tone">
+        <span class="material-symbols-outlined">{{ a.icon }}</span>
+      </div>
+      <div class="feed-text">
+        <strong>{{ a.title }}</strong>
+        <p class="muted">{{ a.description }}</p>
+      </div>
+      <span class="feed-time">{{ a.timeAgo }}</span>
+    </li>
+  </ul>
+</section>

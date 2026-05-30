@@ -1,0 +1,52 @@
+<div class="page container">
+
+  <header class="head">
+    <button class="icon-btn" (click)="goBack()" aria-label="Back">
+      <span class="material-symbols-outlined">arrow_back_ios_new</span>
+    </button>
+    <h1>Success</h1>
+    <span></span>
+  </header>
+
+  <h2 class="title">Payment Successful</h2>
+  <p class="lede">Your membership has been activated successfully</p>
+
+  <article class="details">
+    <span class="kicker">DETAILS</span>
+
+    <div class="row">
+      <span class="row-icon"><span class="material-symbols-outlined fill-1">card_membership</span></span>
+      <div class="row-text">
+        <span class="lbl">Membership<br>Type</span>
+      </div>
+      <strong>{{ planTitle }}</strong>
+    </div>
+
+    <div class="row">
+      <span class="row-icon"><span class="material-symbols-outlined fill-1">credit_card</span></span>
+      <div class="row-text">
+        <span class="lbl">Payment<br>Method</span>
+      </div>
+      <strong>{{ method }}</strong>
+    </div>
+
+    <div class="row">
+      <span class="row-icon"><span class="material-symbols-outlined fill-1">calendar_today</span></span>
+      <div class="row-text">
+        <span class="lbl">Start<br>Date</span>
+      </div>
+      <strong>{{ start | date:'dd MMM y' }}</strong>
+    </div>
+
+    <div class="row">
+      <span class="row-icon"><span class="material-symbols-outlined fill-1">event_available</span></span>
+      <div class="row-text">
+        <span class="lbl">Expiry<br>Date</span>
+      </div>
+      <strong>{{ expiry | date:'dd MMM y' }}</strong>
+    </div>
+  </article>
+
+  <button class="home-btn" (click)="goHome()">Go to Home</button>
+
+</div>

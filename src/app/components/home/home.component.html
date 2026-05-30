@@ -1,1 +1,133 @@
-<p>home works!</p>
+<!-- ===== Greeting + Quick Stats ===== -->
+<section class="hello container">
+  <div class="hello-text">
+    <h1>{{ greeting() }}, {{ memberFirstName() }} 👋</h1>
+    <p class="muted">Here's what's happening in your club today.</p>
+  </div>
+
+  <div class="quick-stats">
+    <a class="stat" routerLink="/blank-layout/booking">
+      <div class="ico"><span class="material-symbols-outlined">confirmation_number</span></div>
+      <div>
+        <small>Upcoming bookings</small>
+        <strong>{{ upcomingBookings() }}</strong>
+      </div>
+      <span class="material-symbols-outlined chev">chevron_right</span>
+    </a>
+
+    <a class="stat" routerLink="/blank-layout/events">
+      <div class="ico" data-tone="blue"><span class="material-symbols-outlined">event</span></div>
+      <div>
+        <small>Events this month</small>
+        <strong>{{ homeData?.featuredEvent ? 1 : 0 }}</strong>
+      </div>
+      <span class="material-symbols-outlined chev">chevron_right</span>
+    </a>
+
+    <a class="stat" routerLink="/blank-layout/renew-membership">
+      <div class="ico" data-tone="amber"><span class="material-symbols-outlined">autorenew</span></div>
+      <div>
+        <small>Membership renews in</small>
+        <strong>{{ daysToRenewal() }} days</strong>
+      </div>
+      <span class="material-symbols-outlined chev">chevron_right</span>
+    </a>
+  </div>
+</section>
+
+<!-- ===== Hero carousel (full-width) ===== -->
+<app-home-slider [banners]="homeData?.banners ?? []"></app-home-slider>
+
+<!-- ===== Quick services grid ===== -->
+<app-home-services [services]="homeData?.quickServices ?? []"></app-home-services>
+
+<!-- ===== Featured Event ===== -->
+@if (homeData?.featuredEvent; as event) {
+  <section class="featured container">
+    <div class="featured-head">
+      <div>
+        <h2>Featured Event</h2>
+        <p class="subtitle">Don't miss this month's highlight</p>
+      </div>
+      <a class="all-events" routerLink="/blank-layout/events">
+        All events
+        <span class="material-symbols-outlined">arrow_forward</span>
+      </a>
+    </div>
+
+    <article class="featured-card">
+      <!-- Hidden img acts as a probe; if it 404s we keep the fallback bg. -->
+      <img class="probe-img" [src]="resolveImage(event.imageUrl)" alt=""
+           (error)="onCoverError($event)" #cover>
+
+      <div class="cover" [style.background-image]="'url(' + cover.src + ')'">
+        <span class="status-tag">{{ event.status || 'Upcoming' }}</span>
+      </div>
+
+      <div class="content">
+        <h3>{{ event.title }}</h3>
+        <p class="desc" *ngIf="event.description">{{ event.description }}</p>
+
+        <div class="meta-grid">
+          <div class="meta-item">
+            <span class="material-symbols-outlined">calendar_today</span>
+            <div>
+              <span class="meta-label">Starts</span>
+              <span class="meta-value">{{ event.startDate | date:'MMM d, y' }} · {{ event.startDate | date:'h:mm a' }}</span>
+            </div>
+          </div>
+
+          <div class="meta-item" *ngIf="event.location">
+            <span class="material-symbols-outlined">location_on</span>
+            <div>
+              <span class="meta-label">Location</span>
+              <span class="meta-value">{{ event.location }}</span>
+            </div>
+          </div>
+
+          <div class="meta-item" *ngIf="event.maxParticipants">
+            <span class="material-symbols-outlined">groups</span>
+            <div>
+              <span class="meta-label">Participants</span>
+              <span class="meta-value">{{ event.currentParticipants }} / {{ event.maxParticipants }} joined</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="button" class="btn-primary" (click)="joinEvent(event.id)">
+            <span class="material-symbols-outlined">how_to_reg</span>
+            Register Now
+          </button>
+          <button type="button" class="btn-ghost" (click)="viewEvent(event.id)">
+            View Details
+          </button>
+        </div>
+      </div>
+    </article>
+  </section>
+}
+
+<!-- ===== Loading skeleton ===== -->
+@if (isLoading && !homeData) {
+  <section class="container skeleton-wrap">
+    <div class="sk-services">
+      <div class="sk-svc"></div><div class="sk-svc"></div>
+      <div class="sk-svc"></div><div class="sk-svc"></div>
+    </div>
+    <div class="sk-event"></div>
+  </section>
+}
+
+<!-- ===== Error ===== -->
+@if (loadError) {
+  <div class="container">
+    <div class="error-banner">
+      <span class="material-symbols-outlined">error</span>
+      <span>{{ loadError }}</span>
+      <button type="button" class="retry" (click)="loadHomeData()">Retry</button>
+    </div>
+  </div>
+}
+
+<!-- Global footer comes from BlankLayout — no per-page footer needed. -->

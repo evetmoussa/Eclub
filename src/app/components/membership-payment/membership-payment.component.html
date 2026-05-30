@@ -1,0 +1,76 @@
+<div class="page container">
+
+  <header class="head">
+    <button class="icon-btn" (click)="goBack()" aria-label="Back">
+      <span class="material-symbols-outlined">arrow_back_ios_new</span>
+    </button>
+    <h1>Payment Method</h1>
+    <span></span>
+  </header>
+
+  <!-- Order summary -->
+  <article class="order">
+    <span class="label">ORDER SUMMARY</span>
+    <div class="order-row">
+      <div>
+        <h2>{{ planTitle }}</h2>
+        <p>{{ planCaption }}</p>
+      </div>
+      <strong class="price">{{ price | number }} {{ currency }}</strong>
+    </div>
+  </article>
+
+  <h2 class="section-title">Select Payment Method</h2>
+
+  <div class="options">
+    <button class="opt"
+            *ngFor="let o of options"
+            [class.active]="o.id === selected"
+            (click)="pick(o.id)">
+      <span class="opt-icon">
+        <span class="material-symbols-outlined fill-1">{{ o.icon }}</span>
+      </span>
+      <span class="opt-text">
+        <strong>{{ o.title }}</strong>
+        <span class="caption" *ngIf="o.caption">{{ o.caption }}</span>
+      </span>
+      <span class="radio" [class.checked]="o.id === selected">
+        <span class="material-symbols-outlined fill-1" *ngIf="o.id === selected">check</span>
+      </span>
+    </button>
+  </div>
+
+  <button class="pay-btn" (click)="askConfirm()">Continue to Payment</button>
+
+</div>
+
+<!-- ===== Confirm Subscription bottom sheet ===== -->
+@if (showConfirm) {
+  <div class="sheet-backdrop" (click)="cancelConfirm()"></div>
+
+  <aside class="confirm-sheet" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+    <span class="grabber"></span>
+
+    <h2 id="confirmTitle">Confirm Subscription</h2>
+    <p class="sub">Please review your details before continuing</p>
+
+    <div class="review-card">
+      <div class="row">
+        <span class="row-icon"><span class="material-symbols-outlined fill-1">calendar_today</span></span>
+        <span class="row-label">Plan</span>
+        <strong>{{ planTitle }}</strong>
+      </div>
+      <div class="divider"></div>
+      <div class="row">
+        <span class="row-icon"><span class="material-symbols-outlined fill-1">credit_card</span></span>
+        <span class="row-label">Payment Method</span>
+        <strong>{{ selectedOption.title }}</strong>
+      </div>
+    </div>
+
+    <p class="ask">Are you sure you want to proceed with this subscription?</p>
+
+    <button class="primary" (click)="pay()">Yes, Confirm</button>
+    <button class="cancel" (click)="cancelConfirm()">No, Cancel</button>
+  </aside>
+}

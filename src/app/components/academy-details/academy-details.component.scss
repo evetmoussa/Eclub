@@ -1,0 +1,154 @@
+:host { display: block; background: #fff; }
+
+.page { padding: 32px 24px 80px; max-width: 1100px; }
+
+.page-head {
+  display: grid;
+  grid-template-columns: 40px 1fr 40px;
+  align-items: center;
+  margin-bottom: 28px;
+
+  h1 {
+    margin: 0;
+    text-align: center;
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--eclub-primary);
+  }
+}
+
+.icon-btn {
+  width: 40px; height: 40px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  display: grid; place-items: center;
+  &:hover { background: #f1f5f9; }
+}
+
+.block {
+  margin-top: 26px;
+  h2 { margin: 0 0 14px; font-size: 1.2rem; font-weight: 800; color: var(--eclub-primary); }
+}
+
+/* ── Coaches ── */
+.coach-row { display: flex; gap: 18px; flex-wrap: wrap; }
+.coach-wrap {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 6px;
+}
+.coach-link {
+  font-size: 11px; font-weight: 600;
+  color: var(--eclub-primary-green, #1AD55F);
+  text-decoration: none;
+  display: inline-flex; align-items: center; gap: 3px;
+  &:hover { text-decoration: underline; }
+  .material-symbols-outlined { font-size: 13px; }
+}
+.coach {
+  background: none; border: none; padding: 0;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  cursor: pointer;
+
+  .avatar {
+    width: 78px; height: 78px;
+    border-radius: 50%;
+    background: #e2e8f0;
+    display: grid; place-items: center;
+    border: 3px solid transparent;
+    transition: border-color .15s ease;
+
+    .material-symbols-outlined { font-size: 36px; color: #94a3b8; }
+  }
+
+  .name {
+    font-weight: 700; font-size: .95rem;
+    color: var(--eclub-text);
+  }
+
+  &.active .avatar { border-color: var(--eclub-primary-green); }
+}
+
+/* ── Dates ── */
+.date-row { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px; }
+.date {
+  flex: 0 0 64px;
+  padding: 10px 8px;
+  border-radius: 14px;
+  border: none;
+  background: #f1f5f9;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  cursor: pointer;
+  transition: all .15s ease;
+
+  .m, .w { font-size: 11px; font-weight: 700; color: #64748b; letter-spacing: .04em; }
+  .d     { font-size: 1.4rem; font-weight: 800; color: var(--eclub-primary); }
+
+  &:hover { background: #e2e8f0; }
+  &.active {
+    background: var(--eclub-primary-green);
+    .m, .w, .d { color: var(--eclub-primary); }
+  }
+}
+
+/* ── Slots ── */
+.slot {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px;
+  padding: 18px;
+  border-radius: 14px;
+  background: #f8fafc;
+  border: 1.5px solid transparent;
+  margin-bottom: 12px;
+  transition: border-color .15s ease;
+
+  &:not(.full):hover { border-color: var(--eclub-primary-green); }
+
+  &.full { opacity: .85; }
+
+  .slot-info {
+    h4 { margin: 0 0 6px; font-size: 1.05rem; font-weight: 700; color: var(--eclub-primary); }
+    .row {
+      display: flex; align-items: center; gap: 6px;
+      color: var(--eclub-primary-green);
+      font-size: .9rem;
+      .material-symbols-outlined { font-size: 18px; }
+    }
+    .capacity {
+      margin-top: 6px; font-size: .82rem; font-weight: 600; color: #64748b;
+      &.full { color: #ef4444; }
+    }
+  }
+}
+
+.book-btn {
+  background: var(--eclub-primary-green);
+  color: var(--eclub-primary);
+  border: none;
+  border-radius: 9999px;
+  padding: 12px 26px;
+  font-weight: 800;
+  font-size: .9rem;
+  letter-spacing: .04em;
+  cursor: pointer;
+  transition: transform .15s ease, box-shadow .2s ease;
+
+  &:not([disabled]):hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(26,213,95,.35); }
+  &[disabled] { background: #cbd5e1; color: #fff; cursor: not-allowed; }
+}
+
+/* First slot is highlighted by default */
+.slot:first-of-type:not(.full) {
+  border-color: var(--eclub-primary-green);
+  background: rgba(26,213,95,.05);
+}
+
+/* ============ Desktop refinements ============ */
+@media (min-width: 960px) {
+  .slot {
+    /* keep single column since each row is wide enough */
+    padding: 22px;
+    .slot-info h4 { font-size: 1.15rem; }
+  }
+}

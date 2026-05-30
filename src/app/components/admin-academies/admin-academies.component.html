@@ -1,0 +1,118 @@
+<header class="page-top">
+  <div>
+    <h1>Elite Academy</h1>
+    <p class="muted">Manage every academy, sport program and venue.</p>
+  </div>
+  <button class="btn-primary" (click)="openAdd()">
+    <span class="material-symbols-outlined">add</span>
+    Add New Academy
+  </button>
+</header>
+
+<!-- ===== Filters bar ===== -->
+<section class="filters">
+  <div class="search">
+    <span class="material-symbols-outlined">search</span>
+    <input
+      type="text"
+      placeholder="Search by academy name or location…"
+      [ngModel]="query()"
+      (ngModelChange)="query.set($event)">
+  </div>
+
+  <label class="select">
+    <span class="material-symbols-outlined">sports</span>
+    <select [ngModel]="sport()" (ngModelChange)="sport.set($event)">
+      <option *ngFor="let s of sports()" [value]="s">{{ s }}</option>
+    </select>
+    <span class="material-symbols-outlined chev">expand_more</span>
+  </label>
+
+  <label class="select">
+    <span class="material-symbols-outlined">flag</span>
+    <select [ngModel]="status()" (ngModelChange)="status.set($event)">
+      <option value="All">All status</option>
+      <option value="Active">Active</option>
+      <option value="Paused">Paused</option>
+      <option value="Archived">Archived</option>
+    </select>
+    <span class="material-symbols-outlined chev">expand_more</span>
+  </label>
+
+  <label class="select">
+    <span class="material-symbols-outlined">sort</span>
+    <select [ngModel]="sortBy()" (ngModelChange)="sortBy.set($event)">
+      <option value="name">Sort: Name</option>
+      <option value="members">Sort: Members</option>
+      <option value="growth">Sort: Growth</option>
+    </select>
+    <span class="material-symbols-outlined chev">expand_more</span>
+  </label>
+</section>
+
+<!-- ===== Cards grid ===== -->
+<section class="grid">
+  <article class="academy" *ngFor="let a of filtered()">
+    <div class="cover" [style.background-image]="'url(' + a.imageUrl + ')'">
+      <span class="sport-tag">{{ a.sport }}</span>
+      <span class="status" [attr.data-status]="a.status">{{ a.status }}</span>
+    </div>
+
+    <div class="body">
+      <h3>{{ a.name }}</h3>
+      <p class="loc">
+        <span class="material-symbols-outlined">place</span>
+        {{ a.location }}
+      </p>
+
+      <div class="metrics">
+        <div>
+          <small>Trainers</small>
+          <strong>{{ a.trainersCount }}</strong>
+        </div>
+        <div>
+          <small>Members</small>
+          <strong>{{ a.membersCount }}</strong>
+        </div>
+        <div>
+          <small>Growth</small>
+          <strong [class.up]="a.growth > 0" [class.down]="a.growth < 0">
+            {{ a.growth > 0 ? '+' : '' }}{{ a.growth }}%
+          </strong>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn-ghost" (click)="openEdit(a)">
+          <span class="material-symbols-outlined">visibility</span>
+          View
+        </button>
+        <button class="btn-ghost" (click)="openEdit(a)">
+          <span class="material-symbols-outlined">edit</span>
+          Edit
+        </button>
+        <button class="btn-icon danger" title="Delete" (click)="remove(a)">
+          <span class="material-symbols-outlined">delete</span>
+        </button>
+      </div>
+    </div>
+  </article>
+
+  <article class="empty" *ngIf="!filtered().length">
+    <span class="material-symbols-outlined">school</span>
+    <p>No academies match your filters.</p>
+  </article>
+</section>
+
+<!-- ===== Add / Edit modal ===== -->
+<app-entity-form-modal
+  *ngIf="modalOpen()"
+  [title]="editing() ? 'Edit Academy' : 'Add New Academy'"
+  [subtitle]="editing() ? 'Update the academy details below.' : 'Fill in the fields to register a new academy.'"
+  [submitLabel]="editing() ? 'Update' : 'Create academy'"
+  [fields]="fields"
+  [initial]="editing()"
+  [isSubmitting]="isSubmitting()"
+  (submitted)="onSubmit($event)"
+  (cancelled)="closeModal()">
+</app-entity-form-modal>

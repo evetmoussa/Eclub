@@ -117,6 +117,7 @@ placeholder="Phone Number">
 
 
 <!-- ID Number or Passport -->
+<!-- ID Number or Passport -->
 <div class="input-box mb-3">
   <i class="fa-solid fa-id-card"></i>
   <input
@@ -126,15 +127,18 @@ placeholder="Phone Number">
       'is-valid': registerForm.get('idNumber')?.value && !registerForm.get('idNumber')?.errors && (registerForm.get('idNumber')?.touched || registerForm.get('idNumber')?.dirty),
       'is-invalid': registerForm.get('idNumber')?.errors && (registerForm.get('idNumber')?.touched || registerForm.get('idNumber')?.dirty)
     }"
-    placeholder="ID Number or Passport"
+    placeholder="National ID (14 digits)"
   >
 
   @if(registerForm.get('idNumber')?.errors && (registerForm.get('idNumber')?.touched || registerForm.get('idNumber')?.dirty))
   {
     <div class="error-msg">
-      @if(registerForm.get('idNumber')?.getError('required')){ ID Number is required }
-      @else if(registerForm.get('idNumber')?.getError('minlength')){ Minimum 5 characters }
-      @else if(registerForm.get('idNumber')?.getError('maxlength')){ Maximum 20 characters }
+      @if(registerForm.get('idNumber')?.getError('required')){ 
+        National ID is required 
+      }
+      @else if(registerForm.get('idNumber')?.getError('pattern')){ 
+        National ID must be exactly 14 digits (numbers only)
+      }
     </div>
   }
 </div>
@@ -156,7 +160,12 @@ class="form-control"
 'is-invalid':registerForm.get('password')?.errors && (registerForm.get('password')?.touched || registerForm.get('password')?.dirty)
 }"
 
-placeholder="Password">
+placeholder="Password"
+
+>
+<span class="eye" (click)="togglePassword()">
+    <i [ngClass]="showPassword ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
+  </span>
 
 </div>
 
@@ -210,15 +219,55 @@ Password must be at least 6 characters
 
 </div>
 
+<!-- Is Admin -->
+<div class="input-box mb-3 d-flex align-items-center gap-2">
+
+  <input 
+    type="checkbox" 
+    formControlName="isAdmin"
+    style="width:18px; height:18px;"
+  >
+
+  <label style="margin:0;">Are you an Admin?</label>
+
+</div>
+
 
 <button class="btn register-btn w-100" [disabled]="isLoading">
-
-@if(isLoading){ Loading... }
-@else{ Create Account }
-
+  @if(isLoading){
+    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+    Creating Account...
+  } @else {
+    <i class="fa-solid fa-user-plus me-2"></i>
+    Create Account
+  }
 </button>
 
+
+<!-- Error Message -->
+@if(msgError){
+  <div class="alert alert-danger text-center mt-3 py-2" 
+       style="background: rgba(239, 68, 68, 0.837); border: 1px solid #ef4444; border-radius: 12px;">
+    <i class="fa-solid fa-circle-exclamation me-2"></i>
+    {{ msgError }}
+  </div>
+}
+
+<!-- Success Message -->
+@if(msgSuccess){
+  <div class="alert alert-success text-center mt-3 py-2" 
+       style="background: rgba(34, 197, 94, 0.792); border: 1px solid #22c55e; border-radius: 12px;">
+    <i class="fa-solid fa-circle-check me-2"></i>
+    Account created successfully! Redirecting to login...
+  </div>
+}
+
 </form>
+
+ <div class="register-link">
+         Have aready an account?
+        <a routerLink="/authlayout">login </a>
+      </div>
 
         </div>
 
@@ -229,3 +278,4 @@ Password must be at least 6 characters
   </div>
 
 </div>
+

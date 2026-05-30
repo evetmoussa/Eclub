@@ -1,0 +1,128 @@
+:host { display: block; background: #fff; /* min-height removed */ }
+
+.container { max-width: 760px; margin: 0 auto; padding: 32px 24px 80px; }
+
+.head {
+  text-align: center;
+  margin-bottom: 18px;
+  h1 { margin: 0; font-size: 1.4rem; font-weight: 800; color: var(--eclub-primary); }
+}
+
+.avatar-wrap {
+  position: relative;
+  width: 140px; height: 140px;
+  margin: 12px auto 12px;
+
+  .avatar {
+    width: 100%; height: 100%;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #128048, #0A1A12);
+    border: 4px solid #fff;
+    box-shadow: 0 0 0 3px var(--eclub-primary-green);
+    overflow: hidden;
+    img { width: 100%; height: 100%; object-fit: cover; }
+  }
+
+  .edit-btn {
+    position: absolute;
+    right: 4px; bottom: 4px;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: var(--eclub-primary-green);
+    color: var(--eclub-primary);
+    cursor: pointer;
+    display: grid; place-items: center;
+    box-shadow: 0 6px 14px rgba(26,213,95,.35);
+
+    .material-symbols-outlined { font-size: 18px; }
+  }
+}
+
+.user-name {
+  text-align: center;
+  margin: 0 0 28px;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--eclub-primary);
+}
+
+.menu {
+  display: flex; flex-direction: column;
+  gap: 14px;
+}
+
+.menu-item {
+  display: grid;
+  grid-template-columns: 48px 1fr 24px;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  background: #fff;
+  border: 1px solid var(--eclub-border);
+  border-radius: 16px;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color .15s ease, box-shadow .15s ease;
+
+  &:hover {
+    border-color: var(--eclub-primary-green);
+    box-shadow: 0 8px 20px rgba(15, 23, 42, .05);
+  }
+
+  .icon-square {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    display: grid; place-items: center;
+
+    .material-symbols-outlined { font-size: 24px; }
+
+    &.green { background: rgba(26,213,95,.14); color: #128048; }
+    &.blue  { background: rgba(59,130,246,.14); color: #2563eb; }
+    &.gray  { background: #f1f5f9; color: #475569; }
+  }
+
+  .lbl {
+    font-weight: 700;
+    color: var(--eclub-primary);
+    font-size: 1rem;
+  }
+
+  .chev { color: var(--eclub-text-muted); }
+}
+
+.email {
+  text-align: center;
+  margin: -22px 0 22px;
+  color: var(--eclub-text-muted);
+  font-size: .92rem;
+}
+
+.menu-item {
+  &.logout {
+    margin-top: 8px;
+    .lbl { color: #b91c1c; }
+  }
+
+  .icon-square.orange { background: rgba(245, 158, 11, .14); color: #b45309; }
+  .icon-square.red    { background: #fee2e2;                  color: #b91c1c; }
+}
+
+.menu-item .icon-square.purple {
+  background: rgba(168, 85, 247, .14);
+  color: #7e22ce;
+}
+
+/* ============ Desktop refinements ============ */
+@media (min-width: 720px) {
+  .menu {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+
+    .menu-item.logout {
+      grid-column: 1 / -1; /* sign-out spans full width */
+      margin-top: 0;
+    }
+  }
+}

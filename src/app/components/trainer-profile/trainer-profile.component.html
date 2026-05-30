@@ -1,0 +1,150 @@
+<!-- ===== Loading skeleton ===== -->
+<section class="container" *ngIf="isLoading()">
+  <div class="sk-hero"></div>
+  <div class="sk-grid">
+    <div class="sk-card"></div>
+    <div class="sk-card"></div>
+  </div>
+</section>
+
+<!-- ===== Not found ===== -->
+<section class="container empty-page" *ngIf="!isLoading() && notFound()">
+  <span class="material-symbols-outlined">person_off</span>
+  <h2>Trainer not found</h2>
+  <p>This coach profile is no longer available.</p>
+  <button type="button" class="btn-primary" (click)="goBack()">
+    <span class="material-symbols-outlined">arrow_back</span>
+    Go back
+  </button>
+</section>
+
+<!-- ===== Profile ===== -->
+<ng-container *ngIf="trainer() as t">
+  <header class="hero">
+    <button class="back" (click)="goBack()">
+      <span class="material-symbols-outlined">arrow_back</span>
+    </button>
+
+    <div class="container hero-inner">
+      <div class="avatar-wrap">
+        <img [src]="t.avatarUrl" [alt]="t.name">
+        <span class="status-dot" [attr.data-status]="t.status"
+              [title]="t.status"></span>
+      </div>
+
+      <div class="hero-text">
+        <span class="role-tag">{{ t.role }} Coach</span>
+        <h1>{{ t.name }}</h1>
+
+        <div class="stars">
+          <span class="material-symbols-outlined fill-1" *ngFor="let _ of [].constructor(stars().full)">star</span>
+          <span class="material-symbols-outlined" *ngIf="stars().half">star_half</span>
+          <span class="material-symbols-outlined" *ngFor="let _ of [].constructor(stars().empty)">star</span>
+          <strong>{{ t.rating }}</strong>
+          <span class="reviews">· {{ t.sessions }} sessions</span>
+        </div>
+
+        <div class="hero-actions">
+          <button type="button" class="btn-primary" (click)="bookGeneric()">
+            <span class="material-symbols-outlined">event_available</span>
+            Book a session
+          </button>
+          <a class="btn-ghost" [href]="'mailto:' + t.email">
+            <span class="material-symbols-outlined">mail</span>
+            Message
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container body-grid">
+    <!-- Left column -->
+    <section class="left">
+      <article class="panel">
+        <h2>About</h2>
+        <p class="bio">
+          {{ t.name }} is a {{ t.role }} coach at SmartClub with {{ t.sessions }}+ sessions
+          delivered and a {{ t.rating }} average rating. Sessions focus on technique,
+          conditioning, and friendly competition — perfect for both beginners and
+          experienced players looking to level up.
+        </p>
+
+        <div class="specialty-chips">
+          <span class="chip">
+            <span class="material-symbols-outlined">sports</span>
+            {{ t.role }}
+          </span>
+          <span class="chip">
+            <span class="material-symbols-outlined">fitness_center</span>
+            Conditioning
+          </span>
+          <span class="chip">
+            <span class="material-symbols-outlined">groups</span>
+            Group classes
+          </span>
+        </div>
+      </article>
+
+      <article class="panel">
+        <h2>This week's schedule</h2>
+        <ul class="schedule">
+          <li *ngFor="let s of schedule()">
+            <div class="day">
+              <strong>{{ s.weekday }}</strong>
+              <small>{{ s.date | date:'MMM d' }}</small>
+            </div>
+            <div class="info">
+              <strong>{{ s.title }}</strong>
+              <small>{{ s.startTime }} — {{ s.endTime }}</small>
+            </div>
+            <div class="spots" [class.low]="s.spotsLeft <= 3">
+              {{ s.spotsLeft }} spots
+            </div>
+            <button class="btn-book" (click)="bookSession(s)">
+              Book
+              <span class="material-symbols-outlined">chevron_right</span>
+            </button>
+          </li>
+        </ul>
+      </article>
+    </section>
+
+    <!-- Right column -->
+    <aside class="right">
+      <article class="panel info-card">
+        <h2>Contact</h2>
+        <a class="info-row" [href]="'mailto:' + t.email">
+          <span class="material-symbols-outlined">mail</span>
+          <div>
+            <small>Email</small>
+            <strong>{{ t.email }}</strong>
+          </div>
+        </a>
+        <a class="info-row" [href]="'tel:' + t.phone">
+          <span class="material-symbols-outlined">call</span>
+          <div>
+            <small>Phone</small>
+            <strong>{{ t.phone }}</strong>
+          </div>
+        </a>
+        <div class="info-row">
+          <span class="material-symbols-outlined">workspace_premium</span>
+          <div>
+            <small>Status</small>
+            <strong [attr.data-status]="t.status">{{ t.status }}</strong>
+          </div>
+        </div>
+      </article>
+
+      <article class="panel cta-card">
+        <span class="material-symbols-outlined">smart_toy</span>
+        <h3>Need help choosing?</h3>
+        <p>Ask the SmartClub Assistant which class is right for your level.</p>
+        <a routerLink="/blank-layout/assistant" class="btn-ghost">
+          Ask the Assistant
+        </a>
+      </article>
+    </aside>
+  </main>
+</ng-container>

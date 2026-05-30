@@ -1,0 +1,72 @@
+<div class="backdrop" (click)="onBackdrop($event)">
+  <article class="modal" role="dialog" aria-modal="true">
+    <header class="modal-head">
+      <div>
+        <h2>{{ title }}</h2>
+        <p class="muted" *ngIf="subtitle">{{ subtitle }}</p>
+      </div>
+      <button type="button" class="x" (click)="onCancel()" aria-label="Close">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </header>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="modal-body">
+      <div class="grid">
+        <ng-container *ngFor="let f of fields">
+          <label class="field"
+                 [class.full]="(f.width || 'half') === 'full' || f.type === 'textarea'">
+            <span class="lbl">
+              {{ f.label }}
+              <em *ngIf="f.required" class="req">*</em>
+            </span>
+
+            <input *ngIf="f.type === 'text' || f.type === 'email' || f.type === 'tel' || f.type === 'url'"
+                   [type]="f.type"
+                   [formControlName]="f.key"
+                   [placeholder]="f.placeholder || ''"
+                   [class.invalid]="hasError(f.key)">
+
+            <input *ngIf="f.type === 'number'"
+                   type="number"
+                   [formControlName]="f.key"
+                   [min]="f.min ?? null"
+                   [max]="f.max ?? null"
+                   [placeholder]="f.placeholder || ''"
+                   [class.invalid]="hasError(f.key)">
+
+            <input *ngIf="f.type === 'date'"
+                   type="date"
+                   [formControlName]="f.key"
+                   [class.invalid]="hasError(f.key)">
+
+            <textarea *ngIf="f.type === 'textarea'"
+                      rows="3"
+                      [formControlName]="f.key"
+                      [placeholder]="f.placeholder || ''"
+                      [class.invalid]="hasError(f.key)"></textarea>
+
+            <select *ngIf="f.type === 'select'"
+                    [formControlName]="f.key"
+                    [class.invalid]="hasError(f.key)">
+              <option value="" disabled>{{ f.placeholder || 'Select…' }}</option>
+              <option *ngFor="let o of f.options" [value]="o.value">{{ o.label }}</option>
+            </select>
+
+            <small class="hint" *ngIf="f.hint && !hasError(f.key)">{{ f.hint }}</small>
+            <small class="err"  *ngIf="hasError(f.key)">This field is required or invalid.</small>
+          </label>
+        </ng-container>
+      </div>
+
+      <footer class="modal-foot">
+        <button type="button" class="btn-ghost" (click)="onCancel()" [disabled]="isSubmitting">
+          Cancel
+        </button>
+        <button type="submit" class="btn-primary" [disabled]="isSubmitting">
+          <ng-container *ngIf="!isSubmitting">{{ submitLabel }}</ng-container>
+          <ng-container *ngIf="isSubmitting">Saving…</ng-container>
+        </button>
+      </footer>
+    </form>
+  </article>
+</div>

@@ -1,1 +1,241 @@
-<p>sports works!</p>
+<!-- ============= Hero ============= -->
+<section class="academies-hero">
+  <div class="container">
+    <div class="hero-text">
+      <span class="kicker">Smart Sports Club</span>
+      <h1>Find your <span>Academy</span></h1>
+      <p>Browse coaches, sessions and book your next class — all in one place.</p>
+    </div>
+
+    <div class="hero-search">
+      <span class="material-symbols-outlined">search</span>
+      <input
+        type="text"
+        placeholder="Search academies, classes, locations…"
+        [value]="search"
+        (input)="onSearch($any($event.target).value)">
+    </div>
+  </div>
+</section>
+
+<!-- ============= Sport chips ============= -->
+<section class="sports-chips container">
+  <button class="chip"
+          [class.active]="selectedSportId === null"
+          (click)="selectSport(null)">
+    <span class="material-symbols-outlined">apps</span>
+    All academies
+  </button>
+
+  <button class="chip"
+          *ngFor="let s of (screen?.sports ?? []); trackBy: trackById"
+          [class.active]="selectedSportId === s.id"
+          (click)="selectSport(s.id)">
+    <span class="material-symbols-outlined">{{ s.icon || 'sports' }}</span>
+    {{ s.name }}
+  </button>
+</section>
+
+<!-- ============= Sport academies (always visible) ============= -->
+<section class="container academies-grid-wrap">
+  <div class="section-head">
+    <div>
+      <h2>Academies</h2>
+      <p class="subtitle">Tap on an academy to pick a coach and book a slot</p>
+    </div>
+  </div>
+
+  <!-- Skeleton while loading -->
+  <div class="academies-grid" *ngIf="isLoading && !screen">
+    <div class="sk-tile" *ngFor="let _ of [1,2,3,4,5,6]"></div>
+  </div>
+
+  <!-- Actual grid -->
+  <div class="academies-grid" *ngIf="visibleSports.length">
+    <article class="academy-tile"
+             *ngFor="let s of visibleSports; trackBy: trackById"
+             (click)="openAcademy(s)">
+      <div class="tile-cover" [style.background-image]="'url(' + sportImageFor(s) + ')'">
+        <span class="badge">{{ s.name }} Academy</span>
+      </div>
+      <div class="tile-body">
+        <div class="title-row">
+          <span class="material-symbols-outlined fill-1">{{ s.icon || 'sports' }}</span>
+          <h4>{{ s.name }} Academy</h4>
+        </div>
+        <p>Train with certified coaches in flexible sessions.</p>
+        <span class="open-link">
+          View academy
+          <span class="material-symbols-outlined">arrow_forward</span>
+        </span>
+      </div>
+    </article>
+  </div>
+
+  <!-- Empty state — search yielded nothing -->
+  <div class="empty-state" *ngIf="!isLoading && !visibleSports.length && search">
+    <span class="material-symbols-outlined">search_off</span>
+    <h3>No academies match "{{ search }}"</h3>
+    <p>Try a different sport or clear the search to see everything.</p>
+    <button type="button" class="btn-ghost" (click)="onSearch('')">
+      Clear search
+    </button>
+  </div>
+
+  <!-- Empty state — no academies at all -->
+  <div class="empty-state" *ngIf="!isLoading && !screen?.sports?.length && !search">
+    <span class="material-symbols-outlined">school</span>
+    <h3>No academies available yet</h3>
+    <p>Check back soon — new programs are being added regularly.</p>
+  </div>
+</section>
+
+<!-- ============= Special event ============= -->
+@if (screen?.specialEvent; as ev) {
+  <section class="container special-event">
+    <div class="special-card">
+      <div class="cover" [style.background-image]="'url(' + resolveImage(ev.imageUrl) + ')'">
+        <span class="kicker">Special Event</span>
+      </div>
+      <div class="meta">
+        <h3>{{ ev.title }}</h3>
+        <p *ngIf="ev.description">{{ ev.description }}</p>
+        <div class="row">
+          <span class="material-symbols-outlined">calendar_today</span>
+          <span>{{ ev.startTime | date:'MMM d, y' }} · {{ ev.startTime | date:'h:mm a' }}</span>
+        </div>
+        <div class="row" *ngIf="ev.location">
+          <span class="material-symbols-outlined">location_on</span>
+          <span>{{ ev.location }}</span>
+        </div>
+      </div>
+    </div>
+  </section>
+}
+
+<!-- ============= Upcoming classes ============= -->
+<section class="container classes">
+  <div class="section-head">
+    <div>
+      <h2>Upcoming Classes</h2>
+      <p class="subtitle">{{ visibleClasses.length }} class<span *ngIf="visibleClasses.length !== 1">es</span> matching your selection</p>
+    </div>
+  </div>
+
+  @if (isLoading && !screen) {
+    <div class="grid">
+      <div class="skeleton-card" *ngFor="let _ of [0,1,2,3]"></div>
+    </div>
+  }
+
+  @if (loadError) {
+    <div class="error-banner">
+      <span class="material-symbols-outlined">error</span>
+      <span>{{ loadError }}</span>
+      <button type="button" class="retry" (click)="loadScreen()">Retry</button>
+    </div>
+  }
+
+  @if (!isLoading && !loadError && visibleClasses.length === 0) {
+    <div class="empty-state">
+      <span class="material-symbols-outlined">event_busy</span>
+      <h3>No upcoming classes yet</h3>
+      <p>The admin hasn't published classes for this sport yet — check back soon.</p>
+    </div>
+  }
+
+  <div class="grid" *ngIf="visibleClasses.length">
+    <article class="class-card" *ngFor="let c of visibleClasses; trackBy: trackByClass">
+      <div class="card-cover" [style.background-image]="'url(' + resolveImage(c.imageUrl, sportFallback(c)) + ')'">
+        <span class="type-tag">{{ c.type || 'Class' }}</span>
+        <span class="price-tag" *ngIf="c.price">${{ c.price }}</span>
+      </div>
+
+      <div class="card-body">
+        <h4>{{ c.title }}</h4>
+        <p class="desc" *ngIf="c.description">{{ c.description }}</p>
+
+        <div class="meta-row">
+          <span class="material-symbols-outlined">schedule</span>
+          <span>{{ c.startTime | date:'EEE, MMM d · h:mm a' }}</span>
+        </div>
+        <div class="meta-row" *ngIf="c.location">
+          <span class="material-symbols-outlined">location_on</span>
+          <span>{{ c.location }}</span>
+        </div>
+        <div class="meta-row" *ngIf="c.maxParticipants">
+          <span class="material-symbols-outlined">groups</span>
+          <span>{{ c.currentParticipants ?? 0 }} / {{ c.maxParticipants }} joined</span>
+        </div>
+
+        <div class="card-actions">
+          @if (c.isBooked) {
+            <button class="btn-primary cancel" (click)="cancel(c)">
+              <span class="material-symbols-outlined">cancel</span> Cancel booking
+            </button>
+          } @else {
+            <button class="btn-primary" (click)="book(c)">
+              <span class="material-symbols-outlined">how_to_reg</span> Book
+            </button>
+            <button class="btn-ghost" (click)="join(c)">
+              <span class="material-symbols-outlined">login</span> Join
+            </button>
+          }
+        </div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ============= My Bookings ============= -->
+<section class="container my-bookings" *ngIf="myBookings.length || loadingBookings">
+  <div class="section-head">
+    <div>
+      <h2>My Bookings</h2>
+      <p class="subtitle">Sessions you've already reserved</p>
+    </div>
+    <button type="button" class="refresh-btn" (click)="loadMyBookings()" [disabled]="loadingBookings">
+      <span class="material-symbols-outlined">refresh</span>
+      Refresh
+    </button>
+  </div>
+
+  @if (loadingBookings) {
+    <div class="bookings-list">
+      <div class="skeleton-row" *ngFor="let _ of [0,1]"></div>
+    </div>
+  } @else {
+    <div class="bookings-list">
+      <article class="booking-row" *ngFor="let b of myBookings">
+        <div class="status-pill" [class.confirmed]="b.status === 'Confirmed'">{{ b.status }}</div>
+        <div class="booking-meta">
+          <h5>{{ b.classTitle }}</h5>
+          <div class="row">
+            <span class="material-symbols-outlined">sports_soccer</span>
+            {{ b.sportName }}
+          </div>
+          <div class="row">
+            <span class="material-symbols-outlined">schedule</span>
+            {{ b.timeRange }}
+          </div>
+          <div class="row">
+            <span class="material-symbols-outlined">location_on</span>
+            {{ b.location }}
+          </div>
+          <div class="row faded">
+            <span class="material-symbols-outlined">event</span>
+            Booked on {{ b.bookedOn | date:'MMM d, y' }}
+          </div>
+        </div>
+        <button class="cancel-btn" (click)="cancelBooking(b.classId)">
+          <span class="material-symbols-outlined">close</span>
+          Cancel
+        </button>
+      </article>
+    </div>
+  }
+</section>
+
+@if (toast) {
+  <div class="toast" [class.error]="toastError">{{ toast }}</div>
+}

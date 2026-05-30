@@ -1,6 +1,15 @@
 {
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "version": 1,
+
+
+  "cli": {
+    "cache": {
+      "enabled": false
+    },
+    "analytics": "24f593f5-0910-40a1-b44d-43b6fa1080ff"
+  },
+
   "newProjectRoot": "projects",
   "projects": {
     "Eclub": {
@@ -39,12 +48,8 @@
             ],
             "scripts": [
               "./node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"
-            ],
-            "server": "src/main.server.ts",
-            "outputMode": "server",
-            "ssr": {
-              "entry": "src/server.ts"
-            }
+            ]
+            
           },
           "configurations": {
             "production": {
@@ -77,7 +82,8 @@
               "buildTarget": "Eclub:build:production"
             },
             "development": {
-              "buildTarget": "Eclub:build:development"
+              "buildTarget": "Eclub:build:development",
+              "hmr": false
             }
           },
           "defaultConfiguration": "development"

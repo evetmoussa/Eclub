@@ -1,155 +1,151 @@
+<!-- adminlogin.component.html -->
 <div class="admin-login-page">
+  <div class="container">
+    <div class="row justify-content-center align-items-center min-vh-100">
+      <div class="col-lg-5 col-md-7">
+        <div class="admin-card">
+          <button class="back-btn" (click)="goBack()">
+            <i class="fa-solid fa-arrow-left"></i>
+          </button>
 
-<div class="container">
+          <!-- Header -->
+          <div class="text-center mb-4">
+            <h6 class="portal-title">Admin Portal</h6>
+            <h2 class="login-title">Admin Login</h2>
+            <p class="login-subtitle">
+              Secure access for smart sports club management
+            </p>
+          </div>
 
-<div class="row justify-content-center align-items-center min-vh-100">
+          <!-- Error Message -->
+          @if(msgError){
+            <div class="alert alert-danger mb-3">
+              <i class="fa-solid fa-circle-exclamation me-2"></i>
+              {{ msgError }}
+            </div>
+          }
 
-<div class="col-lg-5 col-md-7">
+          <form [formGroup]="adminLoginForm" (ngSubmit)="loginSubmit()">
+            <!-- EMAIL -->
+            <label class="label">Admin Email</label>
+            <div class="input-wrapper mb-2">
+              <i class="fa-regular fa-envelope"></i>
+              <input
+                type="email"
+                formControlName="email"
+                class="form-control"
+                [ngClass]="{
+                  'is-valid': adminLoginForm.get('email')?.valid && adminLoginForm.get('email')?.touched,
+                  'is-invalid': adminLoginForm.get('email')?.invalid && adminLoginForm.get('email')?.touched
+                }"
+                placeholder="admin@e-club.runasp.net">
+            </div>
+            @if(adminLoginForm.get('email')?.errors && adminLoginForm.get('email')?.touched){
+              <div class="error-msg">
+                @if(adminLoginForm.get('email')?.getError('required')){ Email is required }
+                @else if(adminLoginForm.get('email')?.getError('email')){ Invalid email format }
+              </div>
+            }
 
-<div class="admin-card">
+            <!-- PASSWORD -->
+            <label class="label mt-3">Admin Password</label>
+            <div class="input-wrapper mb-2">
+              <i class="fa-solid fa-lock"></i>
+              <input
+                [type]="showPassword ? 'text' : 'password'"
+                formControlName="password"
+                class="form-control"
+                [ngClass]="{
+                  'is-valid': adminLoginForm.get('password')?.valid && adminLoginForm.get('password')?.touched,
+                  'is-invalid': adminLoginForm.get('password')?.invalid && adminLoginForm.get('password')?.touched
+                }"
+                placeholder="Enter password"
+                (input)="checkPasswordStrength()"
+              />
+              <span class="eye" (click)="togglePassword()">
+                <i class="fa-regular" [ngClass]="showPassword ? 'fa-eye-slash':'fa-eye'"></i>
+              </span>
+            </div>
 
-    <button class="back-btn" (click)="goBack()">
-<i class="fa-solid fa-arrow-left"></i>
-</button>
+            <!-- PASSWORD STRENGTH -->
+            @if(adminLoginForm.get('password')?.value){
+              <div class="strength-bars mb-2">
+                <div class="bar" [class.active]="passwordStrength>=1"></div>
+                <div class="bar" [class.active]="passwordStrength>=2"></div>
+                <div class="bar" [class.active]="passwordStrength>=3"></div>
+              </div>
 
-<!-- Header -->
+              <ul class="password-rules">
+                <li [class.valid]="hasLength()">
+                  <i class="fa-solid fa-check"></i>
+                  At least 8 characters
+                </li>
+                <li [class.valid]="hasNumberOrSpecial()">
+                  <i class="fa-solid fa-check"></i>
+                  Include a number or special character
+                </li>
+                <li [class.valid]="hasUpperAndLower()">
+                  <i class="fa-solid fa-check"></i>
+                  Uppercase & lowercase letters
+                </li>
+              </ul>
+            }
 
-<div class="text-center mb-4">
+            @if(adminLoginForm.get('password')?.errors && adminLoginForm.get('password')?.touched){
+              <div class="error-msg">
+                @if(adminLoginForm.get('password')?.getError('required')){ Password is required }
+                @else if(adminLoginForm.get('password')?.getError('pattern')){ 
+                  Password must contain: uppercase, lowercase, number/special char, and be at least 8 characters
+                }
+              </div>
+            }
 
-<h6 class="portal-title">Admin Portal</h6>
+            <!-- CLUB CODE -->
+            <label class="label mt-3">Club Code or Admin Key</label>
+            <div class="input-wrapper mb-2">
+              <i class="fa-solid fa-key"></i>
+              <input
+                formControlName="clubCode"
+                class="form-control"
+                [ngClass]="{
+                  'is-valid': adminLoginForm.get('clubCode')?.valid && adminLoginForm.get('clubCode')?.touched,
+                  'is-invalid': adminLoginForm.get('clubCode')?.invalid && adminLoginForm.get('clubCode')?.touched
+                }"
+                placeholder="CLUB-6E740638F">
+            </div>
+            @if(adminLoginForm.get('clubCode')?.errors && adminLoginForm.get('clubCode')?.touched){
+              <div class="error-msg">
+                @if(adminLoginForm.get('clubCode')?.getError('required')){ Club code is required }
+                @else if(adminLoginForm.get('clubCode')?.getError('minlength')){ Club code must be at least 4 characters }
+              </div>
+            }
 
-<h2 class="login-title">Admin Login</h2>
+            <!-- BUTTON -->
+            <button class="btn login-btn w-100 mt-4" [disabled]="isLoading">
+              @if(isLoading){
+                <span class="spinner-border spinner-border-sm me-2"></span>
+                Logging in...
+              } @else {
+                <i class="fa-solid fa-sign-in-alt me-2"></i>
+                Login as Administrator
+              }
+            </button>
 
-<p class="login-subtitle">
-Secure access for smart sports club management
-</p>
+            <div class="text-end mt-3">
+              <a class="forget-link" routerLink="/forget-password">
+                Forgot password or key?
+              </a>
+            </div>
 
-</div>
-
-<form [formGroup]="adminLoginForm" (ngSubmit)="loginSubmit()">
-
-<!-- EMAIL -->
-
-<label class="label">Admin Email</label>
-
-<div class="input-wrapper mb-2">
-
-<i class="fa-regular fa-envelope"></i>
-
-<input
-type="email"
-formControlName="email"
-class="form-control"
-placeholder="admin@sportsclub.com">
-
-</div>
-
-@if(adminLoginForm.get('email')?.errors && adminLoginForm.get('email')?.touched)
-{
-<div class="error-msg">
-Email is required
-</div>
-}
-
-<!-- PASSWORD -->
-
-<label class="label">Admin Password</label>
-
-<div class="input-wrapper mb-2">
-
-<i class="fa-solid fa-lock"></i>
-
-<input
-[type]="showPassword ? 'text' : 'password'"
-formControlName="password"
-class="form-control"
-placeholder="Enter password"
-(input)="checkPasswordStrength()"
-/>
-
-<span class="eye" (click)="togglePassword()">
-<i class="fa-regular" [ngClass]="showPassword ? 'fa-eye-slash':'fa-eye'"></i>
-</span>
-
-</div>
-
-<!-- PASSWORD STRENGTH -->
-
-<div class="strength-bars mb-2">
-
-<div class="bar" [class.active]="passwordStrength>=1"></div>
-<div class="bar" [class.active]="passwordStrength>=2"></div>
-<div class="bar" [class.active]="passwordStrength>=3"></div>
-
-</div>
-
-<ul class="password-rules">
-
-<li [class.valid]="hasLength">
-<i class="fa-solid fa-check"></i>
-At least 8 characters
-</li>
-
-<li [class.valid]="hasNumber">
-<i class="fa-solid fa-check"></i>
-Include a number or special character
-</li>
-
-</ul>
-
-<!-- CLUB CODE -->
-
-<label class="label mt-3">Club Code or Admin Key</label>
-
-<div class="input-wrapper mb-2">
-
-<i class="fa-solid fa-key"></i>
-
-<input
-formControlName="clubCode"
-class="form-control"
-placeholder="****-****-****">
-
-</div>
-
-@if(adminLoginForm.get('clubCode')?.errors && adminLoginForm.get('clubCode')?.touched)
-{
-<div class="error-msg">
-Club code is required
-</div>
-}
-
-@if(msgError){
-<div class="error-msg text-center">
-{{msgError}}
-</div>
-}
-
-<!-- BUTTON -->
-
-<button class="btn login-btn w-100">
-
-Login as Administrator
-
-</button>
-
-
-<div class="text-end mb-2">
-
-<a class="forget-link" routerLink="/forget-password">
-Forgot password or key?
-</a>
-
-</div>
-
-</form>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
+            <div class="text-center mt-3">
+              <a routerLink="/login" class="text-muted">
+                <i class="fa-solid fa-arrow-right me-1"></i>
+                Member Login
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
