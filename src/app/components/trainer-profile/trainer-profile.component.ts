@@ -5,7 +5,7 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { AdminMockService } from '../../core/services/admin/admin-mock.service';
+import { AdminService } from '../../core/services/admin/admin.service';
 import { AdminTrainer } from '../../core/models/admin/admin.models';
 
 interface ScheduleSlot {
@@ -28,7 +28,7 @@ export class TrainerProfileComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private location = inject(Location);
-  private mock = inject(AdminMockService);
+  private admin = inject(AdminService);
 
   trainer = signal<AdminTrainer | null>(null);
   isLoading = signal(true);
@@ -45,7 +45,7 @@ export class TrainerProfileComponent implements OnInit {
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id') ?? 0);
-    this.mock.getTrainers().subscribe(list => {
+    this.admin.getTrainers().subscribe(list => {
       const found = list.find(t => t.id === id) ?? null;
       this.trainer.set(found);
       this.notFound.set(!found);

@@ -1,7 +1,7 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AdminMockService } from '../../core/services/admin/admin-mock.service';
+import { AdminService } from '../../core/services/admin/admin.service';
 import { AdminOffer } from '../../core/models/admin/admin.models';
 import {
   EntityFormModalComponent, FieldDef
@@ -17,7 +17,7 @@ type OfferTab = 'All' | 'Active' | 'Scheduled' | 'Expired';
   styleUrl: './admin-offers.component.scss'
 })
 export class AdminOffersComponent implements OnInit {
-  private mock = inject(AdminMockService);
+  private admin = inject(AdminService);
 
   tabs: OfferTab[] = ['All', 'Active', 'Scheduled', 'Expired'];
   activeTab = signal<OfferTab>('All');
@@ -67,7 +67,7 @@ export class AdminOffersComponent implements OnInit {
   });
 
   ngOnInit(): void { this.refresh(); }
-  refresh(): void { this.mock.getOffers().subscribe(v => this.all.set(v)); }
+  refresh(): void { this.admin.getOffers().subscribe(v => this.all.set(v)); }
 
   openAdd():  void { this.editing.set(null); this.modalOpen.set(true); }
   openEdit(o: AdminOffer): void { this.editing.set(o); this.modalOpen.set(true); }
@@ -78,8 +78,8 @@ export class AdminOffersComponent implements OnInit {
     const payload = this.normalize(value);
     const cur = this.editing();
     const op$ = cur
-      ? this.mock.updateOffer(cur.id, payload)
-      : this.mock.createOffer({
+      ? this.admin.updateOffer(cur.id, payload)
+      : this.admin.createOffer({
           ...payload,
           imageUrl: (payload.imageUrl as string) ||
             'https://images.unsplash.com/photo-1517649763962-0c623066013b?w=600'
@@ -92,7 +92,7 @@ export class AdminOffersComponent implements OnInit {
 
   remove(o: AdminOffer): void {
     if (!confirm(`Delete offer "${o.title}"?`)) return;
-    this.mock.deleteOffer(o.id).subscribe(() => this.refresh());
+    this.admin.deleteOffer(o.id).subscribe(() => this.refresh());
   }
 
   private normalize(v: Record<string, unknown>): Partial<AdminOffer> {

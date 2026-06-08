@@ -30,7 +30,7 @@ export class AdminloginComponent implements OnInit {
       Validators.required,
       Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)
     ]],
-    clubCode: [null, [Validators.required, Validators.pattern(/^CLUB-[A-Z0-9]+$/)]]
+   
   });
 
   ngOnInit(): void {
@@ -79,7 +79,7 @@ export class AdminloginComponent implements OnInit {
     const loginData = {
       email:    this.adminLoginForm.get('email')?.value?.toString().trim().toLowerCase(),
       password: this.adminLoginForm.get('password')?.value,
-      clubCode: this.adminLoginForm.get('clubCode')?.value?.toString().trim().toUpperCase(),
+    
       isAdmin:  true
     };
 

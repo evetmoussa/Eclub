@@ -1,7 +1,7 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AdminMockService } from '../../core/services/admin/admin-mock.service';
+import { AdminService } from '../../core/services/admin/admin.service';
 import { AdminMember } from '../../core/models/admin/admin.models';
 
 type Tab = 'All Members' | 'Premium' | 'Coaches' | 'Pending';
@@ -14,7 +14,7 @@ type Tab = 'All Members' | 'Premium' | 'Coaches' | 'Pending';
   styleUrl: './admin-members.component.scss'
 })
 export class AdminMembersComponent implements OnInit {
-  private mock = inject(AdminMockService);
+  private admin = inject(AdminService);
 
   tabs: Tab[] = ['All Members', 'Premium', 'Coaches', 'Pending'];
   activeTab = signal<Tab>('All Members');
@@ -57,6 +57,6 @@ export class AdminMembersComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.mock.getMembers().subscribe(v => this.all.set(v));
+    this.admin.getMembers().subscribe(v => this.all.set(v));
   }
 }

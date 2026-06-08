@@ -1,7 +1,7 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { AdminMockService } from '../../core/services/admin/admin-mock.service';
+import { AdminService } from '../../core/services/admin/admin.service';
 import {
   ActivityItem, KpiCard, ManagementTile, RequestsSummary
 } from '../../core/models/admin/admin.models';
@@ -14,7 +14,7 @@ import {
   styleUrl: './admin-dashboard.component.scss'
 })
 export class AdminDashboardComponent implements OnInit {
-  private mock = inject(AdminMockService);
+  private admin = inject(AdminService);
   private router = inject(Router);
 
   kpis     = signal<KpiCard[]>([]);
@@ -32,10 +32,10 @@ export class AdminDashboardComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.mock.getKpis().subscribe(v => this.kpis.set(v));
-    this.mock.getManagementTiles().subscribe(v => this.tiles.set(v));
-    this.mock.getActivities().subscribe(v => this.feed.set(v));
-    this.mock.getRequestsSummary().subscribe(v => {
+    this.admin.getKpis().subscribe(v => this.kpis.set(v));
+    this.admin.getManagementTiles().subscribe(v => this.tiles.set(v));
+    this.admin.getActivities().subscribe(v => this.feed.set(v));
+    this.admin.getRequestsSummary().subscribe(v => {
       this.summary.set(v);
       this.isLoading.set(false);
     });

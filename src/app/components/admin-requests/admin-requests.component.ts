@@ -2,7 +2,7 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CoachesService } from '../../core/services/coaches.service';
-import { AdminMockService } from '../../core/services/admin/admin-mock.service';
+import { AdminService } from '../../core/services/admin/admin.service';
 import { CoachApplication } from '../coach-apply/coach-apply.component';
 
 const STORAGE_KEY = 'coach.applications';
@@ -18,7 +18,7 @@ type Tab = 'All' | 'Pending' | 'Approved' | 'Rejected';
 })
 export class AdminRequestsComponent implements OnInit {
   private coaches = inject(CoachesService);
-  private adminMock = inject(AdminMockService);
+  private admin = inject(AdminService);
 
   applications = signal<CoachApplication[]>([]);
   tab = signal<Tab>('Pending');
@@ -90,7 +90,7 @@ export class AdminRequestsComponent implements OnInit {
     }).subscribe({
       next: () => this.finalize(app, 'Approved', 'Coach created and notified.'),
       error: () => {
-        this.adminMock.createTrainer({
+        this.admin.createTrainer({
           name: app.fullName, role: app.specialization, rating: 0, sessions: 0,
           email: app.email, phone: app.phoneNumber, status: 'Active',
           avatarUrl: app.imageUrl || `https://i.pravatar.cc/200?u=${app.email}`

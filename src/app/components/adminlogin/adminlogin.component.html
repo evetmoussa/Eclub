@@ -100,25 +100,9 @@
               </div>
             }
 
-            <!-- CLUB CODE -->
-            <label class="label mt-3">Club Code or Admin Key</label>
-            <div class="input-wrapper mb-2">
-              <i class="fa-solid fa-key"></i>
-              <input
-                formControlName="clubCode"
-                class="form-control"
-                [ngClass]="{
-                  'is-valid': adminLoginForm.get('clubCode')?.valid && adminLoginForm.get('clubCode')?.touched,
-                  'is-invalid': adminLoginForm.get('clubCode')?.invalid && adminLoginForm.get('clubCode')?.touched
-                }"
-                placeholder="CLUB-6E740638F">
-            </div>
-            @if(adminLoginForm.get('clubCode')?.errors && adminLoginForm.get('clubCode')?.touched){
-              <div class="error-msg">
-                @if(adminLoginForm.get('clubCode')?.getError('required')){ Club code is required }
-                @else if(adminLoginForm.get('clubCode')?.getError('minlength')){ Club code must be at least 4 characters }
-              </div>
-            }
+          
+          
+            
 
             <!-- BUTTON -->
             <button class="btn login-btn w-100 mt-4" [disabled]="isLoading">

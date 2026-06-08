@@ -1,7 +1,7 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AdminMockService } from '../../core/services/admin/admin-mock.service';
+import { AdminService } from '../../core/services/admin/admin.service';
 import { AdminTrainer } from '../../core/models/admin/admin.models';
 import {
   EntityFormModalComponent, FieldDef
@@ -15,7 +15,7 @@ import {
   styleUrl: './admin-trainers.component.scss'
 })
 export class AdminTrainersComponent implements OnInit {
-  private mock = inject(AdminMockService);
+  private admin = inject(AdminService);
 
   all = signal<AdminTrainer[]>([]);
   query = signal('');
@@ -65,7 +65,7 @@ export class AdminTrainersComponent implements OnInit {
   });
 
   ngOnInit(): void { this.refresh(); }
-  refresh(): void { this.mock.getTrainers().subscribe(v => this.all.set(v)); }
+  refresh(): void { this.admin.getTrainers().subscribe(v => this.all.set(v)); }
 
   openAdd():  void { this.editing.set(null); this.modalOpen.set(true); }
   openEdit(t: AdminTrainer): void { this.editing.set(t); this.modalOpen.set(true); }
@@ -76,8 +76,8 @@ export class AdminTrainersComponent implements OnInit {
     const payload = this.normalize(value);
     const cur = this.editing();
     const op$ = cur
-      ? this.mock.updateTrainer(cur.id, payload)
-      : this.mock.createTrainer({
+      ? this.admin.updateTrainer(cur.id, payload)
+      : this.admin.createTrainer({
           ...payload,
           avatarUrl: (payload.avatarUrl as string) ||
             `https://i.pravatar.cc/200?img=${Math.floor(Math.random() * 70)}`
@@ -90,7 +90,7 @@ export class AdminTrainersComponent implements OnInit {
 
   remove(t: AdminTrainer): void {
     if (!confirm(`Remove trainer "${t.name}"?`)) return;
-    this.mock.deleteTrainer(t.id).subscribe(() => this.refresh());
+    this.admin.deleteTrainer(t.id).subscribe(() => this.refresh());
   }
 
   private normalize(v: Record<string, unknown>): Partial<AdminTrainer> {

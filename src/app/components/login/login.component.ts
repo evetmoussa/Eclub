@@ -26,7 +26,7 @@ export class LoginComponent implements OnInit {
   // password, isAdmin. We collect email + sequenceNumber + password from the user.
   loginForm: FormGroup = this.fb.group({
     email:          [null, [Validators.required, Validators.email]],
-    sequenceNumber: [null, [Validators.required]],
+   
     password:       [null, [
       Validators.required,
       Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)
@@ -51,7 +51,7 @@ export class LoginComponent implements OnInit {
 
     const loginData = {
       email:          this.loginForm.get('email')?.value?.toString().trim().toLowerCase(),
-      sequenceNumber: this.loginForm.get('sequenceNumber')?.value?.toString().trim(),
+    
       password:       this.loginForm.get('password')?.value,
       isAdmin:        false
     };

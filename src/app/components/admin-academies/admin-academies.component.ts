@@ -1,7 +1,7 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { AdminMockService } from '../../core/services/admin/admin-mock.service';
+import { AdminService } from '../../core/services/admin/admin.service';
 import { AdminAcademy } from '../../core/models/admin/admin.models';
 import {
   EntityFormModalComponent, FieldDef
@@ -17,7 +17,7 @@ type SortBy = 'name' | 'members' | 'growth';
   styleUrl: './admin-academies.component.scss'
 })
 export class AdminAcademiesComponent implements OnInit {
-  private mock = inject(AdminMockService);
+  private admin = inject(AdminService);
 
   all = signal<AdminAcademy[]>([]);
   query = signal('');
@@ -74,7 +74,7 @@ export class AdminAcademiesComponent implements OnInit {
   ngOnInit(): void { this.refresh(); }
 
   refresh(): void {
-    this.mock.getAcademies().subscribe(v => this.all.set(v));
+    this.admin.getAcademies().subscribe(v => this.all.set(v));
   }
 
   openAdd(): void {
@@ -95,8 +95,8 @@ export class AdminAcademiesComponent implements OnInit {
     const payload = this.normalize(value);
     const cur = this.editing();
     const op$ = cur
-      ? this.mock.updateAcademy(cur.id, payload)
-      : this.mock.createAcademy({
+      ? this.admin.updateAcademy(cur.id, payload)
+      : this.admin.createAcademy({
           ...payload,
           imageUrl: (payload.imageUrl as string) ||
             'https://images.unsplash.com/photo-1517649763962-0c623066013b?w=600'
@@ -109,7 +109,7 @@ export class AdminAcademiesComponent implements OnInit {
 
   remove(item: AdminAcademy): void {
     if (!confirm(`Delete "${item.name}"? This cannot be undone.`)) return;
-    this.mock.deleteAcademy(item.id).subscribe(() => this.refresh());
+    this.admin.deleteAcademy(item.id).subscribe(() => this.refresh());
   }
 
   private normalize(v: Record<string, unknown>): Partial<AdminAcademy> {

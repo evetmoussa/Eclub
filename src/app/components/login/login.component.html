@@ -66,26 +66,7 @@
           }
         </div>
 
-        <!--sequenceNumber -->
-        <div class="input-box mb-3">
-          <i class="fa-solid fa-key"></i>
-          <input
-            formControlName="sequenceNumber"
-            class="form-control"
-            placeholder="sequenceNumber"
-            [ngClass]="{
-              'is-valid': !loginForm.get('sequenceNumber')?.errors && (loginForm.get('sequenceNumber')?.touched || loginForm.get('sequenceNumber')?.dirty),
-              'is-invalid': loginForm.get('sequenceNumber')?.errors && (loginForm.get('sequenceNumber')?.touched || loginForm.get('sequenceNumber')?.dirty)
-            }"
-          >
-          @if(loginForm.get('sequenceNumber')?.errors && (loginForm.get('sequenceNumber')?.touched || loginForm.get('sequenceNumber')?.dirty))
-          {
-          <div class="error-msg">
-            @if(loginForm.get('sequenceNumber')?.getError('required')){sequenceNumber Number is required }
-          </div>
-          }
-        </div>
-
+       
         <!-- Password -->
         <div class="input-box mb-3">
           <i class="fa-solid fa-lock"></i>
