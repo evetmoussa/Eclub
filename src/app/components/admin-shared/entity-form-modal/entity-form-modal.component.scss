@@ -1,15 +1,27 @@
-.backdrop {
-  position: fixed; inset: 0;
+// NOTE: classes are prefixed `efm-` to avoid colliding with Bootstrap's global
+// `.modal` / `.backdrop` rules (bootstrap.min.css is loaded in angular.json).
+// Bootstrap's `.modal { position: fixed }` was overriding the flex centering
+// and pinning this dialog to the top-left corner.
+.efm-backdrop {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;            // honour mobile dynamic viewport
   background: rgba(15, 23, 42, .45);
   backdrop-filter: blur(4px);
-  display: grid; place-items: center;
+  display: flex;
+  align-items: center;       // vertical centre
+  justify-content: center;   // horizontal centre
   padding: 20px;
+  overflow-y: auto;          // tall modals stay reachable on short screens
   z-index: 1000;
   animation: fadeIn .15s ease-out;
 }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-.modal {
+.efm-modal {
+  position: relative;        // beat Bootstrap's .modal{position:fixed} if it leaks
   width: 100%;
   max-width: 640px;
   max-height: 90vh;

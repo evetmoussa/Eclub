@@ -78,7 +78,7 @@
       </button>
     </div>
 
-    <img [src]="t.avatarUrl" [alt]="t.name" class="avatar">
+    <img [src]="t.avatarUrl" [alt]="t.name" class="avatar" (error)="onImgError($event)">
 
     <h3>{{ t.name }}</h3>
     <span class="role-tag">{{ t.role }}</span>

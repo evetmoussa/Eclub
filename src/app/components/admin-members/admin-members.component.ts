@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminService } from '../../core/services/admin/admin.service';
 import { AdminMember } from '../../core/models/admin/admin.models';
+import { onImgError } from '../../core/utils/image-fallback';
 
 type Tab = 'All Members' | 'Premium' | 'Coaches' | 'Pending';
 
@@ -55,6 +56,9 @@ export class AdminMembersComponent implements OnInit {
     const w = 240, h = 60, step = w / (pts.length - 1);
     return pts.map((v, i) => `${(i * step).toFixed(1)},${(h - (v / max) * (h - 8)).toFixed(1)}`).join(' ');
   });
+
+  /** <img (error)> fallback when an avatar fails to load. */
+  onImgError = onImgError;
 
   ngOnInit(): void {
     this.admin.getMembers().subscribe(v => this.all.set(v));

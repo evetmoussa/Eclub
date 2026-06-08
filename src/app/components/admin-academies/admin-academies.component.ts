@@ -6,6 +6,7 @@ import { AdminAcademy } from '../../core/models/admin/admin.models';
 import {
   EntityFormModalComponent, FieldDef
 } from '../admin-shared/entity-form-modal/entity-form-modal.component';
+import { coverBackground } from '../../core/utils/image-fallback';
 
 type SortBy = 'name' | 'members' | 'growth';
 
@@ -70,6 +71,9 @@ export class AdminAcademiesComponent implements OnInit {
     });
     return arr;
   });
+
+  /** Card cover with graceful fallback (full URL, local path, or default). */
+  coverUrl(raw: string | null | undefined): string { return coverBackground(raw); }
 
   ngOnInit(): void { this.refresh(); }
 

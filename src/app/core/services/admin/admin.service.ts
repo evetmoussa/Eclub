@@ -2,8 +2,8 @@
 // Handles API response wrapper (isSuccess, error, value) and maps to local models.
 
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, map, tap } from 'rxjs';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable, map, tap, shareReplay } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import {
   KpiCard, ManagementTile, ActivityItem, RequestsSummary,
@@ -18,6 +18,14 @@ interface ApiResponse<T> {
   value?: T;
 }
 
+interface PaginatedApiResponse<T> {
+  items: T[];
+  pageNumber: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
+}
+
 interface TrainerApiItem {
   id: number;
   fullName: string;
@@ -29,78 +37,241 @@ interface TrainerApiItem {
   activeSessionsCount: number;
 }
 
-interface PaginatedApiResponse<T> {
-  items: T[];
-  pageNumber: number;
-  pageSize: number;
-  totalCount: number;
-  totalPages: number;
+interface DashboardApiResponse {
+  totalMembersCount: number;   totalMembersGrowth: number;
+  totalTrainersCount: number;  totalTrainersGrowth: number;
+  academiesCount: number;      academiesGrowth: number;
+  pendingRequestsCount: number; pendingRequestsGrowth: number;
+  activeOffersCount: number;   activeOffersGrowth: number;
+  requestsApprovedCount: number;
+  requestsPendingCount: number;
+  requestsRejectedCount: number;
+  requestsSuccessRate: number;
+  recentActivities: ActivityApiItem[];
+}
+
+interface ActivityApiItem {
+  id: number;
+  title: string;
+  description: string;
+  timestamp: string;
+  tag: string;
+  type: string;
+  imageUrl: string;
+}
+
+interface AcademyApiItem {
+  id: number;
+  name: string;
+  description: string;
+  location: string;
+  imageUrl: string;
+  type: string;
+  isFeatured: boolean;
+  isNew: boolean;
+  isActive: boolean;
+  displayOrder: number;
+  sportId: number;
+  sportName: string;
+  trainersCount: number;
+  growthRate: number;
+}
+
+interface MemberApiItem {
+  id: string;
+  fullName: string;
+  email: string;
+  status: string;
+  joinedDate: string;
+  profilePictureUrl: string;
+}
+
+interface OfferApiItem {
+  id: number;
+  title: string;
+  description: string;
+  discountValue: string;
+  targetAudience: string;
+  imageUrl: string;
+  status: string;
+  startDate: string;
+  endDate: string;
+  usageCount: number;
 }
 
 @Injectable({ providedIn: 'root' })
 export class AdminService {
   private http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiBaseUrl}/api/admin`;
+  private readonly rootUrl = `${environment.apiBaseUrl}/api`;
 
+  /** Components do client-side search/filter on the full list, so ask for everything. */
+  private readonly PAGE_SIZE = 1000;
 
-  // ---------- DASHBOARD (mocked for now) ----------
+  // ============================================================
+  //  DASHBOARD — GET /api/admin/dashboard
+  //  One backend call feeds the four getters below. shareReplay
+  //  collapses the dashboard component's 4 subscriptions into 1 HTTP call.
+  // ============================================================
+  private dashboard$ = this.http
+    .get<ApiResponse<DashboardApiResponse> | DashboardApiResponse>(`${this.baseUrl}/dashboard`)
+    .pipe(
+      map(res => {
+        // The backend may return the dashboard wrapped ({ isSuccess, value })
+        // or as the raw DTO. Accept either shape.
+        const wrapped = res as ApiResponse<DashboardApiResponse>;
+        if (wrapped && typeof wrapped.isSuccess === 'boolean') {
+          if (!wrapped.isSuccess || !wrapped.value) {
+            throw new Error(wrapped.error?.description || 'Failed to load dashboard');
+          }
+          return wrapped.value;
+        }
+        const raw = res as DashboardApiResponse;
+        if (!raw || typeof raw.totalMembersCount !== 'number') {
+          throw new Error('Failed to load dashboard');
+        }
+        return raw;
+      }),
+      tap({
+        next: () => console.info('[AdminService] dashboard fetched'),
+        error: (err) => console.error('[AdminService] dashboard error:', err)
+      }),
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
+
+  /**
+   * Extract the array of items from a list endpoint, tolerating both shapes:
+   *   • wrapped:   { isSuccess, value: { items: [...] } }
+   *   • raw paged: { items: [...], totalCount, ... }
+   * Returns [] if neither shape yields items.
+   */
+  private static itemsOf<T>(
+    res: ApiResponse<PaginatedApiResponse<T>> | PaginatedApiResponse<T>
+  ): T[] {
+    const wrapped = res as ApiResponse<PaginatedApiResponse<T>>;
+    if (wrapped && typeof wrapped.isSuccess === 'boolean') {
+      return wrapped.isSuccess && wrapped.value?.items ? wrapped.value.items : [];
+    }
+    const raw = res as PaginatedApiResponse<T>;
+    return Array.isArray(raw?.items) ? raw.items : [];
+  }
+
+  /**
+   * Unwrap a single DTO from a create/update response, tolerating both shapes:
+   *   • wrapped: { isSuccess, value: {...} }  — throws on isSuccess === false
+   *   • raw DTO: {...}
+   * Returns null only for an empty body (e.g. 204 No Content).
+   */
+  private static dtoOf<T>(
+    res: ApiResponse<T> | T | null,
+    failMsg: string
+  ): T | null {
+    if (res == null) return null;
+    const wrapped = res as ApiResponse<T>;
+    if (typeof wrapped.isSuccess === 'boolean') {
+      if (!wrapped.isSuccess) throw new Error(wrapped.error?.description || failMsg);
+      return wrapped.value ?? null;
+    }
+    return res as T;
+  }
+
+  /**
+   * Throw if a delete response came back as an explicit failure wrapper.
+   * Raw / empty / 2xx-No-Content responses are treated as success.
+   */
+  private static assertDeleteOk(res: ApiResponse<unknown> | null, failMsg: string): void {
+    if (res && typeof (res as ApiResponse<unknown>).isSuccess === 'boolean'
+        && !(res as ApiResponse<unknown>).isSuccess) {
+      throw new Error((res as ApiResponse<unknown>).error?.description || failMsg);
+    }
+  }
+
+  private static fmt(n: number): string {
+    if (n >= 1000) return (n / 1000).toFixed(n % 1000 === 0 ? 0 : 1) + 'k';
+    return String(n);
+  }
+
   getKpis(): Observable<KpiCard[]> {
-    return new Observable(observer => {
-      observer.next([
-        { key: 'members',  label: 'TOTAL MEMBERS',    value: '12,482', delta: 12, icon: 'group',           tone: 'green'  },
-        { key: 'trainers', label: 'TOTAL TRAINERS',   value: '842',    delta: 4,  icon: 'sports',          tone: 'blue'   },
-        { key: 'academies',label: 'ACADEMIES',        value: '156',    delta: 0,  icon: 'school',          tone: 'violet' },
-        { key: 'requests', label: 'PENDING REQUESTS', value: '42',     delta: 28, icon: 'pending_actions', tone: 'amber'  },
-        { key: 'offers',   label: 'ACTIVE OFFERS',    value: '24',     delta: 8,  icon: 'local_offer',     tone: 'rose'   }
-      ]);
-      observer.complete();
-    });
+    return this.dashboard$.pipe(map(d => ([
+      { key: 'members',   label: 'TOTAL MEMBERS',    value: AdminService.fmt(d.totalMembersCount),  delta: Math.round(d.totalMembersGrowth),    icon: 'group',           tone: 'green'  },
+      { key: 'trainers',  label: 'TOTAL TRAINERS',   value: AdminService.fmt(d.totalTrainersCount), delta: Math.round(d.totalTrainersGrowth),   icon: 'sports',          tone: 'blue'   },
+      { key: 'academies', label: 'ACADEMIES',        value: AdminService.fmt(d.academiesCount),     delta: Math.round(d.academiesGrowth),       icon: 'school',          tone: 'violet' },
+      { key: 'requests',  label: 'PENDING REQUESTS', value: AdminService.fmt(d.pendingRequestsCount), delta: Math.round(d.pendingRequestsGrowth), icon: 'pending_actions', tone: 'amber'  },
+      { key: 'offers',    label: 'ACTIVE OFFERS',    value: AdminService.fmt(d.activeOffersCount),  delta: Math.round(d.activeOffersGrowth),    icon: 'local_offer',     tone: 'rose'   }
+    ] as KpiCard[])));
   }
 
   getManagementTiles(): Observable<ManagementTile[]> {
-    return new Observable(observer => {
-      observer.next([
-        { key: 'trainers',  title: 'Trainers',  subtitle: 'Manage coaching staff',     icon: 'sports',      count: 842,    trend: 4,  route: '/admin/trainers'  },
-        { key: 'academies', title: 'Academies', subtitle: 'Sports programs & venues',  icon: 'school',      count: 156,    trend: 2,  route: '/admin/academies' },
-        { key: 'members',   title: 'Members',   subtitle: 'Active subscribers',        icon: 'group',       count: 12482,  trend: 12, route: '/admin/members'   },
-        { key: 'offers',    title: 'Offers',    subtitle: 'Promotions & discounts',    icon: 'local_offer', count: 24,     trend: 8,  route: '/admin/offers'    }
-      ]);
-      observer.complete();
-    });
+    return this.dashboard$.pipe(map(d => ([
+      { key: 'trainers',  title: 'Trainers',  subtitle: 'Manage coaching staff',    icon: 'sports',      count: d.totalTrainersCount, trend: Math.round(d.totalTrainersGrowth), route: '/admin/trainers'  },
+      { key: 'academies', title: 'Academies', subtitle: 'Sports programs & venues', icon: 'school',      count: d.academiesCount,     trend: Math.round(d.academiesGrowth),     route: '/admin/academies' },
+      { key: 'members',   title: 'Members',   subtitle: 'Active subscribers',       icon: 'group',       count: d.totalMembersCount,  trend: Math.round(d.totalMembersGrowth),  route: '/admin/members'   },
+      { key: 'offers',    title: 'Offers',    subtitle: 'Promotions & discounts',   icon: 'local_offer', count: d.activeOffersCount,  trend: Math.round(d.activeOffersGrowth),  route: '/admin/offers'    }
+    ] as ManagementTile[])));
   }
 
   getActivities(): Observable<ActivityItem[]> {
-    return new Observable(observer => {
-      observer.next([
-        { id: 1, type: 'member',  title: 'New member joined',  description: 'Sarah Williams subscribed to Premium plan',  timeAgo: '5 min ago',  icon: 'person_add',      tone: 'green'  },
-        { id: 2, type: 'trainer', title: 'Trainer approved',   description: 'Coach Marco approved for Football Academy',  timeAgo: '32 min ago', icon: 'verified_user',   tone: 'blue'   },
-        { id: 3, type: 'academy', title: 'Academy activated',  description: 'Tennis Pro Academy went live',               timeAgo: '1 h ago',    icon: 'school',          tone: 'violet' },
-        { id: 4, type: 'request', title: 'Pending request',    description: '12 new membership requests need review',     timeAgo: '2 h ago',    icon: 'pending_actions', tone: 'amber'  },
-        { id: 5, type: 'offer',   title: 'Offer published',    description: 'Summer Camp 2026 — 25% off launched',        timeAgo: '4 h ago',    icon: 'local_offer',     tone: 'rose'   },
-        { id: 6, type: 'member',  title: 'Renewal completed',  description: 'Khaled M. renewed annual plan',              timeAgo: '6 h ago',    icon: 'autorenew',       tone: 'green'  }
-      ]);
-      observer.complete();
-    });
+    return this.dashboard$.pipe(
+      map(d => (d.recentActivities ?? []).map(a => this.mapActivityFromApi(a)))
+    );
   }
 
   getRequestsSummary(): Observable<RequestsSummary> {
-    return new Observable(observer => {
-      observer.next({
-        successRate: 84, total: 312, approved: 262, pending: 32, rejected: 18
-      });
-      observer.complete();
-    });
+    return this.dashboard$.pipe(map(d => ({
+      successRate: Math.round(d.requestsSuccessRate),
+      total:       d.requestsApprovedCount + d.requestsPendingCount + d.requestsRejectedCount,
+      approved:    d.requestsApprovedCount,
+      pending:     d.requestsPendingCount,
+      rejected:    d.requestsRejectedCount
+    } as RequestsSummary)));
   }
 
-  // ---------- TRAINERS (HTTP) ----------
+  private mapActivityFromApi(a: ActivityApiItem): ActivityItem {
+    const t = (a.type || '').toLowerCase();
+    const type = (['member', 'trainer', 'academy', 'offer', 'request'].includes(t)
+      ? t : 'member') as ActivityItem['type'];
+    const tone: Record<ActivityItem['type'], ActivityItem['tone']> = {
+      member: 'green', trainer: 'blue', academy: 'violet', request: 'amber', offer: 'rose'
+    };
+    const icon: Record<ActivityItem['type'], string> = {
+      member: 'person_add', trainer: 'verified_user', academy: 'school',
+      request: 'pending_actions', offer: 'local_offer'
+    };
+    return {
+      id: a.id,
+      type,
+      title: a.title,
+      description: a.description,
+      timeAgo: this.timeAgo(a.timestamp),
+      icon: icon[type],
+      tone: tone[type]
+    };
+  }
+
+  /** "5 min ago" style relative label from an ISO timestamp. */
+  private timeAgo(iso: string): string {
+    const t = Date.parse(iso);
+    if (isNaN(t)) return '';
+    const s = Math.max(0, Math.floor((Date.now() - t) / 1000));
+    if (s < 60) return `${s} sec ago`;
+    const m = Math.floor(s / 60);
+    if (m < 60) return `${m} min ago`;
+    const h = Math.floor(m / 60);
+    if (h < 24) return `${h} h ago`;
+    const d = Math.floor(h / 24);
+    if (d < 7) return `${d} d ago`;
+    return new Date(t).toLocaleDateString();
+  }
+
+  // ============================================================
+  //  TRAINERS — GET/POST /api/admin/trainers, PUT/DELETE /api/admin/trainers/{id}
+  // ============================================================
   getTrainers(): Observable<AdminTrainer[]> {
-    return this.http.get<ApiResponse<PaginatedApiResponse<TrainerApiItem>>>(
-      `${this.baseUrl}/trainers`
+    const params = new HttpParams().set('page', 1).set('pageSize', this.PAGE_SIZE);
+    return this.http.get<ApiResponse<PaginatedApiResponse<TrainerApiItem>> | PaginatedApiResponse<TrainerApiItem>>(
+      `${this.baseUrl}/trainers`, { params }
     ).pipe(
-      map(res => {
-        if (!res.isSuccess || !res.value?.items) return [];
-        return res.value.items.map(item => this.mapTrainerFromApi(item));
-      }),
+      map(res => AdminService.itemsOf(res).map(item => this.mapTrainerFromApi(item))),
       tap({
         next: (data) => console.info('[AdminService] trainers fetched:', data.length),
         error: (err) => console.error('[AdminService] trainers error:', err)
@@ -117,13 +288,14 @@ export class AdminService {
       experienceYears: 0,
       isActive: data.status === 'Active'
     };
-    return this.http.post<ApiResponse<TrainerApiItem>>(
+    return this.http.post<ApiResponse<TrainerApiItem> | TrainerApiItem | null>(
       `${this.baseUrl}/trainers`,
       payload
     ).pipe(
       map(res => {
-        if (!res.isSuccess || !res.value) throw new Error(res.error?.description || 'Failed to create trainer');
-        return this.mapTrainerFromApi(res.value);
+        const dto = AdminService.dtoOf(res, 'Failed to create trainer');
+        if (!dto) throw new Error('Failed to create trainer');
+        return this.mapTrainerFromApi(dto);
       })
     );
   }
@@ -136,24 +308,23 @@ export class AdminService {
     if (data.rating !== undefined) payload.rating = data.rating;
     if (data.status !== undefined) payload.isActive = data.status === 'Active';
 
-    return this.http.put<ApiResponse<TrainerApiItem>>(
+    return this.http.put<ApiResponse<TrainerApiItem> | TrainerApiItem | null>(
       `${this.baseUrl}/trainers/${id}`,
       payload
     ).pipe(
       map(res => {
-        if (!res.isSuccess || !res.value) throw new Error(res.error?.description || 'Failed to update trainer');
-        return this.mapTrainerFromApi(res.value);
+        const dto = AdminService.dtoOf(res, 'Failed to update trainer');
+        // 204 No Content → echo back the merged data the caller already holds.
+        return dto ? this.mapTrainerFromApi(dto) : ({ ...(data as AdminTrainer), id });
       })
     );
   }
 
   deleteTrainer(id: number): Observable<void> {
-    return this.http.delete<ApiResponse<null>>(
+    return this.http.delete<ApiResponse<null> | null>(
       `${this.baseUrl}/trainers/${id}`
     ).pipe(
-      map(res => {
-        if (!res.isSuccess) throw new Error(res.error?.description || 'Failed to delete trainer');
-      })
+      map(res => AdminService.assertDeleteOk(res, 'Failed to delete trainer'))
     );
   }
 
@@ -171,91 +342,203 @@ export class AdminService {
     };
   }
 
-  // ---------- ACADEMIES (HTTP - for now using mock) ----------
+  // ============================================================
+  //  ACADEMIES — GET /api/admin/academies (read)
+  //              POST/PUT/DELETE /api/academies/{id} (write)
+  // ============================================================
   getAcademies(): Observable<AdminAcademy[]> {
-    return new Observable(observer => {
-      observer.next([
-        { id: 1, name: 'Elite Football Academy', sport: 'Football',   imageUrl: 'https://images.unsplash.com/photo-1551958219-acbc608c6377?w=600',   status: 'Active',   trainersCount: 18, membersCount: 320, growth: 12, location: 'Cairo, EG' },
-        { id: 2, name: 'Pro Tennis Center',      sport: 'Tennis',     imageUrl: 'https://images.unsplash.com/photo-1622279457486-62dcc4a431d6?w=600', status: 'Active',   trainersCount: 9,  membersCount: 142, growth: 8,  location: 'Alexandria, EG' }
-      ]);
-      observer.complete();
-    });
+    const params = new HttpParams().set('page', 1).set('pageSize', this.PAGE_SIZE);
+    return this.http.get<ApiResponse<PaginatedApiResponse<AcademyApiItem>> | PaginatedApiResponse<AcademyApiItem>>(
+      `${this.baseUrl}/academies`, { params }
+    ).pipe(
+      map(res => AdminService.itemsOf(res).map(item => this.mapAcademyFromApi(item))),
+      tap({
+        next: (data) => console.info('[AdminService] academies fetched:', data.length),
+        error: (err) => console.error('[AdminService] academies error:', err)
+      })
+    );
   }
 
   createAcademy(data: Omit<AdminAcademy, 'id'>): Observable<AdminAcademy> {
-    return new Observable(observer => {
-      observer.next({ ...data, id: Math.floor(Math.random() * 10000) });
-      observer.complete();
-    });
+    return this.http.post<ApiResponse<AcademyApiItem> | AcademyApiItem | null>(
+      `${this.rootUrl}/academies`,
+      this.toAcademyPayload(data)
+    ).pipe(
+      map(res => {
+        const dto = AdminService.dtoOf(res, 'Failed to create academy');
+        if (!dto) throw new Error('Failed to create academy');
+        return this.mapAcademyFromApi(dto);
+      })
+    );
   }
 
   updateAcademy(id: number, data: Partial<AdminAcademy>): Observable<AdminAcademy> {
-    return new Observable(observer => {
-      observer.next({ ...data, id } as AdminAcademy);
-      observer.complete();
-    });
+    // PUT may return the academy, a wrapped academy, or 204 No Content.
+    return this.http.put<ApiResponse<AcademyApiItem> | AcademyApiItem | null>(
+      `${this.rootUrl}/academies/${id}`,
+      this.toAcademyPayload(data)
+    ).pipe(
+      map(res => {
+        const dto = AdminService.dtoOf(res, 'Failed to update academy');
+        return dto ? this.mapAcademyFromApi(dto) : ({ ...(data as AdminAcademy), id });
+      })
+    );
   }
 
   deleteAcademy(id: number): Observable<void> {
-    return new Observable(observer => {
-      observer.next();
-      observer.complete();
-    });
+    return this.http.delete<ApiResponse<null> | null>(
+      `${this.rootUrl}/academies/${id}`
+    ).pipe(
+      map(res => AdminService.assertDeleteOk(res, 'Failed to delete academy'))
+    );
   }
 
-  // ---------- MEMBERS (HTTP - for now using mock) ----------
+  private mapAcademyFromApi(item: AcademyApiItem): AdminAcademy {
+    return {
+      id: item.id,
+      name: item.name,
+      sport: item.sportName || item.type || '',
+      imageUrl: item.imageUrl,
+      status: item.isActive ? 'Active' : 'Paused',
+      trainersCount: item.trainersCount ?? 0,
+      membersCount: 0,                         // not exposed by the API
+      growth: Math.round(item.growthRate ?? 0),
+      location: item.location || ''
+    };
+  }
+
+  private toAcademyPayload(a: Partial<AdminAcademy>) {
+    return {
+      name: a.name ?? '',
+      description: '',
+      location: a.location ?? '',
+      imageUrl: a.imageUrl ?? '',
+      type: a.sport ?? '',
+      isFeatured: false,
+      isNew: false,
+      isActive: a.status ? a.status === 'Active' : true,
+      displayOrder: 0,
+      sportId: 0
+    };
+  }
+
+  // ============================================================
+  //  MEMBERS — GET /api/admin/members (read-only)
+  // ============================================================
   getMembers(): Observable<AdminMember[]> {
-    return new Observable(observer => {
-      observer.next([
-        { id: 1, name: 'Sarah Williams', email: 'sarah.w@gmail.com',    avatarUrl: 'https://i.pravatar.cc/200?img=20', plan: 'Premium',  status: 'Active',   joinedAt: '2025-11-12', lastActive: '5 min ago' }
-      ]);
-      observer.complete();
-    });
+    const params = new HttpParams().set('page', 1).set('pageSize', this.PAGE_SIZE);
+    return this.http.get<ApiResponse<PaginatedApiResponse<MemberApiItem>> | PaginatedApiResponse<MemberApiItem>>(
+      `${this.baseUrl}/members`, { params }
+    ).pipe(
+      map(res => AdminService.itemsOf(res).map(item => this.mapMemberFromApi(item))),
+      tap({
+        next: (data) => console.info('[AdminService] members fetched:', data.length),
+        error: (err) => console.error('[AdminService] members error:', err)
+      })
+    );
   }
 
-  updateMember(id: number, data: Partial<AdminMember>): Observable<AdminMember> {
-    return new Observable(observer => {
-      observer.next({ ...data, id } as AdminMember);
-      observer.complete();
-    });
+  private mapMemberFromApi(item: MemberApiItem): AdminMember {
+    const status: AdminMember['status'] =
+      item.status === 'Pending'   ? 'Pending'   :
+      item.status === 'Suspended' ? 'Suspended' : 'Active';
+    return {
+      id: Number(item.id) || 0,     // API id is a GUID string; model expects number
+      name: item.fullName,
+      email: item.email,
+      avatarUrl: item.profilePictureUrl,
+      plan: 'Standard',             // not exposed by the API — sensible default
+      status,
+      joinedAt: item.joinedDate ? item.joinedDate.slice(0, 10) : '',
+      lastActive: item.joinedDate ? this.timeAgo(item.joinedDate) : ''
+    };
   }
 
-  deleteMember(id: number): Observable<void> {
-    return new Observable(observer => {
-      observer.next();
-      observer.complete();
-    });
-  }
-
-  // ---------- OFFERS (HTTP - for now using mock) ----------
+  // ============================================================
+  //  OFFERS — GET/POST /api/admin/offers, PUT/DELETE /api/admin/offers/{id}
+  // ============================================================
   getOffers(): Observable<AdminOffer[]> {
-    return new Observable(observer => {
-      observer.next([
-        { id: 1, title: 'Summer Camp 2026',    description: 'All-access pass for kids 8-14',         imageUrl: 'https://images.unsplash.com/photo-1551739440-5dd934d3a94a?w=600', status: 'Active',    discount: 25,  startsAt: '2026-05-01', endsAt: '2026-08-31', redemptions: 412 }
-      ]);
-      observer.complete();
-    });
+    const params = new HttpParams().set('page', 1).set('pageSize', this.PAGE_SIZE);
+    return this.http.get<ApiResponse<PaginatedApiResponse<OfferApiItem>> | PaginatedApiResponse<OfferApiItem>>(
+      `${this.baseUrl}/offers`, { params }
+    ).pipe(
+      map(res => AdminService.itemsOf(res).map(item => this.mapOfferFromApi(item))),
+      tap({
+        next: (data) => console.info('[AdminService] offers fetched:', data.length),
+        error: (err) => console.error('[AdminService] offers error:', err)
+      })
+    );
   }
 
   createOffer(data: Omit<AdminOffer, 'id'>): Observable<AdminOffer> {
-    return new Observable(observer => {
-      observer.next({ ...data, id: Math.floor(Math.random() * 10000) });
-      observer.complete();
-    });
+    return this.http.post<ApiResponse<OfferApiItem> | OfferApiItem | null>(
+      `${this.baseUrl}/offers`,
+      this.toOfferPayload(data)
+    ).pipe(
+      map(res => {
+        const dto = AdminService.dtoOf(res, 'Failed to create offer');
+        if (!dto) throw new Error('Failed to create offer');
+        return this.mapOfferFromApi(dto);
+      })
+    );
   }
 
   updateOffer(id: number, data: Partial<AdminOffer>): Observable<AdminOffer> {
-    return new Observable(observer => {
-      observer.next({ ...data, id } as AdminOffer);
-      observer.complete();
-    });
+    return this.http.put<ApiResponse<OfferApiItem> | OfferApiItem | null>(
+      `${this.baseUrl}/offers/${id}`,
+      this.toOfferPayload(data)
+    ).pipe(
+      map(res => {
+        const dto = AdminService.dtoOf(res, 'Failed to update offer');
+        return dto ? this.mapOfferFromApi(dto) : ({ ...(data as AdminOffer), id });
+      })
+    );
   }
 
   deleteOffer(id: number): Observable<void> {
-    return new Observable(observer => {
-      observer.next();
-      observer.complete();
-    });
+    return this.http.delete<ApiResponse<null> | null>(
+      `${this.baseUrl}/offers/${id}`
+    ).pipe(
+      map(res => AdminService.assertDeleteOk(res, 'Failed to delete offer'))
+    );
   }
 
+  private mapOfferFromApi(item: OfferApiItem): AdminOffer {
+    const status: AdminOffer['status'] =
+      item.status === 'Scheduled' ? 'Scheduled' :
+      item.status === 'Expired'   ? 'Expired'   : 'Active';
+    return {
+      id: item.id,
+      title: item.title,
+      description: item.description,
+      imageUrl: item.imageUrl,
+      status,
+      discount: this.parseDiscount(item.discountValue),
+      startsAt: item.startDate ? item.startDate.slice(0, 10) : '',
+      endsAt:   item.endDate   ? item.endDate.slice(0, 10)   : '',
+      redemptions: item.usageCount ?? 0
+    };
+  }
+
+  private toOfferPayload(o: Partial<AdminOffer>) {
+    const payload: Record<string, unknown> = {
+      title: o.title ?? '',
+      description: o.description ?? '',
+      discountValue: o.discount != null ? `${o.discount}%` : '',
+      targetAudience: '',
+      imageUrl: o.imageUrl ?? '',
+      status: o.status ?? 'Active'
+    };
+    // Only send dates when present — the backend rejects empty-string dates (400),
+    // and offers may legitimately be open-ended (no end date).
+    if (o.startsAt) payload['startDate'] = new Date(o.startsAt).toISOString();
+    if (o.endsAt)   payload['endDate']   = new Date(o.endsAt).toISOString();
+    return payload;
+  }
+
+  /** API stores discount as a free string ("25%", "25", "$10"); pull the number out. */
+  private parseDiscount(v: string): number {
+    const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, ''));
+    return isNaN(n) ? 0 : n;
+  }
 }

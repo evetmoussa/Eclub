@@ -87,7 +87,7 @@
 
   <article class="row" *ngFor="let m of filtered()">
     <div class="profile">
-      <img [src]="m.avatarUrl" [alt]="m.name">
+      <img [src]="m.avatarUrl" [alt]="m.name" (error)="onImgError($event)">
       <div>
         <strong>{{ m.name }}</strong>
         <small class="muted">{{ m.email }}</small>

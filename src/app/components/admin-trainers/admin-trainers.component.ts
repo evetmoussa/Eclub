@@ -6,6 +6,7 @@ import { AdminTrainer } from '../../core/models/admin/admin.models';
 import {
   EntityFormModalComponent, FieldDef
 } from '../admin-shared/entity-form-modal/entity-form-modal.component';
+import { onImgError } from '../../core/utils/image-fallback';
 
 @Component({
   selector: 'app-admin-trainers',
@@ -63,6 +64,9 @@ export class AdminTrainersComponent implements OnInit {
       (q === '' || t.name.toLowerCase().includes(q) || t.email.toLowerCase().includes(q))
     );
   });
+
+  /** <img (error)> fallback when an avatar fails to load. */
+  onImgError = onImgError;
 
   ngOnInit(): void { this.refresh(); }
   refresh(): void { this.admin.getTrainers().subscribe(v => this.all.set(v)); }

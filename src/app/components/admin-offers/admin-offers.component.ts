@@ -6,6 +6,7 @@ import { AdminOffer } from '../../core/models/admin/admin.models';
 import {
   EntityFormModalComponent, FieldDef
 } from '../admin-shared/entity-form-modal/entity-form-modal.component';
+import { coverBackground } from '../../core/utils/image-fallback';
 
 type OfferTab = 'All' | 'Active' | 'Scheduled' | 'Expired';
 
@@ -33,14 +34,15 @@ export class AdminOffersComponent implements OnInit {
     { key: 'title',       label: 'Offer title',  type: 'text',     required: true, width: 'full' },
     { key: 'description', label: 'Description',  type: 'textarea', width: 'full' },
     { key: 'imageUrl',    label: 'Image URL',    type: 'url',      width: 'full' },
-    { key: 'discount',    label: 'Discount %',   type: 'number',   required: true, min: 0, max: 100 },
+    { key: 'discount',    label: 'Discount value', type: 'number', required: true, min: 0,
+      hint: 'Percent (e.g. 20) or absolute amount (e.g. 500)' },
     { key: 'status',      label: 'Status',       type: 'select',   required: true, options: [
         { value: 'Active', label: 'Active' },
         { value: 'Scheduled', label: 'Scheduled' },
         { value: 'Expired', label: 'Expired' }
       ] },
     { key: 'startsAt', label: 'Start date', type: 'date', required: true },
-    { key: 'endsAt',   label: 'End date',   type: 'date', required: true },
+    { key: 'endsAt',   label: 'End date',   type: 'date', hint: 'Leave empty for open-ended offers' },
     { key: 'redemptions', label: 'Redemptions', type: 'number', min: 0, width: 'full' }
   ];
 
@@ -65,6 +67,9 @@ export class AdminOffersComponent implements OnInit {
       .filter(o => tab === 'All' || o.status === tab)
       .filter(o => q === '' || o.title.toLowerCase().includes(q) || o.description.toLowerCase().includes(q));
   });
+
+  /** Card cover with graceful fallback (full URL, local path, or default). */
+  coverUrl(raw: string | null | undefined): string { return coverBackground(raw); }
 
   ngOnInit(): void { this.refresh(); }
   refresh(): void { this.admin.getOffers().subscribe(v => this.all.set(v)); }

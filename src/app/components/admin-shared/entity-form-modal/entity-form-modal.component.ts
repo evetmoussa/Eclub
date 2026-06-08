@@ -59,9 +59,20 @@ export class EntityFormModalComponent implements OnChanges {
       if (f.type === 'email') validators.push(Validators.email);
       if (f.type === 'number' && f.min !== undefined) validators.push(Validators.min(f.min));
       if (f.type === 'number' && f.max !== undefined) validators.push(Validators.max(f.max));
-      group[f.key] = new FormControl(this.initial?.[f.key] ?? '', validators);
+      group[f.key] = new FormControl(this.initialValue(f), validators);
     }
     this.form = this.fb.group(group);
+  }
+
+  /** Normalise an incoming value to what each control type expects. */
+  private initialValue(f: FieldDef): unknown {
+    const raw = this.initial?.[f.key];
+    if (raw === null || raw === undefined) return '';
+    // <select> matches options by string; a numeric initial would never match.
+    if (f.type === 'select') return String(raw);
+    // <input type="date"> needs yyyy-MM-dd; trim any ISO/time suffix.
+    if (f.type === 'date' && typeof raw === 'string') return raw.slice(0, 10);
+    return raw;
   }
 
   onSubmit(): void {
@@ -77,7 +88,7 @@ export class EntityFormModalComponent implements OnChanges {
   }
 
   onBackdrop(evt: MouseEvent): void {
-    if ((evt.target as HTMLElement).classList.contains('backdrop')) {
+    if ((evt.target as HTMLElement).classList.contains('efm-backdrop')) {
       this.onCancel();
     }
   }

@@ -53,7 +53,7 @@
 <!-- ===== Cards grid ===== -->
 <section class="grid">
   <article class="academy" *ngFor="let a of filtered()">
-    <div class="cover" [style.background-image]="'url(' + a.imageUrl + ')'">
+    <div class="cover" [style.background-image]="coverUrl(a.imageUrl)">
       <span class="sport-tag">{{ a.sport }}</span>
       <span class="status" [attr.data-status]="a.status">{{ a.status }}</span>
     </div>

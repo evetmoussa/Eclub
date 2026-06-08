@@ -55,7 +55,7 @@
 <!-- ===== Offer cards ===== -->
 <section class="grid">
   <article class="offer" *ngFor="let o of filtered()">
-    <div class="cover" [style.background-image]="'url(' + o.imageUrl + ')'">
+    <div class="cover" [style.background-image]="coverUrl(o.imageUrl)">
       <span class="status" [attr.data-status]="o.status">{{ o.status }}</span>
       <span class="discount">-{{ o.discount }}%</span>
     </div>
