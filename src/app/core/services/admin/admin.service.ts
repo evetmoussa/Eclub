@@ -113,31 +113,41 @@ export class AdminService {
   //  One backend call feeds the four getters below. shareReplay
   //  collapses the dashboard component's 4 subscriptions into 1 HTTP call.
   // ============================================================
-  private dashboard$ = this.http
-    .get<ApiResponse<DashboardApiResponse> | DashboardApiResponse>(`${this.baseUrl}/dashboard`)
-    .pipe(
-      map(res => {
-        // The backend may return the dashboard wrapped ({ isSuccess, value })
-        // or as the raw DTO. Accept either shape.
-        const wrapped = res as ApiResponse<DashboardApiResponse>;
-        if (wrapped && typeof wrapped.isSuccess === 'boolean') {
-          if (!wrapped.isSuccess || !wrapped.value) {
-            throw new Error(wrapped.error?.description || 'Failed to load dashboard');
+  /**
+   * Fresh dashboard request, built per call. A previous implementation cached
+   * this as a singleton field with shareReplay — which meant a 403 from an early
+   * (stale-token) load got replayed forever, so the dashboard stayed empty even
+   * after a valid admin login. Building it lazily ensures each load uses the
+   * current auth token; shareReplay still collapses the 4 concurrent getter
+   * subscriptions into one HTTP call for that single load.
+   */
+  private dashboard$(): Observable<DashboardApiResponse> {
+    return this.http
+      .get<ApiResponse<DashboardApiResponse> | DashboardApiResponse>(`${this.baseUrl}/dashboard`)
+      .pipe(
+        map(res => {
+          // The backend may return the dashboard wrapped ({ isSuccess, value })
+          // or as the raw DTO. Accept either shape.
+          const wrapped = res as ApiResponse<DashboardApiResponse>;
+          if (wrapped && typeof wrapped.isSuccess === 'boolean') {
+            if (!wrapped.isSuccess || !wrapped.value) {
+              throw new Error(wrapped.error?.description || 'Failed to load dashboard');
+            }
+            return wrapped.value;
           }
-          return wrapped.value;
-        }
-        const raw = res as DashboardApiResponse;
-        if (!raw || typeof raw.totalMembersCount !== 'number') {
-          throw new Error('Failed to load dashboard');
-        }
-        return raw;
-      }),
-      tap({
-        next: () => console.info('[AdminService] dashboard fetched'),
-        error: (err) => console.error('[AdminService] dashboard error:', err)
-      }),
-      shareReplay({ bufferSize: 1, refCount: true })
-    );
+          const raw = res as DashboardApiResponse;
+          if (!raw || typeof raw.totalMembersCount !== 'number') {
+            throw new Error('Failed to load dashboard');
+          }
+          return raw;
+        }),
+        tap({
+          next: () => console.info('[AdminService] dashboard fetched'),
+          error: (err) => console.error('[AdminService] dashboard error:', err)
+        }),
+        shareReplay({ bufferSize: 1, refCount: true })
+      );
+  }
 
   /**
    * Extract the array of items from a list endpoint, tolerating both shapes:
@@ -192,7 +202,7 @@ export class AdminService {
   }
 
   getKpis(): Observable<KpiCard[]> {
-    return this.dashboard$.pipe(map(d => ([
+    return this.dashboard$().pipe(map(d => ([
       { key: 'members',   label: 'TOTAL MEMBERS',    value: AdminService.fmt(d.totalMembersCount),  delta: Math.round(d.totalMembersGrowth),    icon: 'group',           tone: 'green'  },
       { key: 'trainers',  label: 'TOTAL TRAINERS',   value: AdminService.fmt(d.totalTrainersCount), delta: Math.round(d.totalTrainersGrowth),   icon: 'sports',          tone: 'blue'   },
       { key: 'academies', label: 'ACADEMIES',        value: AdminService.fmt(d.academiesCount),     delta: Math.round(d.academiesGrowth),       icon: 'school',          tone: 'violet' },
@@ -202,7 +212,7 @@ export class AdminService {
   }
 
   getManagementTiles(): Observable<ManagementTile[]> {
-    return this.dashboard$.pipe(map(d => ([
+    return this.dashboard$().pipe(map(d => ([
       { key: 'trainers',  title: 'Trainers',  subtitle: 'Manage coaching staff',    icon: 'sports',      count: d.totalTrainersCount, trend: Math.round(d.totalTrainersGrowth), route: '/admin/trainers'  },
       { key: 'academies', title: 'Academies', subtitle: 'Sports programs & venues', icon: 'school',      count: d.academiesCount,     trend: Math.round(d.academiesGrowth),     route: '/admin/academies' },
       { key: 'members',   title: 'Members',   subtitle: 'Active subscribers',       icon: 'group',       count: d.totalMembersCount,  trend: Math.round(d.totalMembersGrowth),  route: '/admin/members'   },
@@ -211,19 +221,55 @@ export class AdminService {
   }
 
   getActivities(): Observable<ActivityItem[]> {
-    return this.dashboard$.pipe(
+    return this.dashboard$().pipe(
       map(d => (d.recentActivities ?? []).map(a => this.mapActivityFromApi(a)))
     );
   }
 
   getRequestsSummary(): Observable<RequestsSummary> {
-    return this.dashboard$.pipe(map(d => ({
+    return this.dashboard$().pipe(map(d => ({
       successRate: Math.round(d.requestsSuccessRate),
       total:       d.requestsApprovedCount + d.requestsPendingCount + d.requestsRejectedCount,
       approved:    d.requestsApprovedCount,
       pending:     d.requestsPendingCount,
       rejected:    d.requestsRejectedCount
     } as RequestsSummary)));
+  }
+
+  /**
+   * Single dashboard fetch that returns all four view pieces at once.
+   * Preferred over calling the four getters separately — it makes ONE HTTP
+   * request per load (the separate getters would each fire their own).
+   */
+  getDashboardBundle(): Observable<{
+    kpis: KpiCard[];
+    tiles: ManagementTile[];
+    activities: ActivityItem[];
+    summary: RequestsSummary;
+  }> {
+    return this.dashboard$().pipe(map(d => ({
+      kpis: [
+        { key: 'members',   label: 'TOTAL MEMBERS',    value: AdminService.fmt(d.totalMembersCount),  delta: Math.round(d.totalMembersGrowth),    icon: 'group',           tone: 'green'  },
+        { key: 'trainers',  label: 'TOTAL TRAINERS',   value: AdminService.fmt(d.totalTrainersCount), delta: Math.round(d.totalTrainersGrowth),   icon: 'sports',          tone: 'blue'   },
+        { key: 'academies', label: 'ACADEMIES',        value: AdminService.fmt(d.academiesCount),     delta: Math.round(d.academiesGrowth),       icon: 'school',          tone: 'violet' },
+        { key: 'requests',  label: 'PENDING REQUESTS', value: AdminService.fmt(d.pendingRequestsCount), delta: Math.round(d.pendingRequestsGrowth), icon: 'pending_actions', tone: 'amber'  },
+        { key: 'offers',    label: 'ACTIVE OFFERS',    value: AdminService.fmt(d.activeOffersCount),  delta: Math.round(d.activeOffersGrowth),    icon: 'local_offer',     tone: 'rose'   }
+      ] as KpiCard[],
+      tiles: [
+        { key: 'trainers',  title: 'Trainers',  subtitle: 'Manage coaching staff',    icon: 'sports',      count: d.totalTrainersCount, trend: Math.round(d.totalTrainersGrowth), route: '/admin/trainers'  },
+        { key: 'academies', title: 'Academies', subtitle: 'Sports programs & venues', icon: 'school',      count: d.academiesCount,     trend: Math.round(d.academiesGrowth),     route: '/admin/academies' },
+        { key: 'members',   title: 'Members',   subtitle: 'Active subscribers',       icon: 'group',       count: d.totalMembersCount,  trend: Math.round(d.totalMembersGrowth),  route: '/admin/members'   },
+        { key: 'offers',    title: 'Offers',    subtitle: 'Promotions & discounts',   icon: 'local_offer', count: d.activeOffersCount,  trend: Math.round(d.activeOffersGrowth),  route: '/admin/offers'    }
+      ] as ManagementTile[],
+      activities: (d.recentActivities ?? []).map(a => this.mapActivityFromApi(a)),
+      summary: {
+        successRate: Math.round(d.requestsSuccessRate),
+        total:       d.requestsApprovedCount + d.requestsPendingCount + d.requestsRejectedCount,
+        approved:    d.requestsApprovedCount,
+        pending:     d.requestsPendingCount,
+        rejected:    d.requestsRejectedCount
+      } as RequestsSummary
+    })));
   }
 
   private mapActivityFromApi(a: ActivityApiItem): ActivityItem {
@@ -394,10 +440,14 @@ export class AdminService {
   }
 
   private mapAcademyFromApi(item: AcademyApiItem): AdminAcademy {
+    const type = (['Academy', 'Court', 'Locker'].includes(item.type)
+      ? item.type : 'Academy') as AdminAcademy['type'];
     return {
       id: item.id,
       name: item.name,
-      sport: item.sportName || item.type || '',
+      sport: item.sportName || '',
+      sportId: item.sportId,
+      type,
       imageUrl: item.imageUrl,
       status: item.isActive ? 'Active' : 'Paused',
       trainersCount: item.trainersCount ?? 0,
@@ -408,18 +458,66 @@ export class AdminService {
   }
 
   private toAcademyPayload(a: Partial<AdminAcademy>) {
+    // `type` is a backend enum (Academy | Court | Locker) — NOT the sport name.
+    // Sending the sport name here was rejected with "Academy.InvalidType".
+    const type = (['Academy', 'Court', 'Locker'].includes(a.type ?? '')
+      ? a.type : 'Academy');
     return {
       name: a.name ?? '',
       description: '',
       location: a.location ?? '',
       imageUrl: a.imageUrl ?? '',
-      type: a.sport ?? '',
+      type,
       isFeatured: false,
       isNew: false,
       isActive: a.status ? a.status === 'Active' : true,
       displayOrder: 0,
-      sportId: 0
+      sportId: a.sportId ?? 0   // real sport id from the form (was hardcoded 0)
     };
+  }
+
+  // ============================================================
+  //  LOOKUPS — sports & coaches (used to populate form dropdowns)
+  // ============================================================
+  getSports(): Observable<{ id: number; name: string }[]> {
+    return this.http.get<{ id: number; name: string }[]>(`${this.rootUrl}/sports`).pipe(
+      map(list => (list ?? []).map(s => ({ id: s.id, name: s.name })))
+    );
+  }
+
+  getCoaches(): Observable<{ id: number; name: string; imageUrl: string | null }[]> {
+    return this.http.get<Array<{ id: number; fullName: string; imageUrl: string | null }>>(
+      `${this.rootUrl}/coaches`
+    ).pipe(
+      map(list => (list ?? []).map(c => ({ id: c.id, name: c.fullName, imageUrl: c.imageUrl ?? null })))
+    );
+  }
+
+  // ============================================================
+  //  CLASSES — create a session and assign a coach
+  //  POST /api/sports/classes
+  //  NOTE: the backend currently ignores academyId on create/update,
+  //  so a new class is not linked to an academy (academyId stays null).
+  //  We still send it so this works once the backend supports it.
+  // ============================================================
+  createClass(data: {
+    title: string; description?: string; type: string; location: string;
+    sportId: number; startTime: string; endTime: string;
+    maxParticipants: number; price: number; coachId: number; academyId?: number | null;
+  }): Observable<unknown> {
+    return this.http.post(`${environment.apiBaseUrl}/api/sports/classes`, {
+      title: data.title,
+      description: data.description ?? '',
+      type: data.type,
+      location: data.location,
+      sportId: data.sportId,
+      startTime: data.startTime,
+      endTime: data.endTime,
+      maxParticipants: data.maxParticipants,
+      price: data.price,
+      coachId: data.coachId,
+      academyId: data.academyId ?? null
+    });
   }
 
   // ============================================================

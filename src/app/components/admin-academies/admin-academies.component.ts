@@ -27,15 +27,59 @@ export class AdminAcademiesComponent implements OnInit {
   status = signal<string>('All');
   sortBy = signal<SortBy>('name');
 
+  /** Real sports loaded from the API — used for the form's Sport dropdown. */
+  sportOptions = signal<{ id: number; name: string }[]>([]);
+  /** Coaches loaded from the API — used for the class form's Coach dropdown. */
+  coachOptions = signal<{ id: number; name: string; imageUrl: string | null }[]>([]);
+
   // Modal state
   modalOpen = signal(false);
   editing = signal<AdminAcademy | null>(null);
   isSubmitting = signal(false);
 
-  /** Form schema for the modal — declarative, matches AdminAcademy. */
-  readonly fields: FieldDef[] = [
+  // Add-Class modal state
+  classModalOpen = signal(false);
+  classAcademy = signal<AdminAcademy | null>(null);
+  classSubmitting = signal(false);
+  classError = signal('');
+
+  /** Form schema for the Add-Class modal. Sport + Coach are real dropdowns.
+   *  Sport is required because the backend rejects an invalid sportId with
+   *  "Sport not found" (some academies have no sportId set). */
+  classFields = computed<FieldDef[]>(() => [
+    { key: 'title',    label: 'Class title', type: 'text', required: true, width: 'full', placeholder: 'e.g. Morning Training' },
+    { key: 'sport',    label: 'Sport', type: 'select', required: true,
+      placeholder: 'Select a sport…',
+      options: this.sportOptions().map(s => ({ value: s.name, label: s.name })) },
+    { key: 'coachId',  label: 'Coach', type: 'select', required: true,
+      placeholder: 'Select a coach…',
+      options: this.coachOptions().map(c => ({ value: c.id, label: c.name })) },
+    { key: 'location', label: 'Location', type: 'text', required: true, placeholder: 'e.g. Field A' },
+    { key: 'date',     label: 'Date',  type: 'date', required: true },
+    { key: 'startTime',label: 'Start', type: 'text', required: true, placeholder: '09:00' },
+    { key: 'endTime',  label: 'End',   type: 'text', required: true, placeholder: '10:00' },
+    { key: 'maxParticipants', label: 'Capacity', type: 'number', required: true, min: 1 },
+    { key: 'price',    label: 'Price (EGP)', type: 'number', required: true, min: 0 }
+  ]);
+
+  /** Prefill the class form with the academy's sport when it has a valid one. */
+  classInitial = computed<Record<string, unknown> | null>(() => {
+    const a = this.classAcademy();
+    return a?.sport ? { sport: a.sport } : null;
+  });
+
+  /** Form schema for the modal. Sport is a dropdown of real sports so the
+   *  academy links to a valid sportId (was a free-text field → sportId 0). */
+  fields = computed<FieldDef[]>(() => [
     { key: 'name',     label: 'Academy name', type: 'text',  required: true, width: 'full', placeholder: 'e.g. Elite Football Academy' },
-    { key: 'sport',    label: 'Sport',        type: 'text',  required: true, placeholder: 'Football, Tennis…' },
+    { key: 'sport',    label: 'Sport',        type: 'select', required: true,
+      placeholder: 'Select a sport…',
+      options: this.sportOptions().map(s => ({ value: s.name, label: s.name })) },
+    { key: 'type',     label: 'Type',         type: 'select', required: true, options: [
+        { value: 'Academy', label: 'Academy' },
+        { value: 'Court',   label: 'Court' },
+        { value: 'Locker',  label: 'Locker' }
+      ] },
     { key: 'location', label: 'Location',     type: 'text',  required: true, placeholder: 'Cairo, EG' },
     { key: 'imageUrl', label: 'Cover image URL', type: 'url', required: false, width: 'full', placeholder: 'https://…' },
     { key: 'status',   label: 'Status',       type: 'select', required: true, options: [
@@ -46,7 +90,7 @@ export class AdminAcademiesComponent implements OnInit {
     { key: 'trainersCount', label: 'Trainers',  type: 'number', min: 0 },
     { key: 'membersCount',  label: 'Members',   type: 'number', min: 0 },
     { key: 'growth',        label: 'Growth %',  type: 'number', hint: 'Can be negative' }
-  ];
+  ]);
 
   sports = computed<string[]>(() => {
     const set = new Set(this.all().map(a => a.sport));
@@ -96,7 +140,61 @@ export class AdminAcademiesComponent implements OnInit {
   /** Card cover with graceful fallback (full URL, local path, or default). */
   coverUrl(raw: string | null | undefined): string { return coverBackground(raw); }
 
-  ngOnInit(): void { this.refresh(); }
+  ngOnInit(): void {
+    this.refresh();
+    this.admin.getSports().subscribe(s => this.sportOptions.set(s));
+    this.admin.getCoaches().subscribe(c => this.coachOptions.set(c));
+  }
+
+  // ===== Add Class flow =====
+  openAddClass(academy: AdminAcademy): void {
+    this.classAcademy.set(academy);
+    this.classError.set('');
+    this.classModalOpen.set(true);
+  }
+  closeClassModal(): void {
+    this.classModalOpen.set(false);
+    this.classAcademy.set(null);
+  }
+
+  onSubmitClass(value: Record<string, unknown>): void {
+    const academy = this.classAcademy();
+    if (!academy) return;
+    this.classSubmitting.set(true);
+    this.classError.set('');
+
+    const date = String(value['date'] ?? '');
+    const toIso = (t: string) => `${date}T${(t || '00:00').trim()}:00`;
+
+    // Resolve the chosen sport name → real sportId. Required: the backend
+    // returns "Sport not found" for an invalid/zero sportId.
+    const sportName = String(value['sport'] ?? '');
+    const sportId = this.sportOptions().find(s => s.name === sportName)?.id ?? 0;
+    if (!sportId) {
+      this.classSubmitting.set(false);
+      this.classError.set('Please select a valid sport for this class.');
+      return;
+    }
+
+    this.admin.createClass({
+      title: String(value['title'] ?? ''),
+      type: 'Regular',
+      location: String(value['location'] ?? ''),
+      sportId,
+      startTime: toIso(String(value['startTime'] ?? '')),
+      endTime: toIso(String(value['endTime'] ?? '')),
+      maxParticipants: Number(value['maxParticipants'] ?? 1),
+      price: Number(value['price'] ?? 0),
+      coachId: Number(value['coachId']),
+      academyId: academy.id
+    }).subscribe({
+      next: () => { this.classSubmitting.set(false); this.closeClassModal(); this.refresh(); },
+      error: (err) => {
+        this.classSubmitting.set(false);
+        this.classError.set(err?.error?.title || err?.error?.message || 'Could not create the class.');
+      }
+    });
+  }
 
   refresh(): void {
     this.admin.getAcademies().subscribe(v => { this.all.set(v); this.page.set(1); });
@@ -138,8 +236,14 @@ export class AdminAcademiesComponent implements OnInit {
   }
 
   private normalize(v: Record<string, unknown>): Partial<AdminAcademy> {
+    const sportName = String(v['sport'] ?? '');
+    const sportId = this.sportOptions().find(s => s.name === sportName)?.id ?? 0;
+    const type = (['Academy', 'Court', 'Locker'].includes(String(v['type']))
+      ? v['type'] : 'Academy') as AdminAcademy['type'];
     return {
       ...v,
+      sportId,                                          // resolve dropdown name → real sportId
+      type,                                             // backend enum (not the sport name)
       trainersCount: Number(v['trainersCount'] ?? 0),
       membersCount:  Number(v['membersCount']  ?? 0),
       growth:        Number(v['growth']        ?? 0)

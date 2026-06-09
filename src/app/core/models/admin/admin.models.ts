@@ -41,7 +41,9 @@ export interface RequestsSummary {
 export interface AdminAcademy {
   id: number;
   name: string;
-  sport: string;          // e.g. Football, Tennis
+  sport: string;          // sport name, e.g. Football, Tennis
+  sportId?: number;       // real backend sport id (required when creating/updating)
+  type?: 'Academy' | 'Court' | 'Locker';  // backend enum (NOT the sport name)
   imageUrl: string;
   status: 'Active' | 'Paused' | 'Archived';
   trainersCount: number;

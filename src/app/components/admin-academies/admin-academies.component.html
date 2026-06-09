@@ -83,9 +83,9 @@
       </div>
 
       <div class="actions">
-        <button class="btn-ghost" (click)="openEdit(a)">
-          <span class="material-symbols-outlined">visibility</span>
-          View
+        <button class="btn-ghost" (click)="openAddClass(a)">
+          <span class="material-symbols-outlined">add</span>
+          Add Class
         </button>
         <button class="btn-ghost" (click)="openEdit(a)">
           <span class="material-symbols-outlined">edit</span>
@@ -113,9 +113,22 @@
   [title]="editing() ? 'Edit Academy' : 'Add New Academy'"
   [subtitle]="editing() ? 'Update the academy details below.' : 'Fill in the fields to register a new academy.'"
   [submitLabel]="editing() ? 'Update' : 'Create academy'"
-  [fields]="fields"
+  [fields]="fields()"
   [initial]="editing()"
   [isSubmitting]="isSubmitting()"
   (submitted)="onSubmit($event)"
   (cancelled)="closeModal()">
+</app-entity-form-modal>
+
+<!-- ===== Add Class modal ===== -->
+<app-entity-form-modal
+  *ngIf="classModalOpen()"
+  [title]="'Add Class — ' + (classAcademy()?.name || '')"
+  [subtitle]="classError() || 'Create a session and assign a coach for this academy.'"
+  [submitLabel]="'Create class'"
+  [fields]="classFields()"
+  [initial]="classInitial()"
+  [isSubmitting]="classSubmitting()"
+  (submitted)="onSubmitClass($event)"
+  (cancelled)="closeClassModal()">
 </app-entity-form-modal>
