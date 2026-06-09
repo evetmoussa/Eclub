@@ -1,0 +1,17 @@
+<nav class="pager" *ngIf="total() > 1" aria-label="Pagination">
+  <button class="pg-btn" (click)="prev()" [disabled]="current() === 1" aria-label="Previous page">
+    <span class="material-symbols-outlined">chevron_left</span>
+  </button>
+
+  <button
+    *ngFor="let p of pages()"
+    class="pg-num"
+    [class.active]="p === current()"
+    (click)="go(p)">
+    {{ p }}
+  </button>
+
+  <button class="pg-btn" (click)="next()" [disabled]="current() === total()" aria-label="Next page">
+    <span class="material-symbols-outlined">chevron_right</span>
+  </button>
+</nav>

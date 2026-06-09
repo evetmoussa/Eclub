@@ -53,14 +53,14 @@
       type="text"
       placeholder="Search trainers by name or email…"
       [ngModel]="query()"
-      (ngModelChange)="query.set($event)">
+      (ngModelChange)="setQuery($event)">
   </div>
   <div class="role-pills">
     <button
       *ngFor="let r of roles()"
       class="pill"
       [class.active]="filterRole() === r"
-      (click)="filterRole.set(r)">
+      (click)="setRole(r)">
       {{ r }}
     </button>
   </div>
@@ -68,7 +68,7 @@
 
 <!-- ===== Trainer grid ===== -->
 <section class="grid">
-  <article class="trainer" *ngFor="let t of filtered()">
+  <article class="trainer" *ngFor="let t of paged()">
     <div class="actions-top">
       <button class="btn-icon" title="Edit" (click)="openEdit(t)">
         <span class="material-symbols-outlined">edit</span>
@@ -108,6 +108,9 @@
     <button class="btn-ghost" (click)="openAdd()">Get started</button>
   </article>
 </section>
+
+<!-- ===== Pagination ===== -->
+<app-pager [page]="page()" [totalPages]="totalPages()" (pageChange)="page.set($event)"></app-pager>
 
 <!-- ===== Add / Edit modal ===== -->
 <app-entity-form-modal

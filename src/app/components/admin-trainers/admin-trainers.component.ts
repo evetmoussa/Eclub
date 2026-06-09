@@ -6,12 +6,13 @@ import { AdminTrainer } from '../../core/models/admin/admin.models';
 import {
   EntityFormModalComponent, FieldDef
 } from '../admin-shared/entity-form-modal/entity-form-modal.component';
+import { PagerComponent } from '../admin-shared/pager/pager.component';
 import { onImgError } from '../../core/utils/image-fallback';
 
 @Component({
   selector: 'app-admin-trainers',
   standalone: true,
-  imports: [CommonModule, FormsModule, EntityFormModalComponent],
+  imports: [CommonModule, FormsModule, EntityFormModalComponent, PagerComponent],
   templateUrl: './admin-trainers.component.html',
   styleUrl: './admin-trainers.component.scss'
 })
@@ -65,11 +66,23 @@ export class AdminTrainersComponent implements OnInit {
     );
   });
 
+  // ===== Pagination (client-side over the filtered list) =====
+  readonly pageSize = 9;
+  page = signal(1);
+  totalPages = computed(() => Math.max(1, Math.ceil(this.filtered().length / this.pageSize)));
+  paged = computed<AdminTrainer[]>(() => {
+    const current = Math.min(this.page(), this.totalPages());
+    const start = (current - 1) * this.pageSize;
+    return this.filtered().slice(start, start + this.pageSize);
+  });
+  setQuery(v: string): void { this.query.set(v); this.page.set(1); }
+  setRole(v: string):  void { this.filterRole.set(v); this.page.set(1); }
+
   /** <img (error)> fallback when an avatar fails to load. */
   onImgError = onImgError;
 
   ngOnInit(): void { this.refresh(); }
-  refresh(): void { this.admin.getTrainers().subscribe(v => this.all.set(v)); }
+  refresh(): void { this.admin.getTrainers().subscribe(v => { this.all.set(v); this.page.set(1); }); }
 
   openAdd():  void { this.editing.set(null); this.modalOpen.set(true); }
   openEdit(t: AdminTrainer): void { this.editing.set(t); this.modalOpen.set(true); }

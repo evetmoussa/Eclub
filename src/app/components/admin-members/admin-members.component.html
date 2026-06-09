@@ -50,7 +50,7 @@
       *ngFor="let t of tabs"
       class="tab"
       [class.active]="activeTab() === t"
-      (click)="activeTab.set(t)">
+      (click)="setTab(t)">
       {{ t }}
     </button>
   </nav>
@@ -61,7 +61,7 @@
       <input type="text"
              placeholder="Search members…"
              [ngModel]="query()"
-             (ngModelChange)="query.set($event)">
+             (ngModelChange)="setQuery($event)">
     </div>
     <button class="btn-ghost">
       <span class="material-symbols-outlined">filter_list</span>
@@ -85,7 +85,7 @@
     <span></span>
   </header>
 
-  <article class="row" *ngFor="let m of filtered()">
+  <article class="row" *ngFor="let m of paged()">
     <div class="profile">
       <img [src]="m.avatarUrl" [alt]="m.name" (error)="onImgError($event)">
       <div>
@@ -109,3 +109,6 @@
     <p>No members match this view.</p>
   </article>
 </section>
+
+<!-- ===== Pagination ===== -->
+<app-pager [page]="page()" [totalPages]="totalPages()" (pageChange)="page.set($event)"></app-pager>

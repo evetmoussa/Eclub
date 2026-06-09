@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { CoachesService } from '../../core/services/coaches.service';
 import { AdminService } from '../../core/services/admin/admin.service';
 import { CoachApplication } from '../coach-apply/coach-apply.component';
+import { PagerComponent } from '../admin-shared/pager/pager.component';
 
 const STORAGE_KEY = 'coach.applications';
 
@@ -12,7 +13,7 @@ type Tab = 'All' | 'Pending' | 'Approved' | 'Rejected';
 @Component({
   selector: 'app-admin-requests',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, PagerComponent],
   templateUrl: './admin-requests.component.html',
   styleUrl: './admin-requests.component.scss'
 })
@@ -47,6 +48,18 @@ export class AdminRequestsComponent implements OnInit {
         a.specialization.toLowerCase().includes(q)
       );
   });
+
+  // ===== Pagination (client-side over the filtered list) =====
+  readonly pageSize = 10;
+  page = signal(1);
+  totalPages = computed(() => Math.max(1, Math.ceil(this.filtered().length / this.pageSize)));
+  paged = computed<CoachApplication[]>(() => {
+    const current = Math.min(this.page(), this.totalPages());
+    const start = (current - 1) * this.pageSize;
+    return this.filtered().slice(start, start + this.pageSize);
+  });
+  setTab(t: Tab):      void { this.tab.set(t);   this.page.set(1); }
+  setQuery(v: string): void { this.query.set(v); this.page.set(1); }
 
   ngOnInit(): void { this.load(); }
 

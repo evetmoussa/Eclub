@@ -6,6 +6,7 @@ import { AdminAcademy } from '../../core/models/admin/admin.models';
 import {
   EntityFormModalComponent, FieldDef
 } from '../admin-shared/entity-form-modal/entity-form-modal.component';
+import { PagerComponent } from '../admin-shared/pager/pager.component';
 import { coverBackground } from '../../core/utils/image-fallback';
 
 type SortBy = 'name' | 'members' | 'growth';
@@ -13,7 +14,7 @@ type SortBy = 'name' | 'members' | 'growth';
 @Component({
   selector: 'app-admin-academies',
   standalone: true,
-  imports: [CommonModule, FormsModule, EntityFormModalComponent],
+  imports: [CommonModule, FormsModule, EntityFormModalComponent, PagerComponent],
   templateUrl: './admin-academies.component.html',
   styleUrl: './admin-academies.component.scss'
 })
@@ -72,13 +73,33 @@ export class AdminAcademiesComponent implements OnInit {
     return arr;
   });
 
+  // ===== Pagination (client-side over the filtered list) =====
+  readonly pageSize = 9;
+  page = signal(1);
+
+  totalPages = computed(() => Math.max(1, Math.ceil(this.filtered().length / this.pageSize)));
+
+  /** Academies visible on the current page (page clamped to valid range). */
+  paged = computed<AdminAcademy[]>(() => {
+    const current = Math.min(this.page(), this.totalPages());
+    const start = (current - 1) * this.pageSize;
+    return this.filtered().slice(start, start + this.pageSize);
+  });
+
+  // Filter setters that also reset to the first page, so you never land on an
+  // empty page after narrowing the results.
+  setQuery(v: string):  void { this.query.set(v);  this.page.set(1); }
+  setSport(v: string):  void { this.sport.set(v);  this.page.set(1); }
+  setStatus(v: string): void { this.status.set(v); this.page.set(1); }
+  setSortBy(v: SortBy): void { this.sortBy.set(v); this.page.set(1); }
+
   /** Card cover with graceful fallback (full URL, local path, or default). */
   coverUrl(raw: string | null | undefined): string { return coverBackground(raw); }
 
   ngOnInit(): void { this.refresh(); }
 
   refresh(): void {
-    this.admin.getAcademies().subscribe(v => this.all.set(v));
+    this.admin.getAcademies().subscribe(v => { this.all.set(v); this.page.set(1); });
   }
 
   openAdd(): void {

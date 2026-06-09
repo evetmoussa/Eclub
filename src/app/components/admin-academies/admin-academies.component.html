@@ -17,12 +17,12 @@
       type="text"
       placeholder="Search by academy name or location…"
       [ngModel]="query()"
-      (ngModelChange)="query.set($event)">
+      (ngModelChange)="setQuery($event)">
   </div>
 
   <label class="select">
     <span class="material-symbols-outlined">sports</span>
-    <select [ngModel]="sport()" (ngModelChange)="sport.set($event)">
+    <select [ngModel]="sport()" (ngModelChange)="setSport($event)">
       <option *ngFor="let s of sports()" [value]="s">{{ s }}</option>
     </select>
     <span class="material-symbols-outlined chev">expand_more</span>
@@ -30,7 +30,7 @@
 
   <label class="select">
     <span class="material-symbols-outlined">flag</span>
-    <select [ngModel]="status()" (ngModelChange)="status.set($event)">
+    <select [ngModel]="status()" (ngModelChange)="setStatus($event)">
       <option value="All">All status</option>
       <option value="Active">Active</option>
       <option value="Paused">Paused</option>
@@ -41,7 +41,7 @@
 
   <label class="select">
     <span class="material-symbols-outlined">sort</span>
-    <select [ngModel]="sortBy()" (ngModelChange)="sortBy.set($event)">
+    <select [ngModel]="sortBy()" (ngModelChange)="setSortBy($event)">
       <option value="name">Sort: Name</option>
       <option value="members">Sort: Members</option>
       <option value="growth">Sort: Growth</option>
@@ -52,7 +52,7 @@
 
 <!-- ===== Cards grid ===== -->
 <section class="grid">
-  <article class="academy" *ngFor="let a of filtered()">
+  <article class="academy" *ngFor="let a of paged()">
     <div class="cover" [style.background-image]="coverUrl(a.imageUrl)">
       <span class="sport-tag">{{ a.sport }}</span>
       <span class="status" [attr.data-status]="a.status">{{ a.status }}</span>
@@ -103,6 +103,9 @@
     <p>No academies match your filters.</p>
   </article>
 </section>
+
+<!-- ===== Pagination ===== -->
+<app-pager [page]="page()" [totalPages]="totalPages()" (pageChange)="page.set($event)"></app-pager>
 
 <!-- ===== Add / Edit modal ===== -->
 <app-entity-form-modal

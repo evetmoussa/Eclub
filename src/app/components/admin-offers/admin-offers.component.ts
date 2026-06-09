@@ -6,6 +6,7 @@ import { AdminOffer } from '../../core/models/admin/admin.models';
 import {
   EntityFormModalComponent, FieldDef
 } from '../admin-shared/entity-form-modal/entity-form-modal.component';
+import { PagerComponent } from '../admin-shared/pager/pager.component';
 import { coverBackground } from '../../core/utils/image-fallback';
 
 type OfferTab = 'All' | 'Active' | 'Scheduled' | 'Expired';
@@ -13,7 +14,7 @@ type OfferTab = 'All' | 'Active' | 'Scheduled' | 'Expired';
 @Component({
   selector: 'app-admin-offers',
   standalone: true,
-  imports: [CommonModule, FormsModule, EntityFormModalComponent],
+  imports: [CommonModule, FormsModule, EntityFormModalComponent, PagerComponent],
   templateUrl: './admin-offers.component.html',
   styleUrl: './admin-offers.component.scss'
 })
@@ -68,11 +69,23 @@ export class AdminOffersComponent implements OnInit {
       .filter(o => q === '' || o.title.toLowerCase().includes(q) || o.description.toLowerCase().includes(q));
   });
 
+  // ===== Pagination (client-side over the filtered list) =====
+  readonly pageSize = 9;
+  page = signal(1);
+  totalPages = computed(() => Math.max(1, Math.ceil(this.filtered().length / this.pageSize)));
+  paged = computed<AdminOffer[]>(() => {
+    const current = Math.min(this.page(), this.totalPages());
+    const start = (current - 1) * this.pageSize;
+    return this.filtered().slice(start, start + this.pageSize);
+  });
+  setTab(t: OfferTab): void { this.activeTab.set(t); this.page.set(1); }
+  setQuery(v: string): void { this.query.set(v); this.page.set(1); }
+
   /** Card cover with graceful fallback (full URL, local path, or default). */
   coverUrl(raw: string | null | undefined): string { return coverBackground(raw); }
 
   ngOnInit(): void { this.refresh(); }
-  refresh(): void { this.admin.getOffers().subscribe(v => this.all.set(v)); }
+  refresh(): void { this.admin.getOffers().subscribe(v => { this.all.set(v); this.page.set(1); }); }
 
   openAdd():  void { this.editing.set(null); this.modalOpen.set(true); }
   openEdit(o: AdminOffer): void { this.editing.set(o); this.modalOpen.set(true); }

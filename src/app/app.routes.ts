@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 
+import { adminGuard } from './guards/admin.guard';
 import { AdminloginComponent } from './components/adminlogin/adminlogin.component';
 import { SplashComponent } from './components/splash/splash.component';
 import { NotfoundComponent } from './components/notfound/notfound.component';
@@ -88,6 +89,7 @@ export const routes: Routes = [
   {
     path: 'admin',
     component: AdminLayoutComponent,
+    canActivate: [adminGuard],
     children: [
       { path: '',           redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard',  component: AdminDashboardComponent, title: 'Admin Dashboard' },
@@ -97,7 +99,7 @@ export const routes: Routes = [
       { path: 'offers',     component: AdminOffersComponent,    title: 'Admin Offers'    },
       { path: 'requests',   component: AdminRequestsComponent,  title: 'Admin Requests'  },
       { path: 'settings',   component: AdminDashboardComponent, title: 'Admin Settings'  },
-      { path: 'support',    component: AdminDashboardComponent, title: 'Admin Support'   }
+      { path: 'support',    component: ChatAssistantComponent,  title: 'Support — Smart Assistant' }
     ]
   },
 

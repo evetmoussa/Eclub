@@ -117,7 +117,11 @@
         strong { font-size: 13px; }
         small  { font-size: 11px; color: rgba(255, 255, 255, .5); }
   }
-  .logout { color: rgba(255, 255, 255, .55); cursor: pointer; transition: color .15s; }
+  .logout {
+    display: inline-flex; align-items: center; justify-content: center;
+    background: none; border: 0; padding: 0;
+    color: rgba(255, 255, 255, .55); cursor: pointer; transition: color .15s;
+  }
   .logout:hover { color: var(--admin-green); }
 }
 

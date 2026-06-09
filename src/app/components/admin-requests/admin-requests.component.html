@@ -39,21 +39,21 @@
     <button *ngFor="let t of ['Pending','Approved','Rejected','All']"
             class="tab"
             [class.active]="tab() === t"
-            (click)="tab.set($any(t))">
+            (click)="setTab($any(t))">
       {{ t }}
     </button>
   </nav>
   <div class="search">
     <span class="material-symbols-outlined">search</span>
     <input type="text" placeholder="Search by name, email or specialty…"
-           [ngModel]="query()" (ngModelChange)="query.set($event)">
+           [ngModel]="query()" (ngModelChange)="setQuery($event)">
   </div>
 </section>
 
 <!-- Application cards -->
 <section class="grid">
   <article class="app-card"
-           *ngFor="let a of filtered()"
+           *ngFor="let a of paged()"
            [attr.data-status]="a.status">
     <header class="app-head">
       <img *ngIf="a.imageUrl" [src]="a.imageUrl" [alt]="a.fullName">
@@ -91,5 +91,8 @@
     <p>No applications in this view.</p>
   </article>
 </section>
+
+<!-- ===== Pagination ===== -->
+<app-pager [page]="page()" [totalPages]="totalPages()" (pageChange)="page.set($event)"></app-pager>
 
 <p class="toast" *ngIf="toast()">{{ toast() }}</p>
