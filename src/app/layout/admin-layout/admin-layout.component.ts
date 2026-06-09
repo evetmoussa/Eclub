@@ -35,7 +35,7 @@ export class AdminLayoutComponent {
   ];
 
   secondary: SideLink[] = [
-    { icon: 'settings',     label: 'Settings', route: '/admin/settings' },
+   
     { icon: 'help_outline', label: 'Support',  route: '/admin/support'  }
   ];
 }

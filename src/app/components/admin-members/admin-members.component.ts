@@ -18,7 +18,7 @@ type Tab = 'All Members' | 'Premium' | 'Coaches' | 'Pending';
 export class AdminMembersComponent implements OnInit {
   private admin = inject(AdminService);
 
-  tabs: Tab[] = ['All Members', 'Premium', 'Coaches', 'Pending'];
+  tabs: Tab[] = ['All Members'];
   activeTab = signal<Tab>('All Members');
 
   all = signal<AdminMember[]>([]);
