@@ -15,16 +15,25 @@ export interface SportClass {
   title: string;
   description: string;
   imageUrl: string | null;
-  sportId: number;
+  sportId?: number;
   sportName?: string;
-  startTime: string;   // ISO date
+  startTime: string;   // ISO date or "09:00 AM"
   endTime: string;
+  timeRange?: string;  // e.g. "09:00 AM - 10:00 AM"
   location: string;
   maxParticipants: number;
   currentParticipants?: number;
+  availableSlots?: number;
   price: number;
   type: string;
+  status?: string;     // e.g. "Upcoming"
+  countdown?: string | null;
   isBooked?: boolean;
+  isBookedByCurrentUser?: boolean;
+  coachId?: number | null;
+  coachName?: string | null;
+  coachImageUrl?: string | null;
+  academyId?: number | null;
 }
 
 export interface SpecialEvent {

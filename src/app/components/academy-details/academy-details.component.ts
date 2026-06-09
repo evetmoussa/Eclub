@@ -1,15 +1,16 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { SportsService } from '../../core/services/sports.service';
+import { SportClass } from '../../core/models/sport.model';
+import { onImgError } from '../../core/utils/image-fallback';
 
-interface Coach   { id: number; name: string; avatar?: string; rating?: number; reviews?: number; }
-interface Slot    { id: number; label: string; startTime: string; endTime: string; capacity: number; max: number; }
-interface DateChip{ key: string; day: number; month: string; weekday: string; }
+interface Coach { id: number; name: string; avatar: string | null; }
 
 /**
- * Academy details — pick a coach + a date + a session slot, then go to
- * booking summary. Mock data lives here for now; once the API endpoint
- * is wired we just swap the mocks for the real fetch.
+ * Academy details — lists the academy's real bookable classes from the API,
+ * lets the user filter by coach, and books a session via
+ * POST /api/sports/classes/{id}/book.
  */
 @Component({
   selector: 'app-academy-details',
@@ -22,72 +23,111 @@ export class AcademyDetailsComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private location = inject(Location);
+  private sports = inject(SportsService);
 
   academyId!: number;
-  academyName = 'Football Academy';
-  sportName = 'Football';
+  academyName = '';
+  sportName = '';
 
-  coaches: Coach[] = [
-    { id: 1, name: 'Marco Silva',  rating: 4.9, reviews: 86 },
-    { id: 2, name: 'Layla Hassan', rating: 5.0, reviews: 124 }
-  ];
-  selectedCoachId = 2;
+  loading = true;
+  errorMsg = '';
+  bookingId: number | null = null;   // class id currently being booked
+  isFallback = false;                // true when showing all classes (none linked to this academy)
 
-  dates: DateChip[] = [];
-  selectedDate = '';
+  classes: SportClass[] = [];
+  coaches: Coach[] = [];
+  /** null = "All coaches" */
+  selectedCoachId: number | null = null;
 
-  slots: Slot[] = [
-    { id: 1, label: 'Session 1', startTime: '9:00 AM',  endTime: '10:00 AM', capacity: 1,  max: 20 },
-    { id: 2, label: 'Session 2', startTime: '10:00 AM', endTime: '11:00 AM', capacity: 20, max: 20 },
-    { id: 3, label: 'Session 3', startTime: '11:00 AM', endTime: '12:00 PM', capacity: 8,  max: 20 },
-    { id: 4, label: 'Session 4', startTime: '5:00 PM',  endTime: '6:00 PM',  capacity: 4,  max: 20 }
-  ];
+  onImgError = onImgError;
 
   ngOnInit(): void {
-    this.academyId = Number(this.route.snapshot.paramMap.get('id') ?? 1);
+    this.academyId = Number(this.route.snapshot.paramMap.get('id'));
 
+    // Name/sport from query params give an instant title; the API is the source
+    // of truth for the actual bookable sessions below.
     const qp = this.route.snapshot.queryParamMap;
-    this.academyName = qp.get('name') || (this.academyId === 2 ? 'Tennis Academy' : 'Football Academy');
-    this.sportName   = qp.get('sport') || (this.academyId === 2 ? 'Tennis' : 'Football');
+    this.academyName = qp.get('name') || 'Academy';
+    this.sportName   = qp.get('sport') || '';
 
-    const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
-    const weekdays = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
-    const today = new Date();
-    for (let i = 0; i < 6; i++) {
-      const d = new Date(today);
-      d.setDate(today.getDate() + i);
-      this.dates.push({
-        key: d.toISOString().slice(0, 10),
-        day: d.getDate(),
-        month: months[d.getMonth()],
-        weekday: weekdays[d.getDay()]
-      });
-    }
-    this.selectedDate = this.dates[1]?.key || this.dates[0].key;
+    this.load();
   }
 
-  selectCoach(id: number) { this.selectedCoachId = id; }
-  selectDate(k: string)   { this.selectedDate = k; }
-
-  isFull(s: Slot) { return s.capacity >= s.max; }
-
-  bookNow(s: Slot) {
-    if (this.isFull(s)) return;
-    const coach = this.coaches.find(c => c.id === this.selectedCoachId);
-    this.router.navigate(['/blank-layout/booking-summary', s.id], {
-      queryParams: {
-        academyId:   this.academyId,
-        academyName: this.academyName,
-        sport:       this.sportName,
-        coachName:   coach?.name,
-        coachId:     this.selectedCoachId,
-        date:        this.selectedDate,
-        startTime:   s.startTime,
-        endTime:     s.endTime,
-        sessionLabel: s.label
+  load(): void {
+    this.loading = true;
+    this.errorMsg = '';
+    this.sports.getClassesByAcademy(this.academyId).subscribe({
+      next: ({ classes, isFallback }) => {
+        this.classes = classes;
+        this.isFallback = isFallback;
+        this.coaches = this.deriveCoaches(classes);
+        if (!this.sportName && classes[0]?.sportName) this.sportName = classes[0].sportName!;
+        this.loading = false;
+      },
+      error: () => {
+        this.errorMsg = 'Could not load sessions for this academy.';
+        this.loading = false;
       }
     });
   }
 
-  goBack() { this.location.back(); }
+  /** Distinct coaches that teach this academy's classes. */
+  private deriveCoaches(list: SportClass[]): Coach[] {
+    const map = new Map<number, Coach>();
+    for (const c of list) {
+      if (c.coachId != null && !map.has(c.coachId)) {
+        map.set(c.coachId, { id: c.coachId, name: c.coachName || 'Coach', avatar: c.coachImageUrl ?? null });
+      }
+    }
+    return Array.from(map.values());
+  }
+
+  /** Classes shown as slots — filtered by the selected coach (or all). */
+  get slots(): SportClass[] {
+    return this.selectedCoachId == null
+      ? this.classes
+      : this.classes.filter(c => c.coachId === this.selectedCoachId);
+  }
+
+  selectCoach(id: number): void {
+    this.selectedCoachId = this.selectedCoachId === id ? null : id;
+  }
+
+  isFull(c: SportClass): boolean {
+    const avail = c.availableSlots ?? (c.maxParticipants - (c.currentParticipants ?? 0));
+    return avail <= 0;
+  }
+
+  taken(c: SportClass): number {
+    return c.currentParticipants ?? (c.maxParticipants - (c.availableSlots ?? c.maxParticipants));
+  }
+
+  /** Book the class via the API, then go to the booking confirmation. */
+  bookNow(c: SportClass): void {
+    if (this.isFull(c) || c.isBookedByCurrentUser || this.bookingId != null) return;
+    this.bookingId = c.id;
+    this.sports.bookClass(c.id).subscribe({
+      next: () => {
+        this.bookingId = null;
+        this.router.navigate(['/blank-layout/booking-confirmed'], {
+          queryParams: {
+            classId: c.id,
+            academyId: this.academyId,
+            academyName: this.academyName,
+            sport: this.sportName || c.sportName,
+            coachName: c.coachName,
+            time: c.timeRange || `${c.startTime} - ${c.endTime}`,
+            price: c.price
+          }
+        });
+      },
+      error: (err) => {
+        this.bookingId = null;
+        this.errorMsg = err?.error?.message || err?.error?.detail || 'Booking failed. Please try again.';
+        setTimeout(() => (this.errorMsg = ''), 4000);
+      }
+    });
+  }
+
+  goBack(): void { this.location.back(); }
 }

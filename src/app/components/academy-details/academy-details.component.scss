@@ -144,6 +144,50 @@
   background: rgba(26,213,95,.05);
 }
 
+/* ── Coach avatar photo (overrides icon placeholder when present) ── */
+.avatar img {
+  width: 100%; height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* ── Slot CTA column (price + book / booked) ── */
+.slot-cta {
+  display: flex; flex-direction: column; align-items: flex-end; gap: 8px;
+  .price { font-weight: 800; color: var(--eclub-primary); font-size: .95rem; }
+  .booked-tag {
+    display: inline-flex; align-items: center; gap: 4px;
+    color: var(--eclub-primary-green); font-weight: 700; font-size: .85rem;
+    .material-symbols-outlined { font-size: 18px; }
+  }
+}
+
+/* ── Loading / empty / error states ── */
+.state {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 40px 16px; color: #64748b; font-weight: 600;
+  .material-symbols-outlined { font-size: 22px; }
+  &.empty { flex-direction: column; padding: 48px 16px; .material-symbols-outlined { font-size: 40px; opacity: .6; } }
+}
+.spin { animation: ad-spin 1s linear infinite; }
+@keyframes ad-spin { to { transform: rotate(360deg); } }
+
+.error-banner {
+  background: #fef2f2; color: #b91c1c;
+  border: 1px solid #fecaca; border-radius: 10px;
+  padding: 10px 14px; margin-bottom: 14px; font-weight: 600; font-size: .9rem;
+}
+
+.page-head h1 small { font-weight: 600; color: #94a3b8; font-size: .9rem; }
+
+.fallback-note {
+  display: flex; align-items: center; gap: 8px;
+  background: #f0f9ff; color: #0369a1;
+  border: 1px solid #bae6fd; border-radius: 10px;
+  padding: 10px 14px; margin: 0 0 14px; font-size: .88rem; font-weight: 600;
+  .material-symbols-outlined { font-size: 18px; }
+}
+
 /* ============ Desktop refinements ============ */
 @media (min-width: 960px) {
   .slot {

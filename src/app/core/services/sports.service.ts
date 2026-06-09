@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, of, tap } from 'rxjs';
+import { Observable, of, tap, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
   Sport, SportClass, SportsScreen, SpecialEvent, MyBooking,
@@ -44,6 +44,28 @@ export class SportsService {
     if (sportId != null) params = params.set('sportId', sportId);
     return this.http.get<SportClass[]>(`${this.baseUrl}/classes`, { params }).pipe(
       tap(res => console.info('[SportsService] ← classes', res?.length))
+    );
+  }
+
+  /**
+   * Bookable classes/sessions for an academy details page.
+   * The API exposes classes via /sports/classes (each carries academyId).
+   * Returns { classes, isFallback }:
+   *   - classes scoped to this academy when any are linked, OR
+   *   - ALL available classes as a fallback when none are linked yet
+   *     (many backend classes currently have academyId = null).
+   * `isFallback` lets the UI tell the user the list isn't academy-specific.
+   */
+  getClassesByAcademy(academyId: number): Observable<{ classes: SportClass[]; isFallback: boolean }> {
+    return this.http.get<SportClass[]>(`${this.baseUrl}/classes`).pipe(
+      map(list => {
+        const all = list ?? [];
+        const scoped = all.filter(c => c.academyId === academyId);
+        return scoped.length
+          ? { classes: scoped, isFallback: false }
+          : { classes: all, isFallback: true };
+      }),
+      tap(res => console.info('[SportsService] ← academy classes', academyId, res.classes.length, 'fallback=', res.isFallback))
     );
   }
 
