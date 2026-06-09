@@ -32,12 +32,17 @@ export class AdminDashboardComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.admin.getKpis().subscribe(v => this.kpis.set(v));
-    this.admin.getManagementTiles().subscribe(v => this.tiles.set(v));
-    this.admin.getActivities().subscribe(v => this.feed.set(v));
-    this.admin.getRequestsSummary().subscribe(v => {
-      this.summary.set(v);
-      this.isLoading.set(false);
+    // One HTTP call feeds all four sections; a fresh request each load avoids
+    // replaying a stale (e.g. 403) result cached from an earlier load.
+    this.admin.getDashboardBundle().subscribe({
+      next: (b) => {
+        this.kpis.set(b.kpis);
+        this.tiles.set(b.tiles);
+        this.feed.set(b.activities);
+        this.summary.set(b.summary);
+        this.isLoading.set(false);
+      },
+      error: () => this.isLoading.set(false)
     });
   }
 

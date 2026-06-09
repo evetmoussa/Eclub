@@ -43,7 +43,7 @@ export class NavbarComponent {
 
   logout(): void {
     this.closeMenu();
-    
-    this.auth.logout();
+
+    this.auth.logoutMember();
   }
 }

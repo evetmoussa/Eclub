@@ -41,8 +41,10 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     req.url.toLowerCase().includes(p)
   );
 
-  // 2) Pull whichever token is currently active (admin first, then member)
-  const token = authService.getActiveToken();
+  // 2) Pick the token that matches the target API — admin token for
+  //    /api/admin/*, member token otherwise — so coexisting sessions don't
+  //    cross-contaminate (member token on an admin endpoint → 403).
+  const token = authService.getTokenForUrl(req.url);
 
   // 3) Attach Bearer token if we have one and the endpoint isn't public
   let outgoing = req;

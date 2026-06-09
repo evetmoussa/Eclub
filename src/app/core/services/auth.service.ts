@@ -108,6 +108,7 @@ export class AuthService {
 
   private saveMemberSession(res: AuthResponse): void {
     if (!res?.token) return;
+    this.clearAdminKeys();   // never keep an admin session alongside a member one
     localStorage.setItem(AUTH_KEYS.memberToken, res.token);
     if (res.refreshToken) localStorage.setItem(AUTH_KEYS.memberRefresh, res.refreshToken);
     if (res.expiresIn) {
@@ -122,6 +123,7 @@ export class AuthService {
 
   private saveAdminSession(res: AuthResponse): void {
     if (!res?.token) return;
+    this.clearMemberKeys();   // never keep a member session alongside an admin one
     localStorage.setItem(AUTH_KEYS.adminToken, res.token);
     if (res.refreshToken) localStorage.setItem(AUTH_KEYS.adminRefresh, res.refreshToken);
     if (res.expiresIn) {
@@ -137,21 +139,37 @@ export class AuthService {
     localStorage.setItem(AUTH_KEYS.userType, 'admin');
   }
 
-  logoutAdmin(): void {
+  private clearAdminKeys(): void {
     [
       AUTH_KEYS.adminToken, AUTH_KEYS.adminRefresh, AUTH_KEYS.adminExpiry,
       AUTH_KEYS.adminRefreshExpiry, AUTH_KEYS.adminId, AUTH_KEYS.adminEmail,
-      AUTH_KEYS.adminName, AUTH_KEYS.userType
+      AUTH_KEYS.adminName
     ].forEach(k => localStorage.removeItem(k));
+  }
+
+  private clearMemberKeys(): void {
+    [
+      AUTH_KEYS.memberToken, AUTH_KEYS.memberRefresh, AUTH_KEYS.memberExpiry,
+      AUTH_KEYS.memberId, AUTH_KEYS.memberEmail, AUTH_KEYS.memberName
+    ].forEach(k => localStorage.removeItem(k));
+  }
+
+  /**
+   * Remove EVERY stored session key (both admin and member). Logging out of one
+   * role must not leave the other role's token behind — a stale token gets sent
+   * on the next request and triggers 401/403s (e.g. member token → /api/admin).
+   */
+  private clearAllSessions(): void {
+    Object.values(AUTH_KEYS).forEach(k => localStorage.removeItem(k));
+  }
+
+  logoutAdmin(): void {
+    this.clearAllSessions();
     this.router.navigate(['/admin-login']);
   }
 
   logoutMember(): void {
-    [
-      AUTH_KEYS.memberToken, AUTH_KEYS.memberRefresh, AUTH_KEYS.memberExpiry,
-      AUTH_KEYS.memberId, AUTH_KEYS.memberEmail, AUTH_KEYS.memberName,
-      AUTH_KEYS.userType
-    ].forEach(k => localStorage.removeItem(k));
+    this.clearAllSessions();
     this.router.navigate(['/login']);
   }
 
@@ -178,6 +196,18 @@ export class AuthService {
   getMemberToken(): string | null { return localStorage.getItem(AUTH_KEYS.memberToken); }
   getActiveToken(): string | null { return this.getAdminToken() ?? this.getMemberToken(); }
   getUserType(): string | null    { return localStorage.getItem(AUTH_KEYS.userType); }
+
+  /**
+   * Pick the right token for an outgoing request URL. Admin and member sessions
+   * can coexist in storage, so route admin API calls to the admin token and
+   * everything else to the member token — falling back to whatever exists.
+   * Prevents sending a member token to /api/admin/* (which 403s) and vice-versa.
+   */
+  getTokenForUrl(url: string): string | null {
+    const isAdminApi = /\/api\/admin(\/|$|\?)/i.test(url);
+    if (isAdminApi) return this.getAdminToken() ?? this.getMemberToken();
+    return this.getMemberToken() ?? this.getAdminToken();
+  }
 
   isAdmin(): boolean  { return this.getUserType() === 'admin'  && this.isAdminLoggedIn(); }
   isMember(): boolean { return this.getUserType() === 'member' && this.isMemberLoggedIn(); }
