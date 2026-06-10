@@ -1,5 +1,9 @@
 :host { display: block; background: var(--eclub-primary); /* min-height removed */ color: #fff; }
 
+/* Headings inherit a dark color from global (Bootstrap) styles, which is
+   invisible on this dark card. Force white explicitly so the content shows. */
+:host h1, :host h2, :host h3, :host h4, :host strong { color: #fff; }
+
 .container { max-width: 880px; margin: 0 auto; padding: 0 24px; }
 
 .head {
@@ -54,7 +58,7 @@
       background: rgba(255,255,255,.6);
       flex: none;
     }
-    .coach-name { font-size: 1.1rem; font-weight: 800; }
+    .coach-name { font-size: 1.1rem; font-weight: 800; color: #fff; }
     .rating {
       display: flex; align-items: center; gap: 4px;
       color: rgba(255,255,255,.7); font-size: .85rem;
@@ -164,6 +168,11 @@
   cursor: pointer;
 
   &:hover { box-shadow: 0 12px 24px rgba(26,213,95,.35); }
+}
+
+.book-error {
+  margin: 18px 0 0; text-align: center;
+  color: #fca5a5; font-weight: 600; font-size: .9rem;
 }
 
 .cancel-link {

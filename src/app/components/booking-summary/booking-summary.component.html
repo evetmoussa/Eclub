@@ -86,7 +86,11 @@
       </div>
     </section>
 
-    <button class="confirm-btn" (click)="confirm()">Confirm Booking</button>
-    <button class="cancel-link" (click)="cancel()">Cancel</button>
+    <p class="book-error" *ngIf="errorMsg">{{ errorMsg }}</p>
+
+    <button class="confirm-btn" (click)="confirm()" [disabled]="isBooking">
+      {{ isBooking ? 'Booking…' : 'Confirm Booking' }}
+    </button>
+    <button class="cancel-link" (click)="cancel()" [disabled]="isBooking">Cancel</button>
   </div>
 </div>

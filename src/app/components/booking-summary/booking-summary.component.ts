@@ -3,6 +3,7 @@ import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BookingsCenterService } from '../../core/services/bookings-center.service';
 import { NotificationsCenterService } from '../../core/services/notifications-center.service';
+import { SportsService } from '../../core/services/sports.service';
 
 type Payment = 'cash' | 'wallet' | 'credit';
 
@@ -19,6 +20,7 @@ export class BookingSummaryComponent implements OnInit {
   private center = inject(NotificationsCenterService);
   private router = inject(Router);
   private location = inject(Location);
+  private sports = inject(SportsService);
 
   classId = 0;
   academyId = 1;
@@ -39,6 +41,9 @@ export class BookingSummaryComponent implements OnInit {
 
   payment: Payment = 'wallet';
 
+  isBooking = false;
+  errorMsg = '';
+
   ngOnInit(): void {
     const p = this.route.snapshot.paramMap;
     const q = this.route.snapshot.queryParamMap;
@@ -51,12 +56,14 @@ export class BookingSummaryComponent implements OnInit {
     this.endTime      = q.get('endTime')   || '10:00 AM';
     this.date         = q.get('date') || new Date().toISOString().slice(0,10);
     this.sessionLabel = q.get('sessionLabel') || 'Session 1';
+    const price = Number(q.get('price'));
+    if (!isNaN(price) && price > 0) this.sessionFee = price;
   }
 
   setPayment(p: Payment) { this.payment = p; }
 
-  confirm() {
-    // Push the booking into the local center so it appears immediately on /booking
+  /** Push optimistic local booking + notification (UI feedback). */
+  private pushLocalBooking(): void {
     this.bookingsCenter.pushLocal({
       classId: this.classId || -Date.now(),
       classTitle: this.sessionLabel || 'Training Session',
@@ -65,8 +72,6 @@ export class BookingSummaryComponent implements OnInit {
       location: this.academyName,
       status: 'Confirmed'
     });
-
-    // And drop a notification.
     this.center.pushLocal({
       title: 'Booking Confirmed!',
       body: `Your session at ${this.academyName} with coach ${this.coachName} is confirmed.`,
@@ -74,9 +79,43 @@ export class BookingSummaryComponent implements OnInit {
       icon: 'event_available',
       iconHue: 'green'
     });
+  }
 
-    // Land directly on the Bookings page (in the navbar).
-    this.router.navigate(['/blank-layout/booking']);
+  confirm() {
+    if (this.isBooking) return;
+    this.errorMsg = '';
+
+    // No real class id (e.g. trainer-profile synthetic booking) → keep the old
+    // optimistic-only flow and go to the bookings page.
+    if (!this.classId || this.classId < 0) {
+      this.pushLocalBooking();
+      this.router.navigate(['/blank-layout/booking']);
+      return;
+    }
+
+    // Real class → book against the API, then go to the confirmation page.
+    this.isBooking = true;
+    this.sports.bookClass(this.classId).subscribe({
+      next: () => {
+        this.isBooking = false;
+        this.pushLocalBooking();
+        this.router.navigate(['/blank-layout/booking-confirmed'], {
+          queryParams: {
+            classId: this.classId,
+            academyId: this.academyId,
+            academyName: this.academyName,
+            sport: this.sportName,
+            coachName: this.coachName,
+            time: `${this.startTime} - ${this.endTime}`,
+            price: this.sessionFee
+          }
+        });
+      },
+      error: (err) => {
+        this.isBooking = false;
+        this.errorMsg = err?.error?.message || err?.error?.detail || 'Booking failed. Please try again.';
+      }
+    });
   }
 
   cancel() { this.location.back(); }

@@ -102,29 +102,20 @@ export class AcademyDetailsComponent implements OnInit {
     return c.currentParticipants ?? (c.maxParticipants - (c.availableSlots ?? c.maxParticipants));
   }
 
-  /** Book the class via the API, then go to the booking confirmation. */
+  /** Go to the Booking Summary review step; the actual booking happens there. */
   bookNow(c: SportClass): void {
-    if (this.isFull(c) || c.isBookedByCurrentUser || this.bookingId != null) return;
-    this.bookingId = c.id;
-    this.sports.bookClass(c.id).subscribe({
-      next: () => {
-        this.bookingId = null;
-        this.router.navigate(['/blank-layout/booking-confirmed'], {
-          queryParams: {
-            classId: c.id,
-            academyId: this.academyId,
-            academyName: this.academyName,
-            sport: this.sportName || c.sportName,
-            coachName: c.coachName,
-            time: c.timeRange || `${c.startTime} - ${c.endTime}`,
-            price: c.price
-          }
-        });
-      },
-      error: (err) => {
-        this.bookingId = null;
-        this.errorMsg = err?.error?.message || err?.error?.detail || 'Booking failed. Please try again.';
-        setTimeout(() => (this.errorMsg = ''), 4000);
+    if (this.isFull(c) || c.isBookedByCurrentUser) return;
+    this.router.navigate(['/blank-layout/booking-summary', c.id], {
+      queryParams: {
+        academyId: this.academyId,
+        academyName: this.academyName,
+        sport: this.sportName || c.sportName,
+        coachName: c.coachName,
+        startTime: c.startTime,
+        endTime: c.endTime,
+        date: c.startTime,
+        sessionLabel: c.title,
+        price: c.price
       }
     });
   }
