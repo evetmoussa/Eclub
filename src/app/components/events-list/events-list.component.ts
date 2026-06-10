@@ -54,7 +54,13 @@ export class EventsListComponent implements OnInit {
       .subscribe(({ list, mine }) => {
         this.isLoading = false;
         this.upcoming = list;
-        this.myEventIds = new Set(mine.map(m => m.eventId));
+        // Only ACTIVE registrations count as "registered" — a cancelled
+        // registration is still returned by the API but must not show as joined.
+        this.myEventIds = new Set(
+          mine
+            .filter(m => (m.status ?? '').toLowerCase() !== 'cancelled')
+            .map(m => m.eventId)
+        );
 
         // Auto-register if landed via /events?id=X&action=register and not yet registered.
         const action = this.route.snapshot.queryParamMap.get('action');
