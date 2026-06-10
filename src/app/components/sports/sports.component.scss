@@ -170,6 +170,12 @@
       font-variation-settings: 'FILL' 1;
     }
   }
+
+  &.see-more {
+    border-style: dashed;
+    color: var(--eclub-primary-green);
+    .material-symbols-outlined { color: var(--eclub-primary-green); }
+  }
 }
 
 /* ============ Special event ============ */

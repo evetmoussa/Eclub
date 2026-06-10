@@ -82,6 +82,23 @@ export class SportsComponent implements OnInit {
       });
   }
 
+  // ===== Sport chips: show 10, then "See more" =====
+  readonly CHIP_LIMIT = 10;
+  showAllSports = false;
+
+  /** Sport chips to render — capped at CHIP_LIMIT unless expanded. */
+  get visibleSportChips(): Sport[] {
+    const all = this.screen?.sports ?? [];
+    return this.showAllSports ? all : all.slice(0, this.CHIP_LIMIT);
+  }
+  get hasMoreSportChips(): boolean {
+    return (this.screen?.sports?.length ?? 0) > this.CHIP_LIMIT;
+  }
+  get hiddenSportCount(): number {
+    return Math.max(0, (this.screen?.sports?.length ?? 0) - this.CHIP_LIMIT);
+  }
+  toggleSports(): void { this.showAllSports = !this.showAllSports; }
+
   selectSport(id: number | null): void {
     this.selectedSportId = id;
     this.loadScreen(id);

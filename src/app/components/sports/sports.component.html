@@ -28,11 +28,16 @@
   </button>
 
   <button class="chip"
-          *ngFor="let s of (screen?.sports ?? []); trackBy: trackById"
+          *ngFor="let s of visibleSportChips; trackBy: trackById"
           [class.active]="selectedSportId === s.id"
           (click)="selectSport(s.id)">
     <span class="material-symbols-outlined">{{ s.icon || 'sports' }}</span>
     {{ s.name }}
+  </button>
+
+  <button class="chip see-more" *ngIf="hasMoreSportChips" (click)="toggleSports()">
+    <span class="material-symbols-outlined">{{ showAllSports ? 'expand_less' : 'expand_more' }}</span>
+    {{ showAllSports ? 'Show less' : 'See more (' + hiddenSportCount + ')' }}
   </button>
 </section>
 
