@@ -8,7 +8,7 @@ import {
   FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators
 } from '@angular/forms';
 
-export type FieldType = 'text' | 'email' | 'tel' | 'number' | 'url' | 'date' | 'textarea' | 'select';
+export type FieldType = 'text' | 'email' | 'tel' | 'number' | 'url' | 'date' | 'time' | 'textarea' | 'select';
 
 export interface FieldDef {
   key: string;

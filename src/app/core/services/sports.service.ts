@@ -48,24 +48,25 @@ export class SportsService {
   }
 
   /**
-   * Bookable classes/sessions for an academy details page.
-   * The API exposes classes via /sports/classes (each carries academyId).
-   * Returns { classes, isFallback }:
-   *   - classes scoped to this academy when any are linked, OR
-   *   - ALL available classes as a fallback when none are linked yet
-   *     (many backend classes currently have academyId = null).
-   * `isFallback` lets the UI tell the user the list isn't academy-specific.
+   * Classes for an academy details page, scoped by the academy's SPORT via
+   * GET /sports/classes?sportId={id}. We filter by sportId (not academyId)
+   * because the backend ignores academyId on class create — but every class
+   * carries the academy's sportId (the admin "Add Class" form inherits it),
+   * so sportId is what actually surfaces an academy's classes.
    */
-  getClassesByAcademy(academyId: number): Observable<{ classes: SportClass[]; isFallback: boolean }> {
-    return this.http.get<SportClass[]>(`${this.baseUrl}/classes`).pipe(
-      map(list => {
-        const all = list ?? [];
-        const scoped = all.filter(c => c.academyId === academyId);
-        return scoped.length
-          ? { classes: scoped, isFallback: false }
-          : { classes: all, isFallback: true };
-      }),
-      tap(res => console.info('[SportsService] ← academy classes', academyId, res.classes.length, 'fallback=', res.isFallback))
+  getClassesBySport(sportId: number): Observable<SportClass[]> {
+    const params = new HttpParams().set('sportId', sportId);
+    return this.http.get<SportClass[]>(`${this.baseUrl}/classes`, { params }).pipe(
+      map(list => list ?? []),
+      tap(res => console.info('[SportsService] ← classes by sportId', sportId, res.length))
+    );
+  }
+
+  /** @deprecated academyId is not persisted by the backend; use getClassesBySport. */
+  getClassesByAcademy(academyId: number): Observable<SportClass[]> {
+    const params = new HttpParams().set('academyId', academyId);
+    return this.http.get<SportClass[]>(`${this.baseUrl}/classes`, { params }).pipe(
+      map(list => (list ?? []).filter(c => c.academyId === academyId))
     );
   }
 

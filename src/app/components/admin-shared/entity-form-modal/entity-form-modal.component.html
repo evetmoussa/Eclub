@@ -39,6 +39,11 @@
                    [formControlName]="f.key"
                    [class.invalid]="hasError(f.key)">
 
+            <input *ngIf="f.type === 'time'"
+                   type="time"
+                   [formControlName]="f.key"
+                   [class.invalid]="hasError(f.key)">
+
             <textarea *ngIf="f.type === 'textarea'"
                       rows="3"
                       [formControlName]="f.key"

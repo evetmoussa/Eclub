@@ -48,25 +48,16 @@ export class AdminAcademiesComponent implements OnInit {
    *  "Sport not found" (some academies have no sportId set). */
   classFields = computed<FieldDef[]>(() => [
     { key: 'title',    label: 'Class title', type: 'text', required: true, width: 'full', placeholder: 'e.g. Morning Training' },
-    { key: 'sport',    label: 'Sport', type: 'select', required: true,
-      placeholder: 'Select a sport…',
-      options: this.sportOptions().map(s => ({ value: s.name, label: s.name })) },
     { key: 'coachId',  label: 'Coach', type: 'select', required: true,
       placeholder: 'Select a coach…',
       options: this.coachOptions().map(c => ({ value: c.id, label: c.name })) },
     { key: 'location', label: 'Location', type: 'text', required: true, placeholder: 'e.g. Field A' },
     { key: 'date',     label: 'Date',  type: 'date', required: true },
-    { key: 'startTime',label: 'Start', type: 'text', required: true, placeholder: '09:00' },
-    { key: 'endTime',  label: 'End',   type: 'text', required: true, placeholder: '10:00' },
+    { key: 'startTime',label: 'Start', type: 'time', required: true },
+    { key: 'endTime',  label: 'End',   type: 'time', required: true },
     { key: 'maxParticipants', label: 'Capacity', type: 'number', required: true, min: 1 },
     { key: 'price',    label: 'Price (EGP)', type: 'number', required: true, min: 0 }
   ]);
-
-  /** Prefill the class form with the academy's sport when it has a valid one. */
-  classInitial = computed<Record<string, unknown> | null>(() => {
-    const a = this.classAcademy();
-    return a?.sport ? { sport: a.sport } : null;
-  });
 
   /** Form schema for the modal. Sport is a dropdown of real sports so the
    *  academy links to a valid sportId (was a free-text field → sportId 0). */
@@ -164,15 +155,29 @@ export class AdminAcademiesComponent implements OnInit {
     this.classError.set('');
 
     const date = String(value['date'] ?? '');
-    const toIso = (t: string) => `${date}T${(t || '00:00').trim()}:00`;
+    // Build a full ISO datetime (yyyy-MM-ddTHH:mm:ss) — the backend rejects
+    // time-only or AM/PM strings. The <input type="time"> yields "HH:mm".
+    const toIso = (t: string): string => {
+      let hhmm = String(t || '').trim();
+      const ampm = hhmm.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+      if (ampm) {
+        let h = Number(ampm[1]) % 12;
+        if (/pm/i.test(ampm[3])) h += 12;
+        hhmm = `${String(h).padStart(2, '0')}:${ampm[2]}`;
+      }
+      if (!/^\d{2}:\d{2}$/.test(hhmm)) hhmm = '00:00';
+      return `${date}T${hhmm}:00`;
+    };
 
-    // Resolve the chosen sport name → real sportId. Required: the backend
-    // returns "Sport not found" for an invalid/zero sportId.
-    const sportName = String(value['sport'] ?? '');
-    const sportId = this.sportOptions().find(s => s.name === sportName)?.id ?? 0;
+    // The class inherits the ACADEMY's sport — a class in an academy must use
+    // the same sportId as the academy itself. Resolve from the academy's
+    // sportId, falling back to matching its sport name against the sports list.
+    const sportId = academy.sportId
+      ?? this.sportOptions().find(s => s.name === academy.sport)?.id
+      ?? 0;
     if (!sportId) {
       this.classSubmitting.set(false);
-      this.classError.set('Please select a valid sport for this class.');
+      this.classError.set(`"${academy.name}" has no sport set. Edit the academy and choose a sport first.`);
       return;
     }
 

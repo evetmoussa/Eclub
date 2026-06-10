@@ -32,7 +32,6 @@ export class AcademyDetailsComponent implements OnInit {
   loading = true;
   errorMsg = '';
   bookingId: number | null = null;   // class id currently being booked
-  isFallback = false;                // true when showing all classes (none linked to this academy)
 
   classes: SportClass[] = [];
   coaches: Coach[] = [];
@@ -41,14 +40,17 @@ export class AcademyDetailsComponent implements OnInit {
 
   onImgError = onImgError;
 
+  sportId = 0;
+
   ngOnInit(): void {
     this.academyId = Number(this.route.snapshot.paramMap.get('id'));
 
-    // Name/sport from query params give an instant title; the API is the source
-    // of truth for the actual bookable sessions below.
+    // Name/sport/sportId from query params. sportId scopes the classes shown,
+    // since an academy's classes carry the academy's sportId.
     const qp = this.route.snapshot.queryParamMap;
     this.academyName = qp.get('name') || 'Academy';
     this.sportName   = qp.get('sport') || '';
+    this.sportId     = Number(qp.get('sportId') ?? 0);
 
     this.load();
   }
@@ -56,10 +58,14 @@ export class AcademyDetailsComponent implements OnInit {
   load(): void {
     this.loading = true;
     this.errorMsg = '';
-    this.sports.getClassesByAcademy(this.academyId).subscribe({
-      next: ({ classes, isFallback }) => {
+    // Filter classes by the academy's SPORT (the backend doesn't persist
+    // academyId on classes, but every class carries its sportId).
+    const classes$ = this.sportId
+      ? this.sports.getClassesBySport(this.sportId)
+      : this.sports.getClassesByAcademy(this.academyId);
+    classes$.subscribe({
+      next: (classes) => {
         this.classes = classes;
-        this.isFallback = isFallback;
         this.coaches = this.deriveCoaches(classes);
         if (!this.sportName && classes[0]?.sportName) this.sportName = classes[0].sportName!;
         this.loading = false;

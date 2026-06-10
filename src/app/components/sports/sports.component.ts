@@ -132,7 +132,7 @@ export class SportsComponent implements OnInit {
 
   openAcademy(a: AcademyScreenItem): void {
     this.router.navigate(['/blank-layout/academy', a.id], {
-      queryParams: { name: a.name, sport: a.sportName ?? '' }
+      queryParams: { name: a.name, sport: a.sportName ?? '', sportId: a.sportId ?? '' }
     });
   }
 

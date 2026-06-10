@@ -124,10 +124,9 @@
 <app-entity-form-modal
   *ngIf="classModalOpen()"
   [title]="'Add Class — ' + (classAcademy()?.name || '')"
-  [subtitle]="classError() || 'Create a session and assign a coach for this academy.'"
+  [subtitle]="classError() || ('Sport: ' + (classAcademy()?.sport || '—') + ' (inherited from the academy)')"
   [submitLabel]="'Create class'"
   [fields]="classFields()"
-  [initial]="classInitial()"
   [isSubmitting]="classSubmitting()"
   (submitted)="onSubmitClass($event)"
   (cancelled)="closeClassModal()">

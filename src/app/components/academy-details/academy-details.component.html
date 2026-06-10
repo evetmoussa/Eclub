@@ -48,11 +48,6 @@
     <section class="block">
       <h2>Available Sessions</h2>
 
-      <p class="fallback-note" *ngIf="isFallback && slots.length">
-        <span class="material-symbols-outlined">info</span>
-        No sessions are linked to this academy yet — showing all available sessions.
-      </p>
-
       <article class="slot"
                *ngFor="let s of slots"
                [class.full]="isFull(s)">
