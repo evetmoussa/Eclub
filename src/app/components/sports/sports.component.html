@@ -51,19 +51,19 @@
   </div>
 
   <!-- Actual grid -->
-  <div class="academies-grid" *ngIf="visibleSports.length">
+  <div class="academies-grid" *ngIf="visibleAcademies.length">
     <article class="academy-tile"
-             *ngFor="let s of visibleSports; trackBy: trackById"
-             (click)="openAcademy(s)">
-      <div class="tile-cover" [style.background-image]="'url(' + sportImageFor(s) + ')'">
-        <span class="badge">{{ s.name }} Academy</span>
+             *ngFor="let a of visibleAcademies; trackBy: trackByAcademy"
+             (click)="openAcademy(a)">
+      <div class="tile-cover" [style.background-image]="'url(' + academyImageFor(a) + ')'">
+        <span class="badge">{{ a.name }}</span>
       </div>
       <div class="tile-body">
         <div class="title-row">
-          <span class="material-symbols-outlined fill-1">{{ s.icon || 'sports' }}</span>
-          <h4>{{ s.name }} Academy</h4>
+          <span class="material-symbols-outlined fill-1">sports</span>
+          <h4>{{ a.name }}</h4>
         </div>
-        <p>Train with certified coaches in flexible sessions.</p>
+        <p>{{ a.sportName || a.type }}<span *ngIf="a.location"> · {{ a.location }}</span></p>
         <span class="open-link">
           View academy
           <span class="material-symbols-outlined">arrow_forward</span>
@@ -73,7 +73,7 @@
   </div>
 
   <!-- Empty state — search yielded nothing -->
-  <div class="empty-state" *ngIf="!isLoading && !visibleSports.length && search">
+  <div class="empty-state" *ngIf="!isLoading && !visibleAcademies.length && search">
     <span class="material-symbols-outlined">search_off</span>
     <h3>No academies match "{{ search }}"</h3>
     <p>Try a different sport or clear the search to see everything.</p>

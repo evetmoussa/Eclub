@@ -4,7 +4,7 @@ import { Observable, of, tap, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
   Sport, SportClass, SportsScreen, SpecialEvent, MyBooking,
-  Academy
+  Academy, AcademiesScreen
 } from '../models/sport.model';
 import { ACADEMIES_MOCK } from '../mock/academy.mock';
 
@@ -66,6 +66,18 @@ export class SportsService {
           : { classes: all, isFallback: true };
       }),
       tap(res => console.info('[SportsService] ← academy classes', academyId, res.classes.length, 'fallback=', res.isFallback))
+    );
+  }
+
+  /**
+   * Member-facing academies list from the real endpoint GET /api/academies/screen
+   * (returns { featured, all } with full academy data incl. embedded trainers).
+   * Members can read this; /api/admin/academies is admin-only (403 for members).
+   */
+  getAcademiesScreen(): Observable<AcademiesScreen> {
+    return this.http.get<AcademiesScreen>(`${environment.apiBaseUrl}/api/academies/screen`).pipe(
+      map(res => ({ featured: res?.featured ?? [], all: res?.all ?? [] })),
+      tap(res => console.info('[SportsService] ← academies/screen', res.all.length))
     );
   }
 

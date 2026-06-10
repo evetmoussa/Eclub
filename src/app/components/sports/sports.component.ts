@@ -7,7 +7,7 @@ import { SportsService } from '../../core/services/sports.service';
 import { NotificationsCenterService } from '../../core/services/notifications-center.service';
 import { BookingsCenterService } from '../../core/services/bookings-center.service';
 import {
-  Sport, SportClass, SportsScreen, MyBooking
+  Sport, SportClass, SportsScreen, MyBooking, AcademyScreenItem
 } from '../../core/models/sport.model';
 import { environment } from '../../../environments/environment';
 
@@ -28,6 +28,9 @@ export class SportsComponent implements OnInit {
   isLoading = false;
   loadError = '';
 
+  /** Academies from GET /api/academies/screen. */
+  academies: AcademyScreenItem[] = [];
+
   selectedSportId: number | null = null;
   search = '';
 
@@ -40,6 +43,14 @@ export class SportsComponent implements OnInit {
   ngOnInit(): void {
     this.loadScreen();
     this.loadMyBookings();
+    this.loadAcademies();
+  }
+
+  /** Load the member academies list from /api/academies/screen. */
+  loadAcademies(): void {
+    this.sports.getAcademiesScreen()
+      .pipe(catchError(() => of({ featured: [], all: [] as AcademyScreenItem[] })))
+      .subscribe(res => (this.academies = res.all));
   }
 
   loadScreen(sportId: number | null = this.selectedSportId): void {
@@ -81,10 +92,14 @@ export class SportsComponent implements OnInit {
   }
 
   /** Academies filtered by the hero-search input. */
-  get visibleSports(): Sport[] {
-    const all = this.screen?.sports ?? [];
+  get visibleAcademies(): AcademyScreenItem[] {
+    const all = this.academies;
     if (!this.search) return all;
-    return all.filter(s => (s.name || '').toLowerCase().includes(this.search));
+    return all.filter(a =>
+      (a.name || '').toLowerCase().includes(this.search) ||
+      (a.sportName || '').toLowerCase().includes(this.search) ||
+      (a.location || '').toLowerCase().includes(this.search)
+    );
   }
 
   get visibleClasses(): SportClass[] {
@@ -98,10 +113,23 @@ export class SportsComponent implements OnInit {
     );
   }
 
-  openAcademy(s: Sport): void {
-    this.router.navigate(['/blank-layout/academy', s.id], {
-      queryParams: { name: `${s.name} Academy`, sport: s.name }
+  openAcademy(a: AcademyScreenItem): void {
+    this.router.navigate(['/blank-layout/academy', a.id], {
+      queryParams: { name: a.name, sport: a.sportName ?? '' }
     });
+  }
+
+  academyImageFor(a: AcademyScreenItem): string {
+    if (a.imageUrl) return this.resolveImage(a.imageUrl);
+    const map: Record<string, string> = {
+      football:   'https://images.unsplash.com/photo-1551958219-acbc608c6377?w=900',
+      basketball: 'https://images.unsplash.com/photo-1608245449230-4ac19066d2d0?w=900',
+      tennis:     'https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=900',
+      yoga:       'https://images.unsplash.com/photo-1593810450967-f9c42742e326?w=900'
+    };
+    const key = (a.sportName || '').toLowerCase();
+    for (const k in map) if (key.includes(k)) return map[k];
+    return 'https://images.unsplash.com/photo-1517649763962-0c623066013b?w=900';
   }
 
   book(c: SportClass): void {
@@ -188,19 +216,6 @@ export class SportsComponent implements OnInit {
     return `${environment.apiBaseUrl}${url.startsWith('/') ? '' : '/'}${url}`;
   }
 
-  sportImageFor(s: Sport): string {
-    if (s.imageUrl) return this.resolveImage(s.imageUrl);
-    const map: Record<string, string> = {
-      football:   'https://images.unsplash.com/photo-1551958219-acbc608c6377?w=900',
-      basketball: 'https://images.unsplash.com/photo-1608245449230-4ac19066d2d0?w=900',
-      tennis:     'https://images.unsplash.com/photo-1554068865-24cecd4e34b8?w=900',
-      yoga:       'https://images.unsplash.com/photo-1593810450967-f9c42742e326?w=900'
-    };
-    const key = (s.name || '').toLowerCase();
-    for (const k in map) if (key.includes(k)) return map[k];
-    return 'https://images.unsplash.com/photo-1517649763962-0c623066013b?w=900';
-  }
-
   sportFallback(c: SportClass): string {
     const map: Record<string, string> = {
       football:   'https://images.unsplash.com/photo-1551958219-acbc608c6377?w=900',
@@ -215,6 +230,7 @@ export class SportsComponent implements OnInit {
 
   trackById(_: number, item: Sport)         { return item.id; }
   trackByClass(_: number, item: SportClass) { return item.id; }
+  trackByAcademy(_: number, item: AcademyScreenItem) { return item.id; }
 
   private showToast(msg: string, isError = false, ms = 3000): void {
     this.toast = msg;

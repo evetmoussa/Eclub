@@ -67,6 +67,40 @@ export interface MyBooking {
   status: string;       // "Confirmed", "Cancelled", ...
 }
 
+/** A trainer/coach embedded in an academy (from /api/academies/screen). */
+export interface AcademyTrainer {
+  id: number;
+  fullName: string;
+  specialization?: string;
+  imageUrl?: string | null;
+  rating?: number;
+  experienceYears?: number;
+}
+
+/** An academy from the public member endpoint GET /api/academies/screen. */
+export interface AcademyScreenItem {
+  id: number;
+  name: string;
+  description?: string;
+  location?: string;
+  imageUrl?: string | null;
+  type?: string;          // Academy | Court | Locker
+  isFeatured?: boolean;
+  isNew?: boolean;
+  isActive?: boolean;
+  sportId?: number;
+  sportName?: string | null;
+  trainersCount?: number;
+  membersCount?: number;
+  trainers?: AcademyTrainer[];
+}
+
+/** Response of GET /api/academies/screen. */
+export interface AcademiesScreen {
+  featured: AcademyScreenItem[];
+  all: AcademyScreenItem[];
+}
+
 /* ===== Legacy academy types (kept so the academy-details page
    keeps compiling — not used by the new sports screen) ===== */
 export interface Coach {
