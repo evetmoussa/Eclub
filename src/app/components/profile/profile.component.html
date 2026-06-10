@@ -9,14 +9,107 @@
       <img *ngIf="avatarUrl" [src]="avatarUrl" alt="avatar">
       <span *ngIf="!avatarUrl" class="initials">{{ initials }}</span>
     </div>
-    <button class="edit-btn" aria-label="Change photo" (click)="filePicker.click()">
+    <button class="edit-btn" aria-label="Edit profile photo" (click)="openEdit()">
       <span class="material-symbols-outlined fill-1">photo_camera</span>
     </button>
-    <input #filePicker type="file" accept="image/*" hidden (change)="onAvatarPicked($event)">
   </div>
 
   <h2 class="user-name">{{ fullName }}</h2>
   <p class="email" *ngIf="email">{{ email }}</p>
+
+  <p class="save-ok" *ngIf="saveOk">{{ saveOk }}</p>
+
+  <!-- ===== Edit profile form ===== -->
+  <form class="edit-form" *ngIf="editing" (ngSubmit)="save()">
+    <p class="form-err" *ngIf="saveError">{{ saveError }}</p>
+
+    <label class="fld full">
+      <span>Image URL</span>
+      <input type="url" name="imageUrl" [(ngModel)]="form.imageUrl" placeholder="https://…">
+    </label>
+    <div class="preview" *ngIf="form.imageUrl">
+      <img [src]="form.imageUrl" alt="preview">
+    </div>
+
+    <div class="grid2">
+      <label class="fld">
+        <span>First name *</span>
+        <input type="text" name="firstName" [(ngModel)]="form.firstName" required>
+      </label>
+      <label class="fld">
+        <span>Last name *</span>
+        <input type="text" name="lastName" [(ngModel)]="form.lastName" required>
+      </label>
+    </div>
+
+    <label class="fld full">
+      <span>Email *</span>
+      <input type="email" name="email" [(ngModel)]="form.email" required>
+    </label>
+
+    <label class="fld full">
+      <span>Phone</span>
+      <input type="tel" name="phoneNumber" [(ngModel)]="form.phoneNumber" placeholder="01xxxxxxxxx">
+    </label>
+
+    <label class="fld full">
+      <span>Bio</span>
+      <textarea name="bio" rows="2" [(ngModel)]="form.bio" placeholder="A short bio…"></textarea>
+    </label>
+
+    <div class="form-actions">
+      <button type="button" class="btn-ghost" (click)="cancelEdit()" [disabled]="isSaving">Cancel</button>
+      <button type="submit" class="btn-primary" [disabled]="isSaving">{{ isSaving ? 'Saving…' : 'Save changes' }}</button>
+    </div>
+  </form>
+
+  <!-- Edit trigger (when not editing) -->
+  <button class="edit-profile-btn" *ngIf="!editing" (click)="openEdit()">
+    <span class="material-symbols-outlined">edit</span>
+    Edit profile
+  </button>
+
+  <!-- ===== Profile details (from /account/profile) ===== -->
+  <div class="info-card" *ngIf="profile as p">
+    <div class="info-row" *ngIf="p.membershipId">
+      <span class="material-symbols-outlined">badge</span>
+      <span class="info-label">Membership ID</span>
+      <span class="info-value">{{ p.membershipId }}</span>
+    </div>
+    <div class="info-row" *ngIf="p.membershipStatus || p.membershipType">
+      <span class="material-symbols-outlined">card_membership</span>
+      <span class="info-label">Membership</span>
+      <span class="info-value">
+        {{ p.membershipType || '—' }}
+        <em class="status" *ngIf="p.membershipStatus">· {{ p.membershipStatus }}</em>
+      </span>
+    </div>
+    <div class="info-row" *ngIf="p.membershipExpiryDate">
+      <span class="material-symbols-outlined">event_busy</span>
+      <span class="info-label">Expires</span>
+      <span class="info-value">{{ p.membershipExpiryDate | date:'mediumDate' }}</span>
+    </div>
+    <div class="info-row" *ngIf="p.phoneNumber">
+      <span class="material-symbols-outlined">call</span>
+      <span class="info-label">Phone</span>
+      <span class="info-value">{{ p.phoneNumber }}</span>
+    </div>
+    <div class="info-row" *ngIf="p.nationalId">
+      <span class="material-symbols-outlined">fingerprint</span>
+      <span class="info-label">National ID</span>
+      <span class="info-value">{{ p.nationalId }}</span>
+    </div>
+    <div class="info-row" *ngIf="p.roles?.length">
+      <span class="material-symbols-outlined">verified_user</span>
+      <span class="info-label">Role</span>
+      <span class="info-value">{{ p.roles?.join(', ') }}</span>
+    </div>
+    <div class="info-row" *ngIf="p.createdOn">
+      <span class="material-symbols-outlined">calendar_today</span>
+      <span class="info-label">Member since</span>
+      <span class="info-value">{{ p.createdOn | date:'mediumDate' }}</span>
+    </div>
+  </div>
 
   <div class="menu">
     <button class="menu-item" (click)="go('/blank-layout/renew-membership')">

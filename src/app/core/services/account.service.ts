@@ -21,6 +21,16 @@ export interface AccountProfile {
   clubCode?: string | null;
   createdOn?: string;
   roles?: string[];
+  // Fields the API actually returns for the profile screen:
+  imageUrl?: string | null;
+  bio?: string | null;
+  isVerified?: boolean;
+  membershipType?: string | null;
+  paymentMethod?: string | null;
+  membershipStartDate?: string | null;
+  membershipExpiryDate?: string | null;
+  membershipStatus?: string | null;
+  // Client-side derived for the UI:
   fullName?: string;
   avatarUrl?: string | null;
 }
@@ -36,6 +46,8 @@ export interface UpdateProfileRequest {
   lastName: string;
   email: string;
   phoneNumber?: string | null;
+  imageUrl?: string | null;   // profile photo URL (persisted by the API)
+  bio?: string | null;
 }
 
 /**
