@@ -82,10 +82,21 @@ export class AcademyDetailsComponent implements OnInit {
     const map = new Map<number, Coach>();
     for (const c of list) {
       if (c.coachId != null && !map.has(c.coachId)) {
-        map.set(c.coachId, { id: c.coachId, name: c.coachName || 'Coach', avatar: c.coachImageUrl ?? null });
+        map.set(c.coachId, {
+          id: c.coachId,
+          name: c.coachName || 'Coach',
+          // Use the API image when present; otherwise a stable per-coach avatar
+          // (keyed by id) so coaches without a photo still look distinct.
+          avatar: c.coachImageUrl || this.fallbackAvatar(c.coachId)
+        });
       }
     }
     return Array.from(map.values());
+  }
+
+  /** Deterministic placeholder avatar for a coach with no image. */
+  private fallbackAvatar(id: number): string {
+    return `https://i.pravatar.cc/150?img=${(id % 70) + 1}`;
   }
 
   /** Classes shown as slots — filtered by the selected coach (or all). */
