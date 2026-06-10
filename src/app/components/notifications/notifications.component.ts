@@ -1,5 +1,6 @@
 import { Component, OnInit, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { NotificationsCenterService } from '../../core/services/notifications-center.service';
 import { AppNotification } from '../../core/models/notification.model';
 
@@ -11,6 +12,8 @@ interface DisplayAlert {
   message: string;
   time: string;
   unread: boolean;
+  type?: string;
+  actionUrl?: string | null;
 }
 
 @Component({
@@ -22,6 +25,7 @@ interface DisplayAlert {
 })
 export class NotificationsComponent implements OnInit {
   private center = inject(NotificationsCenterService);
+  private router = inject(Router);
 
   readonly alerts = computed<DisplayAlert[]>(() =>
     this.center.all().map(n => this.toDisplay(n))
@@ -51,8 +55,23 @@ export class NotificationsComponent implements OnInit {
       title: n.title,
       message: n.body,
       time: this.relative(n.createdAt),
-      unread: !n.isRead
+      unread: !n.isRead,
+      type: n.type,
+      actionUrl: n.actionUrl
     };
+  }
+
+  /**
+   * Map a notification to the page it should open, using both the backend
+   * `type` (e.g. "Sport", "System", "Booking", "Event") and the title text.
+   */
+  private routeFor(a: DisplayAlert): string {
+    const s = `${a.type ?? ''} ${a.title ?? ''} ${a.message ?? ''}`.toLowerCase();
+    if (s.includes('event') || s.includes('tournament')) return '/blank-layout/events';
+    if (s.includes('book') || s.includes('class') || s.includes('session')) return '/blank-layout/booking';
+    if (s.includes('coach') || s.includes('academy') || s.includes('sport')) return '/blank-layout/sports';
+    if (s.includes('member') || s.includes('payment') || s.includes('renew')) return '/blank-layout/renew-membership';
+    return '/blank-layout/home';
   }
 
   private iconFromType(t?: string): string {
@@ -80,7 +99,19 @@ export class NotificationsComponent implements OnInit {
   }
 
   markRead(a: DisplayAlert): void { this.center.markRead(a.id); }
-  viewDetails(a: DisplayAlert): void { this.markRead(a); }
+
+  /** Mark read and open the related page (actionUrl if given, else by type). */
+  viewDetails(a: DisplayAlert): void {
+    this.markRead(a);
+    const url = a.actionUrl?.trim();
+    if (url) {
+      // Absolute URL → leave the app; otherwise router-navigate within the SPA.
+      if (/^https?:\/\//i.test(url)) { window.location.href = url; return; }
+      this.router.navigateByUrl(url.startsWith('/') ? url : `/${url}`);
+      return;
+    }
+    this.router.navigateByUrl(this.routeFor(a));
+  }
   remove(a: DisplayAlert): void { this.center.remove(a.id); }
   markAll(): void { this.center.markAllRead(); }
 }
