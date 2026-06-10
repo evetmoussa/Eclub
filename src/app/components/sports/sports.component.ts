@@ -108,9 +108,13 @@ export class SportsComponent implements OnInit {
     this.search = (value || '').trim().toLowerCase();
   }
 
-  /** Academies filtered by the hero-search input. */
+  /** Academies filtered by the selected sport chip AND the hero-search input. */
   get visibleAcademies(): AcademyScreenItem[] {
-    const all = this.academies;
+    let all = this.academies;
+    // Filter by the selected sport chip (null = All academies).
+    if (this.selectedSportId != null) {
+      all = all.filter(a => a.sportId === this.selectedSportId);
+    }
     if (!this.search) return all;
     return all.filter(a =>
       (a.name || '').toLowerCase().includes(this.search) ||
