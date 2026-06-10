@@ -1,7 +1,7 @@
 // adminlogin.component.ts
 import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Location, NgClass } from '@angular/common';
+import { NgClass } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from '../../core/services/auth.service';
 import { Router, RouterLink } from '@angular/router';
@@ -17,7 +17,6 @@ export class AdminloginComponent implements OnInit {
   private router = inject(Router);
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
-  private location = inject(Location);
 
   isLoading = false;
   msgError = '';
@@ -105,6 +104,6 @@ export class AdminloginComponent implements OnInit {
   }
 
   goBack(): void {
-    this.location.back();
+    this.router.navigate(['/authlayout']);
   }
 }
